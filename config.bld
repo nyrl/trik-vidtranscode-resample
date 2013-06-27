@@ -1,0 +1,71 @@
+/*
+ *  ======== config.bld ========
+ *  This script is run prior to all build scripts.  It initializes the
+ *  rootDir configuration parameter of all supported targets.
+ *
+ *  There are more details about config.bld here:
+ *  http://rtsc.eclipse.org/docs-tip/Glossary#config.bld
+ */
+
+var Build = xdc.useModule("xdc.bld.BuildEnvironment");
+var Pkg = xdc.useModule("xdc.bld.PackageContents");
+var C64P_rootdir;
+var C674_rootdir;
+
+/* initialize local vars with those set in rules.mak (via XDCARGS) */
+for (x = 0; x < arguments.length; x++) {
+    if (arguments[x].match(/^CGTOOLS_C64P=/)) {
+        C64P_rootdir = arguments[x].split("=")[1];
+    }
+    if (arguments[x].match(/^CGTOOLS_C674=/)) {
+        C674_rootdir = arguments[x].split("=")[1];
+    }
+}
+
+/* should test here that cgRootDir is set! */
+var targ = xdc.useModule("ti.targets.C64P");
+targ.rootDir = C64P_rootdir;
+targ.ccOpts.suffix = "-mi10 -mo ";
+Build.targets.$add(targ);
+
+/* We remove a few profiles, just to cut down on build time */
+delete targ.profiles["coverage"];
+delete targ.profiles["profile"];
+delete targ.profiles["whole_program"];
+delete targ.profiles["whole_program_debug"];
+
+var targ = xdc.useModule("ti.targets.elf.C64P");
+targ.rootDir = C64P_rootdir;
+Build.targets.$add(targ);
+
+/* We remove a few profiles, just to cut down on build time */
+delete targ.profiles["coverage"];
+delete targ.profiles["profile"];
+delete targ.profiles["whole_program"];
+delete targ.profiles["whole_program_debug"];
+
+
+var targ = xdc.useModule("ti.targets.C674");
+targ.rootDir = C674_rootdir;
+targ.ccOpts.suffix = "-mi10 -mo ";
+Build.targets.$add(targ);
+
+/* We remove a few profiles, just to cut down on build time */
+delete targ.profiles["coverage"];
+delete targ.profiles["profile"];
+delete targ.profiles["whole_program"];
+delete targ.profiles["whole_program_debug"];
+
+var targ = xdc.useModule("ti.targets.elf.C674");
+targ.rootDir = C674_rootdir;
+Build.targets.$add(targ);
+
+/* We remove a few profiles, just to cut down on build time */
+delete targ.profiles["coverage"];
+delete targ.profiles["profile"];
+delete targ.profiles["whole_program"];
+delete targ.profiles["whole_program_debug"];
+
+
+/* Create a .zip or .tar file for redistribution. */
+Pkg.attrs.archiver = 'tar';

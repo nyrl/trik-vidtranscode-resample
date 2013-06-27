@@ -1,0 +1,12 @@
+.dlls
+.executables
+.interfaces
+.libraries
+.xdcenv.mak
+
+lib
+
+package.mak
+package
+
+trik_vidtranscode_resample.tar
