@@ -24,11 +24,11 @@ class BaseImageRow
 };
 
 
-template <typename UByte>
+template <typename UByteCV>
 class BaseImageRowAccessor
 {
   public:
-    BaseImageRowAccessor(UByte* _ptr, size_t _width, size_t _lineLength)
+    BaseImageRowAccessor(UByteCV* _ptr, size_t _width, size_t _lineLength)
      :m_ptr(_ptr),
       m_width(_width),
       m_column(0),
@@ -37,7 +37,8 @@ class BaseImageRowAccessor
       assert(m_ptr != NULL);
     }
 
-    bool accessColumn(UByte*& _ptr, size_t _bytes)
+  protected:
+    bool accessColumn(UByteCV*& _ptr, size_t _bytes)
     {
       if (   m_column >= m_width
           || m_remainSize < _bytes)
@@ -56,10 +57,10 @@ class BaseImageRowAccessor
     BaseImageRowAccessor(const BaseImageRowAccessor&);
     BaseImageRowAccessor& operator=(const BaseImageRowAccessor&);
 
-    UByte* m_ptr;
-    size_t m_width;
-    size_t m_column;
-    size_t m_remainSize;
+    UByteCV* m_ptr;
+    size_t   m_width;
+    size_t   m_column;
+    size_t   m_remainSize;
 };
 
 
