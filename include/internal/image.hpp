@@ -7,8 +7,8 @@
 
 #include <cassert>
 
-#include "include/trik_video_resample/image_row.hpp"
-#include "include/trik_video_resample/image_pixel.hpp"
+#include "include/internal/image_row.hpp"
+#include "include/internal/image_pixel.hpp"
 
 
 namespace trik_image

@@ -7,7 +7,7 @@
 
 #include <cassert>
 
-#include "include/trik_video_resample/image_pixel.hpp"
+#include "include/internal/image_pixel.hpp"
 
 
 namespace trik_image
@@ -79,7 +79,7 @@ class ImageRow : public BaseImageRow, public BaseImageRowAccessor<UByteCV> // Ge
 } // namespace trik_image
 
 
-#include "include/trik_video_resample/image_row_rgb.hpp"
+#include "include/internal/image_row_rgb.hpp"
 
 
 #endif // !TRIK_VIDEO_RESAMPLE_INTERNAL_IMAGE_ROW_HPP_

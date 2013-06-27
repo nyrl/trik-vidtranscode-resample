@@ -100,7 +100,7 @@ class ImagePixel : public BaseImagePixel, public BaseImagePixelStorage // Generi
 } // namespace trik_image
 
 
-#include "include/trik_video_resample/image_pixel_rgb.hpp"
+#include "include/internal/image_pixel_rgb.hpp"
 
 
 #endif // !TRIK_VIDEO_RESAMPLE_INTERNAL_IMAGE_PIXEL_HPP_
