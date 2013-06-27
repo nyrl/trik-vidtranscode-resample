@@ -7,6 +7,8 @@
 
 #include <cassert>
 
+#include "include/trik_video_resample/image_pixel.hpp"
+
 
 namespace trik_image
 {
@@ -28,23 +30,25 @@ template <typename UByteCV>
 class BaseImageRowAccessor
 {
   public:
-    BaseImageRowAccessor(UByteCV* _ptr, size_t _width, size_t _lineLength)
-     :m_ptr(_ptr),
+    BaseImageRowAccessor(UByteCV* _rowPtr, size_t _lineLength, size_t _width)
+     :m_ptr(_rowPtr),
+      m_remainSize(_lineLength),
       m_width(_width),
-      m_column(0),
-      m_remainSize(_lineLength)
+      m_column(0)
     {
-      assert(m_ptr != NULL);
     }
 
   protected:
-    bool accessColumn(UByteCV*& _ptr, size_t _bytes)
+    bool accessPixel(UByteCV*& _pixelPtr, size_t _bytes)
     {
       if (   m_column >= m_width
           || m_remainSize < _bytes)
         return false;
 
-      _ptr = m_ptr;
+      if (m_ptr == NULL)
+        return false;
+
+      _pixelPtr = m_ptr;
 
       m_ptr += _bytes;
       m_column += 1;
@@ -58,16 +62,16 @@ class BaseImageRowAccessor
     BaseImageRowAccessor& operator=(const BaseImageRowAccessor&);
 
     UByteCV* m_ptr;
+    size_t   m_remainSize;
     size_t   m_width;
     size_t   m_column;
-    size_t   m_remainSize;
 };
 
 
 
 
-template <BaseImagePixel::PixelType PT, typename UByte>
-class ImageRow : public BaseImageRow, public BaseImageRowAccessor<UByte> // Generic instance, non-functional
+template <BaseImagePixel::PixelType PT, typename UByteCV>
+class ImageRow : public BaseImageRow, public BaseImageRowAccessor<UByteCV> // Generic instance, non-functional
 {
 };
 
