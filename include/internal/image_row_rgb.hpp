@@ -17,6 +17,12 @@ class ImageRow<BaseImagePixel::PixelRGB565, UByteCV> : public BaseImageRow,
   public:
     typedef ImagePixel<BaseImagePixel::PixelRGB565> PixelType;
 
+    ImageRow()
+     :BaseImageRow(),
+      BaseImageRowAccessor<UByteCV>()
+    {
+    }
+
     ImageRow(UByteCV* _ptr, size_t _lineLength, size_t _width)
      :BaseImageRow(),
       BaseImageRowAccessor<UByteCV>(_ptr, _lineLength, _width)
@@ -51,6 +57,12 @@ class ImageRow<BaseImagePixel::PixelRGB888, UByteCV> : public BaseImageRow,
 {
   public:
     typedef ImagePixel<BaseImagePixel::PixelRGB888> PixelType;
+
+    ImageRow()
+     :BaseImageRow(),
+      BaseImageRowAccessor<UByteCV>()
+    {
+    }
 
     ImageRow(UByteCV* _ptr, size_t _lineLength, size_t _width)
      :BaseImageRow(),

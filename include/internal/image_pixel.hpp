@@ -97,6 +97,72 @@ class ImagePixel : public BaseImagePixel, public BaseImagePixelStorage // Generi
 };
 
 
+
+
+class BaseImagePixelSet
+{
+  public:
+    BaseImagePixelSet() {}
+    /*virtual*/ ~BaseImagePixelSet() {}
+
+  private:
+    BaseImagePixelSet(const BaseImagePixelSet&);
+    BaseImagePixelSet& operator=(const BaseImagePixelSet&);
+};
+
+
+template <typename BaseImagePixel::PixelType PT, size_t _pixelsCount>
+class ImagePixelSet : public BaseImagePixelSet
+{
+  public:
+    typedef ImagePixel<PT> Pixel;
+
+    ImagePixelSet()
+     :BaseImagePixelSet(),
+      m_pixels(),
+      m_pixelFirst(0)
+    {
+    }
+
+    size_t pixelsCount() const
+    {
+      return _pixelsCount;
+    }
+
+    Pixel& prepareNewPixel()
+    {
+      const size_t currentPixel = m_pixelFirst;
+      m_pixelFirst = pixelIndex(1);
+      return m_pixels[currentPixel];
+    }
+
+    Pixel& getPixel(size_t _index)
+    {
+      return m_pixels[pixelIndex(_index)];
+    }
+
+    const Pixel& getPixel(size_t _index) const
+    {
+      return m_pixels[pixelIndex(_index)];
+    }
+
+  protected:
+    size_t pixelIndex(size_t _shift) const
+    {
+      return (m_pixelFirst + _shift) % _pixelsCount;
+    }
+
+  private:
+    Pixel  m_pixels[_pixelsCount];
+    size_t m_pixelFirst;
+};
+
+template <typename BaseImagePixel::PixelType PT>
+class ImagePixelSet<PT, 0> : public BaseImagePixelSet // forbidden
+{
+};
+
+
 } // namespace trik_image
 
 

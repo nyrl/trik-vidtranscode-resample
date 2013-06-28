@@ -19,7 +19,7 @@ class BaseImage
 {
   public:
     BaseImage() {}
-    virtual ~BaseImage() {}
+    /*virtual*/ ~BaseImage() {}
 
   private:
     BaseImage(const BaseImage&);

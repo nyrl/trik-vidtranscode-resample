@@ -18,7 +18,7 @@ class BaseImageRow
 {
   public:
     BaseImageRow() {}
-    virtual ~BaseImageRow() {}
+    /*virtual*/ ~BaseImageRow() {}
 
   private:
     BaseImageRow(const BaseImageRow&);
@@ -30,6 +30,14 @@ template <typename UByteCV>
 class BaseImageRowAccessor
 {
   public:
+    BaseImageRowAccessor()
+     :m_ptr(NULL),
+      m_remainSize(0),
+      m_width(0),
+      m_column(0)
+    {
+    }
+
     BaseImageRowAccessor(UByteCV* _rowPtr, size_t _lineLength, size_t _width)
      :m_ptr(_rowPtr),
       m_remainSize(_lineLength),
@@ -72,6 +80,72 @@ class BaseImageRowAccessor
 
 template <BaseImagePixel::PixelType PT, typename UByteCV>
 class ImageRow : public BaseImageRow, public BaseImageRowAccessor<UByteCV> // Generic instance, non-functional
+{
+};
+
+
+
+
+class BaseImageRowSet
+{
+  public:
+    BaseImageRowSet() {}
+    /*virtual*/ ~BaseImageRowSet() {}
+
+  private:
+    BaseImageRowSet(const BaseImageRowSet&);
+    BaseImageRowSet& operator=(const BaseImageRowSet&);
+};
+
+
+template <typename BaseImagePixel::PixelType PT, typename UByteCV, size_t _rowsCount>
+class ImageRowSet : public BaseImageRowSet
+{
+  public:
+    typedef ImageRow<PT, UByteCV> Row;
+
+    ImageRowSet()
+     :BaseImageRowSet(),
+      m_rows(),
+      m_rowFirst(0)
+    {
+    }
+
+    size_t rowsCount() const
+    {
+      return _rowsCount;
+    }
+
+    Row& prepareNewRow()
+    {
+      const size_t currentRow = m_rowFirst;
+      m_rowFirst = rowIndex(1);
+      return m_rows[currentRow];
+    }
+
+    Row& getRow(size_t _index)
+    {
+      return m_rows[rowIndex(_index)];
+    }
+
+    const Row& getRow(size_t _index) const
+    {
+      return m_rows[rowIndex(_index)];
+    }
+
+  protected:
+    size_t rowIndex(size_t _shift) const
+    {
+      return (m_rowFirst + _shift) % _rowsCount;
+    }
+
+  private:
+    Row    m_rows[_rowsCount];
+    size_t m_rowFirst;
+};
+
+template <typename BaseImagePixel::PixelType PT, typename UByteCV>
+class ImageRowSet<PT, UByteCV, 0> : public BaseImageRowSet // forbidden
 {
 };
 
