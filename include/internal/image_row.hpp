@@ -103,6 +103,7 @@ class ImageRowSet : public BaseImageRowSet
 {
   public:
     typedef ImageRow<PT, UByteCV> Row;
+    typedef ImagePixelSet<PT, _rowsCount> PixelSet;
 
     ImageRowSet()
      :BaseImageRowSet(),
@@ -133,10 +134,28 @@ class ImageRowSet : public BaseImageRowSet
       return m_rows[rowIndex(_index)];
     }
 
-  protected:
-    size_t rowIndex(size_t _shift) const
+
+    bool readPixelSet(PixelSet& _pixelSet)
     {
-      return (m_rowFirst + _shift) % _rowsCount;
+      bool isOk = true;
+      for (size_t index = 0; index < _rowsCount; ++index)
+        isOk &= getRow(index).readPixel(_pixelSet.getPixel(index));
+      return isOk;
+    }
+
+    bool writePixelSet(const PixelSet& _pixelSet)
+    {
+      bool isOk = true;
+      for (size_t index = 0; index < _rowsCount; ++index)
+        isOk &= getRow(index).writePixel(_pixelSet.getPixel(index));
+      return isOk;
+    }
+
+
+  protected:
+    size_t rowIndex(size_t _index) const
+    {
+      return (m_rowFirst + _index) % _rowsCount;
     }
 
   private:

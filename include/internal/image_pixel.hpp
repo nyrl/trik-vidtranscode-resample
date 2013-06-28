@@ -147,9 +147,9 @@ class ImagePixelSet : public BaseImagePixelSet
     }
 
   protected:
-    size_t pixelIndex(size_t _shift) const
+    size_t pixelIndex(size_t _index) const
     {
-      return (m_pixelFirst + _shift) % _pixelsCount;
+      return (m_pixelFirst + _index) % _pixelsCount;
     }
 
   private:
