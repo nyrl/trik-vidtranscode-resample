@@ -9,42 +9,10 @@
 #include <climits>
 
 
-namespace trik_image
-{
+/* **** **** **** **** **** */ namespace trik_image /* **** **** **** **** **** */ {
 
 
-class BaseImagePixel
-{
-  public:
-    enum PixelType
-    {
-      PixelRGB565,
-      PixelRGB888
-    };
-
-    BaseImagePixel() {}
-    virtual ~BaseImagePixel() {}
-
-    virtual bool convertTo(BaseImagePixel& _dst) const
-    {
-      float nr;
-      float nb;
-      float ng;
-
-      return toNormalizedRGB(nr, nb, ng)
-          && _dst.fromNormalizedRGB(nr, nb, ng);
-    }
-
-  protected:
-    virtual bool toNormalizedRGB(float& _nr, float& _ng, float& _nb) const = 0;
-    virtual bool fromNormalizedRGB(const float& _nr, const float& _ng, const float& _nb) = 0;
-
-  private:
-    BaseImagePixel(const BaseImagePixel&);
-    BaseImagePixel& operator=(const BaseImagePixel&);
-};
-
-
+/* **** **** **** **** **** */ namespace internal /* **** **** **** **** **** */ {
 
 
 class BaseImagePixelStorage
@@ -89,10 +57,46 @@ class BaseImagePixelStorage
 };
 
 
+} /* **** **** **** **** **** * namespace internal * **** **** **** **** **** */
+
+
+
+
+class BaseImagePixel
+{
+  public:
+    enum PixelType
+    {
+      PixelRGB565,
+      PixelRGB888
+    };
+
+    virtual bool convertTo(BaseImagePixel& _dst) const
+    {
+      float nr;
+      float nb;
+      float ng;
+
+      return toNormalizedRGB(nr, nb, ng)
+          && _dst.fromNormalizedRGB(nr, nb, ng);
+    }
+
+  protected:
+    BaseImagePixel() {}
+    virtual ~BaseImagePixel() {}
+
+    virtual bool toNormalizedRGB(float& _nr, float& _ng, float& _nb) const = 0;
+    virtual bool fromNormalizedRGB(const float& _nr, const float& _ng, const float& _nb) = 0;
+
+  private:
+    BaseImagePixel(const BaseImagePixel&);
+    BaseImagePixel& operator=(const BaseImagePixel&);
+};
 
 
 template <BaseImagePixel::PixelType PT>
-class ImagePixel : public BaseImagePixel, public BaseImagePixelStorage // Generic instance, non-functional
+class ImagePixel : public BaseImagePixel,
+                   private internal::BaseImagePixelStorage // Generic instance, non-functional
 {
 };
 
@@ -136,12 +140,12 @@ class ImagePixelSet : public BaseImagePixelSet
       return m_pixels[currentPixel];
     }
 
-    Pixel& getPixel(size_t _index)
+    Pixel& operator[](size_t _index)
     {
       return m_pixels[pixelIndex(_index)];
     }
 
-    const Pixel& getPixel(size_t _index) const
+    const Pixel& operator[](size_t _index) const
     {
       return m_pixels[pixelIndex(_index)];
     }
@@ -157,13 +161,14 @@ class ImagePixelSet : public BaseImagePixelSet
     size_t m_pixelFirst;
 };
 
+
 template <typename BaseImagePixel::PixelType PT>
-class ImagePixelSet<PT, 0> : public BaseImagePixelSet // forbidden
+class ImagePixelSet<PT, 0> : public BaseImagePixelSet // forbidden _pixelsCount=0 instantiation
 {
 };
 
 
-} // namespace trik_image
+} /* **** **** **** **** **** * namespace trik_image * **** **** **** **** **** */
 
 
 #include "include/internal/image_pixel_rgb.hpp"

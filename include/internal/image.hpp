@@ -6,13 +6,96 @@
 #endif
 
 #include <cassert>
+#include <algorithm>
 
 #include "include/internal/image_row.hpp"
 #include "include/internal/image_pixel.hpp"
 
 
-namespace trik_image
+/* **** **** **** **** **** */ namespace trik_image /* **** **** **** **** **** */ {
+
+
+/* **** **** **** **** **** */ namespace internal /* **** **** **** **** **** */ {
+
+
+class BaseImageAccessor
 {
+  protected:
+    BaseImageAccessor(size_t _imageSize, size_t _height, size_t _lineLength)
+     :m_imageSize(_imageSize),
+      m_height(_height),
+      m_lineLength(_lineLength)
+    {
+    }
+
+    bool accessRowRangeCheck(size_t _rowIndex) const
+    {
+      if (   _rowIndex >= m_height
+          || (_rowIndex+1)*m_lineLength > m_imageSize)
+        return false;
+
+      return true;
+    }
+
+    const size_t& lineLength() const
+    {
+      return m_lineLength;
+    }
+
+    const size_t& height() const
+    {
+      return m_height;
+    }
+
+    size_t lastRow() const
+    {
+      return m_height == 0 ? 0 : m_height-1;
+    }
+
+  private:
+    BaseImageAccessor(const BaseImageAccessor&);
+    BaseImageAccessor& operator=(const BaseImageAccessor&);
+
+    size_t   m_imageSize;
+    size_t   m_height;
+    size_t   m_lineLength;
+};
+
+
+template <typename UByteCV>
+class ImageAccessor : protected BaseImageAccessor
+{
+  protected:
+    ImageAccessor(UByteCV* _imagePtr, size_t _imageSize, size_t _height, size_t _lineLength)
+     :BaseImageAccessor(_imageSize, _height, _lineLength),
+      m_ptr(_imagePtr)
+    {
+    }
+
+    bool accessRow(UByteCV*& _rowPtr, size_t _rowIndex)
+    {
+      if (m_ptr == NULL)
+        return false;
+
+      if (!accessRowRangeCheck(_rowIndex))
+        return false;
+
+      _rowPtr = m_ptr + _rowIndex*lineLength();
+
+      return true;
+    }
+
+  private:
+    ImageAccessor(const ImageAccessor&);
+    ImageAccessor& operator=(const ImageAccessor&);
+
+    UByteCV* m_ptr;
+};
+
+
+} /* **** **** **** **** **** * namespace internal * **** **** **** **** **** */
+
+
 
 
 class BaseImage
@@ -27,59 +110,11 @@ class BaseImage
 };
 
 
-template <typename UByteCV>
-class BaseImageAccessor
-{
-  public:
-    BaseImageAccessor(UByteCV* _imagePtr, size_t _imageSize, size_t _height, size_t _lineLength)
-     :m_ptr(_imagePtr),
-      m_remainSize(_imageSize),
-      m_height(_height),
-      m_row(0),
-      m_lineLength(_lineLength)
-    {
-    }
-
-  protected:
-    bool accessRow(UByteCV*& _rowPtr)
-    {
-      if (   m_row >= m_height
-          || m_remainSize < m_lineLength)
-        return false;
-
-      if (m_ptr == NULL)
-        return false;
-
-      _rowPtr = m_ptr;
-
-      m_ptr += m_lineLength;
-      m_row += 1;
-      m_remainSize -= m_lineLength;
-
-      return true;
-    }
-
-    const size_t& lineLength() const
-    {
-      return m_lineLength;
-    }
-
-  private:
-    BaseImageAccessor(const BaseImageAccessor&);
-    BaseImageAccessor& operator=(const BaseImageAccessor&);
-
-    UByteCV* m_ptr;
-    size_t   m_remainSize;
-    size_t   m_height;
-    size_t   m_row;
-    size_t   m_lineLength;
-};
-
-
 
 
 template <BaseImagePixel::PixelType PT, typename UByteCV>
-class Image : public BaseImage, public BaseImageAccessor<UByteCV>
+class Image : public BaseImage,
+              private internal::ImageAccessor<UByteCV>
 {
   public:
     typedef ImageRow<PT, UByteCV> RowType;
@@ -90,19 +125,52 @@ class Image : public BaseImage, public BaseImageAccessor<UByteCV>
           size_t	_width,
           size_t	_lineLength)
      :BaseImage(),
-      BaseImageAccessor<UByteCV>(_imagePtr, _imageSize, _height, _lineLength),
+      internal::ImageAccessor<UByteCV>(_imagePtr, _imageSize, _height, _lineLength),
       m_width(_width)
     {
     }
 
-    bool nextRow(RowType& _row)
+    bool getRow(RowType& _row, size_t _rowIndex) const
     {
       UByteCV* rowPtr;
-      if (!accessRow(rowPtr))
+      if (!accessRow(rowPtr, _rowIndex))
         return false;
 
-      _row = RowType(rowPtr, BaseImageAccessor<UByteCV>::lineLength(), m_width);
+      _row = RowType(rowPtr, internal::ImageAccessor<UByteCV>::lineLength(), width());
       return true;
+    }
+
+    template <size_t _rowsBefore, size_t _rowsAfter>
+    bool getRowSet(ImageRowSet<PT, UByteCV, _rowsBefore+1+_rowsAfter>& _rowSet, size_t _baseRow)
+    {
+      assert(_rowSet.rowsCount() == _rowsBefore+1+_rowsAfter);
+
+      _rowSet.reset();
+
+      for (size_t idx = _rowsBefore; idx > 0; --idx)
+        if (!getRow(_rowSet.prepareNewRow(),
+                    (idx >= _baseRow ? 0 : _baseRow-idx)))
+          return false;
+
+      if (!getRow(_rowSet.prepareNewRow(), _baseRow))
+        return false;
+
+      for (size_t idx = 1; idx <= _rowsAfter; ++idx)
+        if (!getRow(_rowSet.prepareNewRow(),
+                    std::min(internal::ImageAccessor<UByteCV>::lastRow(), _baseRow+idx)))
+          return false;
+
+      return true;
+    }
+
+    const size_t& height() const
+    {
+      return internal::ImageAccessor<UByteCV>::height();
+    }
+
+    const size_t& width() const
+    {
+      return m_width;
     }
 
   private:
@@ -110,7 +178,7 @@ class Image : public BaseImage, public BaseImageAccessor<UByteCV>
 };
 
 
-} // namespace trik_image
+} /* **** **** **** **** **** * namespace trik_image * **** **** **** **** **** */
 
 
 #endif // !TRIK_VIDEO_RESAMPLE_INTERNAL_IMAGE_HPP_

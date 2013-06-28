@@ -6,40 +6,16 @@
 #endif
 
 
-namespace trik_image
-{
-
-namespace pixel_rgb
-{
+/* **** **** **** **** **** */ namespace trik_image /* **** **** **** **** **** */ {
 
 
-template <size_t _RBits, size_t _GBits, size_t _BBits>
-class RGBStorage : BaseImagePixelStorage
+/* **** **** **** **** **** */ namespace internal /* **** **** **** **** **** */ {
+
+
+template <size_t _RBits, size_t _GBits, size_t _BBits, typename PixelType>
+class ImagePixelRGBStorage : private BaseImagePixelStorage
 {
   public:
-    RGBStorage()
-     :m_r(0.0),
-      m_g(0.0),
-      m_b(0.0)
-    {
-    }
-
-    RGBStorage(const RGBStorage& _src)
-     :m_r(_src.m_r),
-      m_g(_src.m_g),
-      m_b(_src.m_b)
-    {
-    }
-
-    RGBStorage& operator=(const RGBStorage& _src)
-    {
-      m_r = _src.m_r;
-      m_g = _src.m_g;
-      m_b = _src.m_b;
-
-      return *this;
-    }
-
     float&       r()       { return m_r; }
     const float& r() const { return m_r; }
 
@@ -49,7 +25,39 @@ class RGBStorage : BaseImagePixelStorage
     float&       b()       { return m_b; }
     const float& b() const { return m_b; }
 
+    PixelType operator*(const float& _f)
+    {
+      PixelType p(*this);
+      p.r() *= _f;
+      p.g() *= _f;
+      p.b() *= _f;
+      return p;
+    }
+
   protected:
+    ImagePixelRGBStorage()
+     :m_r(0.0),
+      m_g(0.0),
+      m_b(0.0)
+    {
+    }
+
+    ImagePixelRGBStorage(const ImagePixelRGBStorage& _src)
+     :m_r(_src.m_r),
+      m_g(_src.m_g),
+      m_b(_src.m_b)
+    {
+    }
+
+    ImagePixelRGBStorage& operator=(const ImagePixelRGBStorage& _src)
+    {
+      m_r = _src.m_r;
+      m_g = _src.m_g;
+      m_b = _src.m_b;
+
+      return *this;
+    }
+
     bool toNormalizedImpl(float& _nr, float& _ng, float& _nb) const
     {
       _nr = m_r / rMax();
@@ -87,14 +95,14 @@ class RGBStorage : BaseImagePixelStorage
 };
 
 
-} // namespace pixel_rgb
+} /* **** **** **** **** **** * namespace internal * **** **** **** **** **** */
 
 
 
 
 template <>
 class ImagePixel<BaseImagePixel::PixelRGB565> : public BaseImagePixel,
-                                                public pixel_rgb::RGBStorage<5, 6, 5>
+                                                public internal::ImagePixelRGBStorage<5, 6, 5, ImagePixel<BaseImagePixel::PixelRGB565> >
 {
   public:
     ImagePixel() {}
@@ -138,7 +146,7 @@ class ImagePixel<BaseImagePixel::PixelRGB565> : public BaseImagePixel,
 
 template <>
 class ImagePixel<BaseImagePixel::PixelRGB888> : public BaseImagePixel,
-                                                public pixel_rgb::RGBStorage<8, 8, 8>
+                                                public internal::ImagePixelRGBStorage<8, 8, 8, ImagePixel<BaseImagePixel::PixelRGB888> >
 {
   public:
     ImagePixel() {}
@@ -177,7 +185,7 @@ class ImagePixel<BaseImagePixel::PixelRGB888> : public BaseImagePixel,
 };
 
 
-} // namespace trik_image
+} /* **** **** **** **** **** * namespace trik_image * **** **** **** **** **** */
 
 
 #endif // !TRIK_VIDEO_RESAMPLE_INTERNAL_IMAGE_PIXEL_RGB_HPP_
