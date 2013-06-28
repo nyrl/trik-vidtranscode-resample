@@ -62,6 +62,17 @@ class AlgoApproximationCubic : public BaseAlgoApproximationCR<1, 2>
 } /* **** **** **** **** **** * namespace internal * **** **** **** **** **** */
 
 
+
+
+template <typename ImageIn, typename ImageOut>
+class ImageAlgorithm<BaseImageAlgorithm::AlgoResampleBicubic, ImageIn, ImageOut>
+ : public BaseImageAlgorithm,
+   public internal::AlgoResampleCR<internal::AlgoApproximationCubic, internal::AlgoApproximationCubic,
+                                   ImageIn, ImageOut>
+{
+};
+
+
 } /* **** **** **** **** **** * namespace trik_image * **** **** **** **** **** */
 
 

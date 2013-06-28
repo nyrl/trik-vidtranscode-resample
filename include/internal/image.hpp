@@ -28,7 +28,7 @@ class BaseImageAccessor
     {
     }
 
-    bool accessRowRangeCheck(size_t _rowIndex) const
+    bool rowRangeCheck(size_t _rowIndex) const
     {
       if (   _rowIndex >= m_height
           || (_rowIndex+1)*m_lineLength > m_imageSize)
@@ -72,12 +72,12 @@ class ImageAccessor : protected BaseImageAccessor
     {
     }
 
-    bool accessRow(UByteCV*& _rowPtr, size_t _rowIndex)
+    bool getRowPtr(UByteCV*& _rowPtr, size_t _rowIndex) const
     {
       if (m_ptr == NULL)
         return false;
 
-      if (!accessRowRangeCheck(_rowIndex))
+      if (!rowRangeCheck(_rowIndex))
         return false;
 
       _rowPtr = m_ptr + _rowIndex*lineLength();
@@ -117,7 +117,25 @@ class Image : public BaseImage,
               private internal::ImageAccessor<UByteCV>
 {
   public:
+    static const BaseImagePixel::PixelType s_pixelType = PT;
+    typedef UByteCV UByteCVType;
     typedef ImageRow<PT, UByteCV> RowType;
+
+
+    Image()
+     :BaseImage(),
+      internal::ImageAccessor<UByteCV>(NULL, 0, 0, 0),
+      m_width(0)
+    {
+    }
+
+    Image(size_t	_height,
+          size_t	_width)
+     :BaseImage(),
+      internal::ImageAccessor<UByteCV>(NULL, 0, _height, 0),
+      m_width(_width)
+    {
+    }
 
     Image(UByteCV*	_imagePtr,
           size_t	_imageSize,
@@ -130,10 +148,11 @@ class Image : public BaseImage,
     {
     }
 
+
     bool getRow(RowType& _row, size_t _rowIndex) const
     {
       UByteCV* rowPtr;
-      if (!accessRow(rowPtr, _rowIndex))
+      if (!internal::ImageAccessor<UByteCV>::getRowPtr(rowPtr, _rowIndex))
         return false;
 
       _row = RowType(rowPtr, internal::ImageAccessor<UByteCV>::lineLength(), width());
@@ -141,7 +160,7 @@ class Image : public BaseImage,
     }
 
     template <size_t _rowsBefore, size_t _rowsAfter>
-    bool getRowSet(ImageRowSet<PT, UByteCV, _rowsBefore+1+_rowsAfter>& _rowSet, size_t _baseRow)
+    bool getRowSet(ImageRowSet<PT, UByteCV, _rowsBefore+1+_rowsAfter>& _rowSet, size_t _baseRow) const
     {
       assert(_rowSet.rowsCount() == _rowsBefore+1+_rowsAfter);
 
