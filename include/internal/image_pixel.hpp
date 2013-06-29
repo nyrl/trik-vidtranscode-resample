@@ -19,7 +19,7 @@
 class BaseImagePixelStorage
 {
   protected:
-    BaseImagePixelStorage();
+    BaseImagePixelStorage() {}
 
     template <typename UType>
     static UType storageBitmask(size_t _size)

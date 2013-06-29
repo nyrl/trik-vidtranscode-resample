@@ -121,11 +121,11 @@ class AlgoResampleVH : private assert_inst<(   VerticalInterpolation::s_isAlgori
     bool prepareRowSet(const ImageIn& _imageIn,  RowSetIn&  _rowSetIn,  size_t _rowIdxIn,
                        ImageOut&      _imageOut, RowSetOut& _rowSetOut, size_t _rowIdxOut) const
     {
-      if (!_imageIn.getRowSet<VerticalInterpolation::s_windowBefore,
-                              VerticalInterpolation::s_windowAfter>(_rowSetIn, _rowIdxIn))
-          return false;
+      if (!_imageIn.template getRowSet<VerticalInterpolation::s_windowBefore,
+                                       VerticalInterpolation::s_windowAfter>(_rowSetIn, _rowIdxIn))
+        return false;
 
-      if (!_imageOut.getRowSet<0, 0>(_rowSetOut, _rowIdxOut))
+      if (!_imageOut.template getRowSet<0, 0>(_rowSetOut, _rowIdxOut))
         return false;
 
       return true;

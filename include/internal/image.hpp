@@ -53,6 +53,11 @@ class BaseImageAccessor
       return m_lineLength;
     }
 
+    const size_t& imageSize() const
+    {
+      return m_imageSize;
+    }
+
     size_t lastRow() const
     {
       return m_height == 0 ? 0 : m_height-1;
@@ -74,6 +79,11 @@ class ImageAccessor : protected BaseImageAccessor
      :BaseImageAccessor(_imageSize, _height, _width, _lineLength),
       m_ptr(_imagePtr)
     {
+    }
+
+    UByteCV* getPtr() const
+    {
+      return m_ptr;
     }
 
     bool getRowPtr(UByteCV*& _rowPtr, size_t _rowIndex) const
@@ -120,14 +130,14 @@ class Image : public BaseImage,
 
     Image()
      :BaseImage(),
-      internal::ImageAccessor<UByteCV>(NULL, 0, 0, 0, 0)
+      ImageAccessor(NULL, 0, 0, 0, 0)
     {
     }
 
     Image(size_t	_height,
           size_t	_width)
      :BaseImage(),
-      internal::ImageAccessor<UByteCV>(NULL, 0, _height, _width, 0)
+      ImageAccessor(NULL, 0, _height, _width, 0)
     {
     }
 
@@ -137,7 +147,7 @@ class Image : public BaseImage,
           size_t	_width,
           size_t	_lineLength)
      :BaseImage(),
-      internal::ImageAccessor<UByteCV>(_imagePtr, _imageSize, _height, _width, _lineLength)
+      ImageAccessor(_imagePtr, _imageSize, _height, _width, _lineLength)
     {
     }
 
@@ -145,10 +155,10 @@ class Image : public BaseImage,
     bool getRow(RowType& _row, size_t _rowIndex) const
     {
       UByteCV* rowPtr;
-      if (!internal::ImageAccessor<UByteCV>::getRowPtr(rowPtr, _rowIndex))
+      if (!ImageAccessor::getRowPtr(rowPtr, _rowIndex))
         return false;
 
-      _row = RowType(rowPtr, lineLength(), width());
+      _row = RowType(rowPtr, ImageAccessor::lineLength(), width());
       return true;
     }
 
@@ -169,7 +179,7 @@ class Image : public BaseImage,
 
       for (size_t idx = 1; idx <= _rowsAfter; ++idx)
         if (!getRow(_rowSet.prepareNewRow(),
-                    std::min(lastRow(), _baseRow+idx)))
+                    std::min(ImageAccessor::lastRow(), _baseRow+idx)))
           return false;
 
       return true;
@@ -177,24 +187,28 @@ class Image : public BaseImage,
 
     const size_t& height() const
     {
-      return internal::ImageAccessor<UByteCV>::height();
+      return ImageAccessor::height();
     }
 
     const size_t& width() const
     {
-      return internal::ImageAccessor<UByteCV>::width();
+      return ImageAccessor::width();
     }
+
+    const size_t& imageSize() const
+    {
+      return ImageAccessor::imageSize();
+    }
+
+    UByteCV* getPtr() const
+    {
+      return ImageAccessor::getPtr();
+    }
+
 
   protected:
-    const size_t& lineLength() const
-    {
-      return internal::ImageAccessor<UByteCV>::lineLength();
-    }
+    typedef internal::ImageAccessor<UByteCV> ImageAccessor;
 
-    size_t lastRow() const
-    {
-      return internal::ImageAccessor<UByteCV>::lastRow();
-    }
 };
 
 
