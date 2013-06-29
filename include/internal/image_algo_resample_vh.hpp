@@ -196,8 +196,6 @@ class AlgoResampleVH : private assert_inst<(   VerticalInterpolation::s_isAlgori
 
 
 } /* **** **** **** **** **** * namespace internal * **** **** **** **** **** */
-
-
 } /* **** **** **** **** **** * namespace image * **** **** **** **** **** */
 } /* **** **** **** **** **** * namespace trik * **** **** **** **** **** */
 
