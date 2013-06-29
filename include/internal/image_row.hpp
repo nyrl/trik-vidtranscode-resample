@@ -21,25 +21,23 @@ class BaseImageRowAccessor
   protected:
     BaseImageRowAccessor()
      :m_remainSize(0),
-      m_width(0),
-      m_column(0)
+      m_remainWidth(0)
     {
     }
 
     BaseImageRowAccessor(size_t _lineLength, size_t _width)
      :m_remainSize(_lineLength),
-      m_width(_width),
-      m_column(0)
+      m_remainWidth(_width)
     {
     }
 
     bool accessPixelMarkup(size_t _bytes)
     {
-      if (   m_column >= m_width
+      if (   m_remainWidth == 0
           || m_remainSize < _bytes)
         return false;
 
-      m_column += 1;
+      m_remainWidth -= 1;
       m_remainSize -= _bytes;
 
       return true;
@@ -47,8 +45,7 @@ class BaseImageRowAccessor
 
   private:
     size_t   m_remainSize;
-    size_t   m_width;
-    size_t   m_column;
+    size_t   m_remainWidth;
 };
 
 

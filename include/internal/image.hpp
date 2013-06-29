@@ -21,9 +21,10 @@
 class BaseImageAccessor
 {
   protected:
-    BaseImageAccessor(size_t _imageSize, size_t _height, size_t _lineLength)
+    BaseImageAccessor(size_t _imageSize, size_t _height, size_t _width, size_t _lineLength)
      :m_imageSize(_imageSize),
       m_height(_height),
+      m_width(_width),
       m_lineLength(_lineLength)
     {
     }
@@ -37,14 +38,19 @@ class BaseImageAccessor
       return true;
     }
 
-    const size_t& lineLength() const
-    {
-      return m_lineLength;
-    }
-
     const size_t& height() const
     {
       return m_height;
+    }
+
+    const size_t& width() const
+    {
+      return m_width;
+    }
+
+    const size_t& lineLength() const
+    {
+      return m_lineLength;
     }
 
     size_t lastRow() const
@@ -58,6 +64,7 @@ class BaseImageAccessor
 
     size_t   m_imageSize;
     size_t   m_height;
+    size_t   m_width;
     size_t   m_lineLength;
 };
 
@@ -66,8 +73,8 @@ template <typename UByteCV>
 class ImageAccessor : protected BaseImageAccessor
 {
   protected:
-    ImageAccessor(UByteCV* _imagePtr, size_t _imageSize, size_t _height, size_t _lineLength)
-     :BaseImageAccessor(_imageSize, _height, _lineLength),
+    ImageAccessor(UByteCV* _imagePtr, size_t _imageSize, size_t _height, size_t _width, size_t _lineLength)
+     :BaseImageAccessor(_imageSize, _height, _width, _lineLength),
       m_ptr(_imagePtr)
     {
     }
@@ -124,16 +131,14 @@ class Image : public BaseImage,
 
     Image()
      :BaseImage(),
-      internal::ImageAccessor<UByteCV>(NULL, 0, 0, 0),
-      m_width(0)
+      internal::ImageAccessor<UByteCV>(NULL, 0, 0, 0, 0)
     {
     }
 
     Image(size_t	_height,
           size_t	_width)
      :BaseImage(),
-      internal::ImageAccessor<UByteCV>(NULL, 0, _height, 0),
-      m_width(_width)
+      internal::ImageAccessor<UByteCV>(NULL, 0, _height, _width, 0)
     {
     }
 
@@ -143,8 +148,7 @@ class Image : public BaseImage,
           size_t	_width,
           size_t	_lineLength)
      :BaseImage(),
-      internal::ImageAccessor<UByteCV>(_imagePtr, _imageSize, _height, _lineLength),
-      m_width(_width)
+      internal::ImageAccessor<UByteCV>(_imagePtr, _imageSize, _height, _width, _lineLength)
     {
     }
 
@@ -189,11 +193,8 @@ class Image : public BaseImage,
 
     const size_t& width() const
     {
-      return m_width;
+      return internal::ImageAccessor<UByteCV>::width();
     }
-
-  private:
-    size_t m_width;
 };
 
 
