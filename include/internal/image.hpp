@@ -5,16 +5,16 @@
 #error C++-only header
 #endif
 
-#include <cassert>
+
 #include <algorithm>
 
+#include "include/internal/stdcpp.hpp"
 #include "include/internal/image_row.hpp"
 #include "include/internal/image_pixel.hpp"
 
 
-/* **** **** **** **** **** */ namespace trik_image /* **** **** **** **** **** */ {
-
-
+/* **** **** **** **** **** */ namespace trik /* **** **** **** **** **** */ {
+/* **** **** **** **** **** */ namespace image /* **** **** **** **** **** */ {
 /* **** **** **** **** **** */ namespace internal /* **** **** **** **** **** */ {
 
 
@@ -59,9 +59,6 @@ class BaseImageAccessor
     }
 
   private:
-    BaseImageAccessor(const BaseImageAccessor&);
-    BaseImageAccessor& operator=(const BaseImageAccessor&);
-
     size_t   m_imageSize;
     size_t   m_height;
     size_t   m_width;
@@ -93,9 +90,6 @@ class ImageAccessor : protected BaseImageAccessor
     }
 
   private:
-    ImageAccessor(const ImageAccessor&);
-    ImageAccessor& operator=(const ImageAccessor&);
-
     UByteCV* m_ptr;
 };
 
@@ -109,11 +103,6 @@ class BaseImage
 {
   public:
     BaseImage() {}
-    /*virtual*/ ~BaseImage() {}
-
-  private:
-    BaseImage(const BaseImage&);
-    BaseImage& operator=(const BaseImage&);
 };
 
 
@@ -159,7 +148,7 @@ class Image : public BaseImage,
       if (!internal::ImageAccessor<UByteCV>::getRowPtr(rowPtr, _rowIndex))
         return false;
 
-      _row = RowType(rowPtr, internal::ImageAccessor<UByteCV>::lineLength(), width());
+      _row = RowType(rowPtr, lineLength(), width());
       return true;
     }
 
@@ -180,7 +169,7 @@ class Image : public BaseImage,
 
       for (size_t idx = 1; idx <= _rowsAfter; ++idx)
         if (!getRow(_rowSet.prepareNewRow(),
-                    std::min(internal::ImageAccessor<UByteCV>::lastRow(), _baseRow+idx)))
+                    std::min(lastRow(), _baseRow+idx)))
           return false;
 
       return true;
@@ -195,10 +184,22 @@ class Image : public BaseImage,
     {
       return internal::ImageAccessor<UByteCV>::width();
     }
+
+  protected:
+    const size_t& lineLength() const
+    {
+      return internal::ImageAccessor<UByteCV>::lineLength();
+    }
+
+    size_t lastRow() const
+    {
+      return internal::ImageAccessor<UByteCV>::lastRow();
+    }
 };
 
 
-} /* **** **** **** **** **** * namespace trik_image * **** **** **** **** **** */
+} /* **** **** **** **** **** * namespace image * **** **** **** **** **** */
+} /* **** **** **** **** **** * namespace trik * **** **** **** **** **** */
 
 
 #endif // !TRIK_VIDEO_RESAMPLE_INTERNAL_IMAGE_HPP_

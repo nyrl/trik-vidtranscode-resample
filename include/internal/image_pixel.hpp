@@ -5,13 +5,14 @@
 #error C++-only header
 #endif
 
-#include <cassert>
+
 #include <climits>
 
+#include "include/internal/stdcpp.hpp"
 
-/* **** **** **** **** **** */ namespace trik_image /* **** **** **** **** **** */ {
 
-
+/* **** **** **** **** **** */ namespace trik /* **** **** **** **** **** */ {
+/* **** **** **** **** **** */ namespace image /* **** **** **** **** **** */ {
 /* **** **** **** **** **** */ namespace internal /* **** **** **** **** **** */ {
 
 
@@ -50,10 +51,6 @@ class BaseImagePixelStorage
       else
         return (_value >> _ofs) & storageBitmask<UType>(_size);
     }
-
-  private:
-    BaseImagePixelStorage(const BaseImagePixelStorage&);
-    BaseImagePixelStorage& operator=(const BaseImagePixelStorage&);
 };
 
 
@@ -71,6 +68,8 @@ class BaseImagePixel
       PixelRGB888
     };
 
+    virtual ~BaseImagePixel() {}
+
     virtual bool convertTo(BaseImagePixel& _dst) const
     {
       float nr;
@@ -83,20 +82,16 @@ class BaseImagePixel
 
   protected:
     BaseImagePixel() {}
-    virtual ~BaseImagePixel() {}
 
     virtual bool toNormalizedRGB(float& _nr, float& _ng, float& _nb) const = 0;
     virtual bool fromNormalizedRGB(const float& _nr, const float& _ng, const float& _nb) = 0;
-
-  private:
-    BaseImagePixel(const BaseImagePixel&);
-    BaseImagePixel& operator=(const BaseImagePixel&);
 };
 
 
 template <BaseImagePixel::PixelType PT>
 class ImagePixel : public BaseImagePixel,
-                   private internal::BaseImagePixelStorage // Generic instance, non-functional
+                   private internal::BaseImagePixelStorage,
+                   private assert_inst<false> // Generic instance, non-functional
 {
 };
 
@@ -105,18 +100,14 @@ class ImagePixel : public BaseImagePixel,
 
 class BaseImagePixelSet
 {
-  public:
+  protected:
     BaseImagePixelSet() {}
-    /*virtual*/ ~BaseImagePixelSet() {}
-
-  private:
-    BaseImagePixelSet(const BaseImagePixelSet&);
-    BaseImagePixelSet& operator=(const BaseImagePixelSet&);
 };
 
 
 template <typename BaseImagePixel::PixelType PT, size_t _pixelsCount>
-class ImagePixelSet : public BaseImagePixelSet
+class ImagePixelSet : public BaseImagePixelSet,
+                      private assert_inst<(_pixelsCount > 0)> // sanity check
 {
   public:
     typedef ImagePixel<PT> Pixel;
@@ -162,13 +153,10 @@ class ImagePixelSet : public BaseImagePixelSet
 };
 
 
-template <typename BaseImagePixel::PixelType PT>
-class ImagePixelSet<PT, 0> : public BaseImagePixelSet // forbidden _pixelsCount=0 instantiation
-{
-};
 
 
-} /* **** **** **** **** **** * namespace trik_image * **** **** **** **** **** */
+} /* **** **** **** **** **** * namespace image * **** **** **** **** **** */
+} /* **** **** **** **** **** * namespace trik * **** **** **** **** **** */
 
 
 #include "include/internal/image_pixel_rgb.hpp"

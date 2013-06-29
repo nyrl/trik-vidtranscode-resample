@@ -5,22 +5,20 @@
 #error C++-only header
 #endif
 
-#include <cassert>
 
-#include "include/internal/image_algo_cr.hpp"
-#include "include/internal/image_pixel.hpp"
-
-
-/* **** **** **** **** **** */ namespace trik_image /* **** **** **** **** **** */ {
+#include "include/internal/stdcpp.hpp"
+#include "include/internal/image_algo_resample_vh.hpp"
 
 
+/* **** **** **** **** **** */ namespace trik /* **** **** **** **** **** */ {
+/* **** **** **** **** **** */ namespace image /* **** **** **** **** **** */ {
 /* **** **** **** **** **** */ namespace internal /* **** **** **** **** **** */ {
 
 
-class AlgoApproximationCubic : public BaseAlgoApproximationCR<1, 2>
+class AlgoInterpolationCubic : public BaseAlgoInterpolation1Dim<1, 2>
 {
   public:
-    AlgoApproximationCubic(const float& _t)
+    AlgoInterpolationCubic(const float& _t)
     {
       const float t0 = 1;
       const float t1 = _t;
@@ -67,13 +65,14 @@ class AlgoApproximationCubic : public BaseAlgoApproximationCR<1, 2>
 template <typename ImageIn, typename ImageOut>
 class ImageAlgorithm<BaseImageAlgorithm::AlgoResampleBicubic, ImageIn, ImageOut>
  : public BaseImageAlgorithm,
-   public internal::AlgoResampleCR<internal::AlgoApproximationCubic, internal::AlgoApproximationCubic,
+   public internal::AlgoResampleVH<internal::AlgoInterpolationCubic, internal::AlgoInterpolationCubic,
                                    ImageIn, ImageOut>
 {
 };
 
 
-} /* **** **** **** **** **** * namespace trik_image * **** **** **** **** **** */
+} /* **** **** **** **** **** * namespace image * **** **** **** **** **** */
+} /* **** **** **** **** **** * namespace trik * **** **** **** **** **** */
 
 
 #endif // !TRIK_VIDEO_RESAMPLE_INTERNAL_IMAGE_ALGO_CUBIC_HPP_

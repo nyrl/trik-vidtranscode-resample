@@ -6,7 +6,11 @@
 #endif
 
 
-/* **** **** **** **** **** */ namespace trik_image /* **** **** **** **** **** */ {
+#include "include/internal/stdcpp.hpp"
+
+
+/* **** **** **** **** **** */ namespace trik /* **** **** **** **** **** */ {
+/* **** **** **** **** **** */ namespace image /* **** **** **** **** **** */ {
 
 
 template <typename UByteCV>
@@ -31,7 +35,7 @@ class ImageRow<BaseImagePixel::PixelRGB565, UByteCV> : public BaseImageRow,
     bool readPixel(PixelType& _pixel)
     {
       UByteCV* ptr;
-      if (!accessPixel(ptr, 2))
+      if (!internal::ImageRowAccessor<UByteCV>::accessPixel(ptr, 2))
         return false;
 
       return _pixel.unpack(ptr[0], ptr[1]);
@@ -40,7 +44,7 @@ class ImageRow<BaseImagePixel::PixelRGB565, UByteCV> : public BaseImageRow,
     bool writePixel(const PixelType& _pixel)
     {
       UByteCV* ptr;
-      if (!accessPixel(ptr, 2))
+      if (!internal::ImageRowAccessor<UByteCV>::accessPixel(ptr, 2))
         return false;
 
       return _pixel.pack(ptr[0], ptr[1]);
@@ -89,7 +93,8 @@ class ImageRow<BaseImagePixel::PixelRGB888, UByteCV> : public BaseImageRow,
 };
 
 
-} /* **** **** **** **** **** * namespace trik_image * **** **** **** **** **** */
+} /* **** **** **** **** **** * namespace image * **** **** **** **** **** */
+} /* **** **** **** **** **** * namespace trik * **** **** **** **** **** */
 
 
 #endif // !TRIK_VIDEO_RESAMPLE_INTERNAL_IMAGE_ROW_RGB_HPP_

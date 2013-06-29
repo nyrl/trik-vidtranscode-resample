@@ -6,14 +6,16 @@
 #endif
 
 
-/* **** **** **** **** **** */ namespace trik_image /* **** **** **** **** **** */ {
+#include "include/internal/stdcpp.hpp"
 
 
+/* **** **** **** **** **** */ namespace trik /* **** **** **** **** **** */ {
+/* **** **** **** **** **** */ namespace image /* **** **** **** **** **** */ {
 /* **** **** **** **** **** */ namespace internal /* **** **** **** **** **** */ {
 
 
-template <size_t _RBits, size_t _GBits, size_t _BBits, typename PixelType>
-class ImagePixelRGBStorage : private BaseImagePixelStorage
+template <size_t _RBits, size_t _GBits, size_t _BBits>
+class ImagePixelRGBStorage : protected BaseImagePixelStorage
 {
   public:
     float&       r()       { return m_r; }
@@ -24,15 +26,6 @@ class ImagePixelRGBStorage : private BaseImagePixelStorage
 
     float&       b()       { return m_b; }
     const float& b() const { return m_b; }
-
-    PixelType operator*(const float& _f)
-    {
-      PixelType p(*this);
-      p.r() *= _f;
-      p.g() *= _f;
-      p.b() *= _f;
-      return p;
-    }
 
   protected:
     ImagePixelRGBStorage()
@@ -49,6 +42,7 @@ class ImagePixelRGBStorage : private BaseImagePixelStorage
     {
     }
 
+
     ImagePixelRGBStorage& operator=(const ImagePixelRGBStorage& _src)
     {
       m_r = _src.m_r;
@@ -57,6 +51,23 @@ class ImagePixelRGBStorage : private BaseImagePixelStorage
 
       return *this;
     }
+
+    ImagePixelRGBStorage& operator*=(const float& _f)
+    {
+      r() *= _f;
+      g() *= _f;
+      b() *= _f;
+      return *this;
+    }
+
+    ImagePixelRGBStorage& operator+=(const ImagePixelRGBStorage& _add)
+    {
+      r() += _add.r();
+      g() += _add.g();
+      b() += _add.b();
+      return *this;
+    }
+
 
     bool toNormalizedImpl(float& _nr, float& _ng, float& _nb) const
     {
@@ -92,7 +103,29 @@ class ImagePixelRGBStorage : private BaseImagePixelStorage
     static float rMax() { return 1u<<_RBits; }
     static float gMax() { return 1u<<_GBits; }
     static float bMax() { return 1u<<_BBits; }
+
+    template <typename Pixel>
+    friend Pixel operator*(const Pixel&, const float&);
+    template <typename Pixel>
+    friend Pixel& operator+=(Pixel&, const Pixel&);
 };
+
+
+/* it is in internal, but might work due to argument dependent lookup */
+template <typename Pixel>
+Pixel operator*(const Pixel& _op1, const float& _op2)
+{
+  Pixel res(_op1);
+  res *= _op2;
+  return res;
+}
+
+template <typename Pixel>
+Pixel& operator+=(Pixel& _op1, const Pixel& _op2)
+{
+  _op1 += _op2;
+  return _op1;
+}
 
 
 } /* **** **** **** **** **** * namespace internal * **** **** **** **** **** */
@@ -102,7 +135,7 @@ class ImagePixelRGBStorage : private BaseImagePixelStorage
 
 template <>
 class ImagePixel<BaseImagePixel::PixelRGB565> : public BaseImagePixel,
-                                                public internal::ImagePixelRGBStorage<5, 6, 5, ImagePixel<BaseImagePixel::PixelRGB565> >
+                                                public internal::ImagePixelRGBStorage<5, 6, 5>
 {
   public:
     ImagePixel() {}
@@ -146,7 +179,7 @@ class ImagePixel<BaseImagePixel::PixelRGB565> : public BaseImagePixel,
 
 template <>
 class ImagePixel<BaseImagePixel::PixelRGB888> : public BaseImagePixel,
-                                                public internal::ImagePixelRGBStorage<8, 8, 8, ImagePixel<BaseImagePixel::PixelRGB888> >
+                                                public internal::ImagePixelRGBStorage<8, 8, 8>
 {
   public:
     ImagePixel() {}
@@ -185,7 +218,8 @@ class ImagePixel<BaseImagePixel::PixelRGB888> : public BaseImagePixel,
 };
 
 
-} /* **** **** **** **** **** * namespace trik_image * **** **** **** **** **** */
+} /* **** **** **** **** **** * namespace image * **** **** **** **** **** */
+} /* **** **** **** **** **** * namespace trik * **** **** **** **** **** */
 
 
 #endif // !TRIK_VIDEO_RESAMPLE_INTERNAL_IMAGE_PIXEL_RGB_HPP_

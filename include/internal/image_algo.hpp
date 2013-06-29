@@ -5,10 +5,12 @@
 #error C++-only header
 #endif
 
-#include <cassert>
+
+#include "include/internal/stdcpp.hpp"
 
 
-/* **** **** **** **** **** */ namespace trik_image /* **** **** **** **** **** */ {
+/* **** **** **** **** **** */ namespace trik /* **** **** **** **** **** */ {
+/* **** **** **** **** **** */ namespace image /* **** **** **** **** **** */ {
 
 
 class BaseImageAlgorithm
@@ -21,21 +23,18 @@ class BaseImageAlgorithm
 
   protected:
     BaseImageAlgorithm() {}
-    /*virtual*/ ~BaseImageAlgorithm() {}
-
-  private:
-    BaseImageAlgorithm(const BaseImageAlgorithm&);
-    BaseImageAlgorithm& operator=(const BaseImageAlgorithm&);
 };
 
 
 template <BaseImageAlgorithm::AlgorithmType ALG, typename ImageIn, typename ImageOut>
-class ImageAlgorithm : public BaseImageAlgorithm // non-functional generic template
+class ImageAlgorithm : public BaseImageAlgorithm,
+                       private assert_inst<false> // non-functional generic template
 {
 };
 
 
-} /* **** **** **** **** **** * namespace trik_image * **** **** **** **** **** */
+} /* **** **** **** **** **** * namespace image * **** **** **** **** **** */
+} /* **** **** **** **** **** * namespace trik * **** **** **** **** **** */
 
 
 #include "include/internal/image_algo_cubic.hpp"

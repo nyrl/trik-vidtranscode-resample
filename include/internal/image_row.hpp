@@ -5,14 +5,13 @@
 #error C++-only header
 #endif
 
-#include <cassert>
 
+#include "include/internal/stdcpp.hpp"
 #include "include/internal/image_pixel.hpp"
 
 
-/* **** **** **** **** **** */ namespace trik_image /* **** **** **** **** **** */ {
-
-
+/* **** **** **** **** **** */ namespace trik /* **** **** **** **** **** */ {
+/* **** **** **** **** **** */ namespace image /* **** **** **** **** **** */ {
 /* **** **** **** **** **** */ namespace internal /* **** **** **** **** **** */ {
 
 
@@ -80,9 +79,6 @@ class ImageRowAccessor : private BaseImageRowAccessor
     }
 
   private:
-    ImageRowAccessor(const ImageRowAccessor&);
-    ImageRowAccessor& operator=(const ImageRowAccessor&);
-
     UByteCV* m_ptr;
 };
 
@@ -96,17 +92,13 @@ class BaseImageRow
 {
   public:
     BaseImageRow() {}
-    /*virtual*/ ~BaseImageRow() {}
-
-  private:
-    BaseImageRow(const BaseImageRow&);
-    BaseImageRow& operator=(const BaseImageRow&);
 };
 
 
 template <BaseImagePixel::PixelType PT, typename UByteCV>
 class ImageRow : public BaseImageRow,
-                 private internal::ImageRowAccessor<UByteCV> // Generic instance, non-functional
+                 private internal::ImageRowAccessor<UByteCV>,
+                 private assert_inst<false> // Generic instance, non-functional
 {
 };
 
@@ -117,16 +109,12 @@ class BaseImageRowSet
 {
   public:
     BaseImageRowSet() {}
-    /*virtual*/ ~BaseImageRowSet() {}
-
-  private:
-    BaseImageRowSet(const BaseImageRowSet&);
-    BaseImageRowSet& operator=(const BaseImageRowSet&);
 };
 
 
 template <typename BaseImagePixel::PixelType PT, typename UByteCV, size_t _rowsCount>
-class ImageRowSet : public BaseImageRowSet
+class ImageRowSet : public BaseImageRowSet,
+                    private assert_inst<(_rowsCount > 0)> // sanity check
 {
   public:
     typedef ImageRow<PT, UByteCV> Row;
@@ -195,13 +183,9 @@ class ImageRowSet : public BaseImageRowSet
     size_t m_rowFirst;
 };
 
-template <typename BaseImagePixel::PixelType PT, typename UByteCV>
-class ImageRowSet<PT, UByteCV, 0> : public BaseImageRowSet // forbidden _rowsCount=0 instantiation
-{
-};
 
-
-} /* **** **** **** **** **** * namespace trik_image * **** **** **** **** **** */
+} /* **** **** **** **** **** * namespace image * **** **** **** **** **** */
+} /* **** **** **** **** **** * namespace trik * **** **** **** **** **** */
 
 
 #include "include/internal/image_row_rgb.hpp"
