@@ -10,3 +10,5 @@ package.mak
 package
 
 trik_vidtranscode_resample.tar
+
+test_*
