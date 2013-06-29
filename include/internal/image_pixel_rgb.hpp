@@ -43,15 +43,6 @@ class ImagePixelRGBStorage : protected BaseImagePixelStorage
     }
 
 
-    ImagePixelRGBStorage& operator=(const ImagePixelRGBStorage& _src)
-    {
-      m_r = _src.m_r;
-      m_g = _src.m_g;
-      m_b = _src.m_b;
-
-      return *this;
-    }
-
     ImagePixelRGBStorage& operator*=(const float& _f)
     {
       r() *= _f;
@@ -116,14 +107,14 @@ template <typename Pixel>
 Pixel operator*(const Pixel& _op1, const float& _op2)
 {
   Pixel res(_op1);
-  res *= _op2;
+  res.operator*=(_op2);
   return res;
 }
 
 template <typename Pixel>
 Pixel& operator+=(Pixel& _op1, const Pixel& _op2)
 {
-  _op1 += _op2;
+  _op1.operator+=(_op2);
   return _op1;
 }
 
