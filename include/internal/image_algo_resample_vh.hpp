@@ -131,21 +131,45 @@ class AlgoResampleVH : private assert_inst<(   VerticalInterpolation::s_isAlgori
       return true;
     }
 
-    bool initializeHorizontalPixelSet(RowSetIn& _rowSetIn, PixelSetInHorizontal& _pixelSet,
+    bool readNextHorizontalPixel(RowSetIn& _rowSetIn, PixelSetInHorizontal& _pixelSetH,
+                                 const VerticalInterpolation& _interpolation) const
+    {
+      PixelSetInVertical pixelSetV;
+
+      if (_rowSetIn.readPixelSet(pixelSetV))
+        return _interpolation(pixelSetV, _pixelSetH);
+      else
+        return _pixelSetH.insertLastPixelCopy();
+    }
+
+    bool initializeHorizontalPixelSet(RowSetIn& _rowSetIn, PixelSetInHorizontal& _pixelSetH,
                                       const VerticalInterpolation& _interpolation,
                                       size_t& _colIdxLast) const
     {
-      // TODO
+      bool isOk = true;
+      PixelSetInVertical pixelSetV;
+
+      isOk &= _rowSetIn.readPixelSet(pixelSetV);
+      isOk &= _interpolation(pixelSetV, _pixelSetH);
+
+      for (size_t idx = 0; idx < VerticalInterpolation::s_windowBefore; ++idx)
+        isOk &= _pixelSetH.insertLastPixelCopy();
+
+      for (size_t idx = 0; idx < VerticalInterpolation::s_windowAfter; ++idx)
+        isOk &= readNextHorizontalPixel(_rowSetIn, _pixelSetH, _interpolation);
+
       _colIdxLast = 0;
-      return false;
+      return isOk;
     }
 
-    bool updateHorizontalPixelSet(RowSetIn& _rowSetIn, PixelSetInHorizontal& _pixelSet,
+    bool updateHorizontalPixelSet(RowSetIn& _rowSetIn, PixelSetInHorizontal& _pixelSetH,
                                   const VerticalInterpolation& _interpolation,
                                   size_t& _colIdxLast, size_t _colIdxDesired) const
     {
-      // TODO
-      return false;
+      bool isOk = true;
+      for (/*_colIdxLast*/; _colIdxLast < _colIdxDesired; ++_colIdxLast)
+        isOk &= readNextHorizontalPixel(_rowSetIn, _pixelSetH, _interpolation);
+      return true;
     }
 
     bool outputHorizontalPixelSet(const PixelSetInHorizontal& _pixSet,
@@ -160,7 +184,7 @@ class AlgoResampleVH : private assert_inst<(   VerticalInterpolation::s_isAlgori
 
       assert(resIn.pixelsCount() == resOut.pixelsCount());
       for (size_t pixIdx = 0; pixIdx < resIn.pixelsCount(); ++pixIdx)
-        resIn[pixIdx].convertTo(resOut.prepareNewPixel());
+        resIn[pixIdx].convertTo(resOut.insertNewPixel());
 
       if (!_rowSetOut.writePixelSet(resOut))
         return false;

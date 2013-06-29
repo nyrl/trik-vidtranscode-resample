@@ -76,7 +76,7 @@ class ImageRow<BaseImagePixel::PixelRGB888, UByteCV> : public BaseImageRow,
     bool readPixel(PixelType& _pixel)
     {
       UByteCV* ptr;
-      if (!accessPixel(ptr, 3))
+      if (!internal::ImageRowAccessor<UByteCV>::accessPixel(ptr, 3))
         return false;
 
       return _pixel.unpack(ptr[0], ptr[1], ptr[2]);
@@ -85,7 +85,7 @@ class ImageRow<BaseImagePixel::PixelRGB888, UByteCV> : public BaseImageRow,
     bool writePixel(const PixelType& _pixel)
     {
       UByteCV* ptr;
-      if (!accessPixel(ptr, 3))
+      if (!internal::ImageRowAccessor<UByteCV>::accessPixel(ptr, 3))
         return false;
 
       return _pixel.pack(ptr[0], ptr[1], ptr[2]);

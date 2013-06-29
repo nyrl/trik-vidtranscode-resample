@@ -187,9 +187,9 @@ class ImagePixel<BaseImagePixel::PixelRGB888> : public BaseImagePixel,
     template <typename UByte>
     bool unpack(const UByte& _b1, const UByte& _b2, const UByte& _b3)
     {
-      r() = storageGet<UByte>(_b1, 8, 0);
-      g() = storageGet<UByte>(_b2, 8, 0);
-      b() = storageGet<UByte>(_b3, 8, 0);
+      r() = storageGet<UByte, true>(_b1, 8, 0);
+      g() = storageGet<UByte, true>(_b2, 8, 0);
+      b() = storageGet<UByte, true>(_b3, 8, 0);
 
       return true;
     }
@@ -197,9 +197,9 @@ class ImagePixel<BaseImagePixel::PixelRGB888> : public BaseImagePixel,
     template <typename UByte>
     bool pack(UByte& _b1, UByte& _b2, UByte& _b3) const
     {
-      _b1 = storageValue<UByte>(r(), 8, 0);
-      _b2 = storageValue<UByte>(g(), 8, 0);
-      _b3 = storageValue<UByte>(b(), 8, 0);
+      _b1 = storageValue<UByte, true>(r(), 8, 0);
+      _b2 = storageValue<UByte, true>(g(), 8, 0);
+      _b3 = storageValue<UByte, true>(b(), 8, 0);
 
       return true;
     }

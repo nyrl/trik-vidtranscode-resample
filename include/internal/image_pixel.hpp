@@ -124,11 +124,17 @@ class ImagePixelSet : public BaseImagePixelSet,
       return _pixelsCount;
     }
 
-    Pixel& prepareNewPixel()
+    Pixel& insertNewPixel()
     {
       const size_t currentPixel = m_pixelFirst;
       m_pixelFirst = pixelIndex(1);
       return m_pixels[currentPixel];
+    }
+
+    bool insertLastPixelCopy()
+    {
+      insertNewPixel() = operator[](pixelsCount()-1);
+      return true;
     }
 
     Pixel& operator[](size_t _index)

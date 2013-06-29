@@ -35,10 +35,12 @@ class AlgoInterpolationCubic : public BaseAlgoInterpolation1Dim<1, 2>
     bool operator()(const PixelSetIn& _pixelsIn,
                     PixelSetOut& _pixelsOut) const
     {
-      typename PixelSetOut::Pixel& result = _pixelsOut.prepareNewPixel();
+      typename PixelSetOut::Pixel result;
 
       for (size_t idx = 0; idx < s_weightDimension; ++idx)
         result += _pixelsIn[idx] * m_weight[idx];
+
+      _pixelsOut.insertNewPixel() = result;
 
       return true;
     }
