@@ -8,6 +8,8 @@
 
 #include <stdio.h>
 #include <cmath>
+#include <iostream>
+
 
 #include "include/internal/stdcpp.hpp"
 
@@ -37,6 +39,17 @@ class ImagePixelRGBAccessor : protected BaseImagePixelAccessor
       return true;
     }
 
+    std::ostream& operator<<(std::ostream& _os)
+    {
+      float nr;
+      float ng;
+      float nb;
+
+      toNormalizedRGB(nr, ng, nb);
+      _os << '(' << nr << ' ' << ng << ' ' << nb << ')';
+
+      return _os;
+    }
 
   protected:
     ImagePixelRGBAccessor()
@@ -53,21 +66,18 @@ class ImagePixelRGBAccessor : protected BaseImagePixelAccessor
     {
     }
 
-
-    ImagePixelRGBAccessor& operator*=(const float& _f)
+    void operatorMultiply(const float& _f)
     {
       m_r *= _f;
       m_g *= _f;
       m_b *= _f;
-      return *this;
     }
 
-    ImagePixelRGBAccessor& operator+=(const ImagePixelRGBAccessor& _add)
+    void operatorAdd(const ImagePixelRGBAccessor& _add)
     {
       m_r += _add.m_r;
       m_g += _add.m_g;
       m_b += _add.m_b;
-      return *this;
     }
 
     void loadR(unsigned _r)
@@ -109,29 +119,7 @@ class ImagePixelRGBAccessor : protected BaseImagePixelAccessor
     static float gMax() { return 1u<<_GBits; }
     static float bMax() { return 1u<<_BBits; }
     static float range(float _min, float _val, float _max) { return std::min(_max, std::max(_min, _val)); }
-
-    template <typename Pixel>
-    friend Pixel operator*(const Pixel&, const float&);
-    template <typename Pixel>
-    friend Pixel& operator+=(Pixel&, const Pixel&);
 };
-
-
-/* it is in internal, but might work due to argument dependent lookup */
-template <typename Pixel>
-Pixel operator*(const Pixel& _op1, const float& _op2)
-{
-  Pixel res(_op1);
-  res.operator*=(_op2);
-  return res;
-}
-
-template <typename Pixel>
-Pixel& operator+=(Pixel& _op1, const Pixel& _op2)
-{
-  _op1.operator+=(_op2);
-  return _op1;
-}
 
 
 } /* **** **** **** **** **** * namespace internal * **** **** **** **** **** */
@@ -167,6 +155,19 @@ class ImagePixel<BaseImagePixel::PixelRGB565> : public BaseImagePixel,
 
       return true;
     }
+
+    ImagePixel operator*(const float& _f) const
+    {
+      ImagePixel result(*this);
+      result.operatorMultiply(_f);
+      return result;
+    }
+
+    ImagePixel& operator+=(const ImagePixel& _p)
+    {
+      operatorAdd(_p);
+      return *this;
+    }
 };
 
 
@@ -197,6 +198,19 @@ class ImagePixel<BaseImagePixel::PixelRGB888> : public BaseImagePixel,
       _b3 = storageValue<UByte, true>(storeB(), 8, 0);
 
       return true;
+    }
+
+    ImagePixel operator*(const float& _f) const
+    {
+      ImagePixel result(*this);
+      result.operatorMultiply(_f);
+      return result;
+    }
+
+    ImagePixel& operator+=(const ImagePixel& _p)
+    {
+      operatorAdd(_p);
+      return *this;
     }
 };
 
