@@ -128,7 +128,9 @@ class ImagePixelSet : public BaseImagePixelSet,
 
     bool insertLastPixelCopy()
     {
-      insertNewPixel() = operator[](pixelsCount()-1);
+      const Pixel cp = operator[](pixelsCount()-1);
+      // must copy a pixel to be safe
+      insertNewPixel() = cp;
       return true;
     }
 
@@ -154,7 +156,7 @@ class ImagePixelSet : public BaseImagePixelSet,
 
     friend std::ostream& operator<<(std::ostream& _os, const ImagePixelSet& _s)
     {
-      _os << "[" << _s.pixelsCount << ":";
+      _os << "[" << _s.pixelsCount() << ":";
       for (size_t i = 0; i < _s.pixelsCount(); ++i)
         _os << " " << _s[i];
       _os << "]";
