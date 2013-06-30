@@ -167,7 +167,9 @@ class Image : public BaseImage,
     {
       assert(_rowSet.rowsCount() == _rowsBefore+1+_rowsAfter);
 
+#if 0
       _rowSet.reset();
+#endif
 
       for (size_t idx = _rowsBefore; idx > 0; --idx)
         if (!getRow(_rowSet.prepareNewRow(),

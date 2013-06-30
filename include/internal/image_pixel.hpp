@@ -107,6 +107,13 @@ class ImagePixelSet : public BaseImagePixelSet,
     {
     }
 
+    void reset()
+    {
+      m_pixelFirst = 0;
+      for (size_t pix = 0; pix < pixelsCount(); ++pix)
+        m_pixels[pix] = Pixel();
+    }
+
     size_t pixelsCount() const
     {
       return _pixelsCount;

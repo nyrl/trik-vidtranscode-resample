@@ -130,6 +130,8 @@ class ImageRowSet : public BaseImageRowSet,
     void reset()
     {
       m_rowFirst = 0;
+      for (size_t row = 0; row < rowsCount(); ++row)
+        m_rows[row] = Row();
     }
 
     size_t rowsCount() const
