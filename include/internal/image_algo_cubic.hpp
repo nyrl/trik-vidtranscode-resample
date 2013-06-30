@@ -20,6 +20,8 @@ class AlgoInterpolationCubic : public BaseAlgoInterpolation1Dim<1, 2>
   public:
     AlgoInterpolationCubic(const float& _t)
     {
+      assert(_t >= 0 && _t <= 1.0);
+
       const float t0 = 1;
       const float t1 = _t;
       const float t2 = _t*_t;

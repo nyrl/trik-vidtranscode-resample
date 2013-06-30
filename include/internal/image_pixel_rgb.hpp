@@ -6,6 +6,9 @@
 #endif
 
 
+#include <stdio.h>
+#include <cmath>
+
 #include "include/internal/stdcpp.hpp"
 
 
@@ -15,27 +18,35 @@
 
 
 template <size_t _RBits, size_t _GBits, size_t _BBits>
-class ImagePixelRGBStorage : protected BaseImagePixelStorage
+class ImagePixelRGBAccessor : protected BaseImagePixelAccessor
 {
   public:
-    float&       r()       { return m_r; }
-    const float& r() const { return m_r; }
+    bool toNormalizedRGB(float& _nr, float& _ng, float& _nb) const
+    {
+      _nr = range(0.0f, m_r / rMax(), 1.0f);
+      _ng = range(0.0f, m_g / gMax(), 1.0f);
+      _nb = range(0.0f, m_b / bMax(), 1.0f);
+      return true;
+    }
 
-    float&       g()       { return m_g; }
-    const float& g() const { return m_g; }
+    bool fromNormalizedRGB(const float& _nr, const float& _ng, const float& _nb)
+    {
+      m_r = _nr * rMax();
+      m_g = _ng * gMax();
+      m_b = _nb * bMax();
+      return true;
+    }
 
-    float&       b()       { return m_b; }
-    const float& b() const { return m_b; }
 
   protected:
-    ImagePixelRGBStorage()
+    ImagePixelRGBAccessor()
      :m_r(0.0),
       m_g(0.0),
       m_b(0.0)
     {
     }
 
-    ImagePixelRGBStorage(const ImagePixelRGBStorage& _src)
+    ImagePixelRGBAccessor(const ImagePixelRGBAccessor& _src)
      :m_r(_src.m_r),
       m_g(_src.m_g),
       m_b(_src.m_b)
@@ -43,47 +54,50 @@ class ImagePixelRGBStorage : protected BaseImagePixelStorage
     }
 
 
-    ImagePixelRGBStorage& operator*=(const float& _f)
+    ImagePixelRGBAccessor& operator*=(const float& _f)
     {
-      r() *= _f;
-      g() *= _f;
-      b() *= _f;
+      m_r *= _f;
+      m_g *= _f;
+      m_b *= _f;
       return *this;
     }
 
-    ImagePixelRGBStorage& operator+=(const ImagePixelRGBStorage& _add)
+    ImagePixelRGBAccessor& operator+=(const ImagePixelRGBAccessor& _add)
     {
-      r() += _add.r();
-      g() += _add.g();
-      b() += _add.b();
+      m_r += _add.m_r;
+      m_g += _add.m_g;
+      m_b += _add.m_b;
       return *this;
     }
 
-
-    bool toNormalizedImpl(float& _nr, float& _ng, float& _nb) const
+    void loadR(unsigned _r)
     {
-      _nr = m_r / rMax();
-      _ng = m_g / gMax();
-      _nb = m_b / bMax();
-
-      assert(   _nr >= 0.0 && _nr <= 1.0
-             && _ng >= 0.0 && _ng <= 1.0
-             && _nb >= 0.0 && _nb <= 1.0);
-
-      return true;
+      m_r = _r;
     }
 
-    bool fromNormalizedImpl(const float& _nr, const float& _ng, const float& _nb)
+    void loadG(unsigned _g)
     {
-      m_r = _nr * rMax();
-      m_g = _ng * gMax();
-      m_b = _nb * bMax();
+      m_g = _g;
+    }
 
-      assert(   m_r >= 0.0 && m_r <= rMax()
-             && m_g >= 0.0 && m_g <= gMax()
-             && m_b >= 0.0 && m_b <= bMax());
+    void loadB(unsigned _b)
+    {
+      m_b = _b;
+    }
 
-      return true;
+    unsigned storeR() const
+    {
+      return roundf(range(0.0f, m_r, rMax()));
+    }
+
+    unsigned storeG() const
+    {
+      return roundf(range(0.0f, m_g, gMax()));
+    }
+
+    unsigned storeB() const
+    {
+      return roundf(range(0.0f, m_b, bMax()));
     }
 
   private:
@@ -94,6 +108,7 @@ class ImagePixelRGBStorage : protected BaseImagePixelStorage
     static float rMax() { return 1u<<_RBits; }
     static float gMax() { return 1u<<_GBits; }
     static float bMax() { return 1u<<_BBits; }
+    static float range(float _min, float _val, float _max) { return std::min(_max, std::max(_min, _val)); }
 
     template <typename Pixel>
     friend Pixel operator*(const Pixel&, const float&);
@@ -126,7 +141,7 @@ Pixel& operator+=(Pixel& _op1, const Pixel& _op2)
 
 template <>
 class ImagePixel<BaseImagePixel::PixelRGB565> : public BaseImagePixel,
-                                                public internal::ImagePixelRGBStorage<5, 6, 5>
+                                                public internal::ImagePixelRGBAccessor<5, 6, 5>
 {
   public:
     ImagePixel() {}
@@ -134,10 +149,10 @@ class ImagePixel<BaseImagePixel::PixelRGB565> : public BaseImagePixel,
     template <typename UByte>
     bool unpack(const UByte& _b1, const UByte& _b2)
     {
-      r() = storageGet<UByte,  true>(_b1, 5, 3);
-      g() = storageGet<UByte, false>(_b1, 3, 3)
-          | storageGet<UByte,  true>(_b2, 3, 5);
-      b() = storageGet<UByte,  true>(_b2, 5, 0);
+      loadR(  storageGet<UByte,  true>(_b1, 5, 3));
+      loadG(  storageGet<UByte, false>(_b1, 3, 3)
+            | storageGet<UByte,  true>(_b2, 3, 5));
+      loadB(  storageGet<UByte,  true>(_b2, 5, 0));
 
       return true;
     }
@@ -145,23 +160,12 @@ class ImagePixel<BaseImagePixel::PixelRGB565> : public BaseImagePixel,
     template <typename UByte>
     bool pack(UByte& _b1, UByte& _b2) const
     {
-      _b1 = storageValue<UByte,  true>(r(), 5, 3)
-          | storageValue<UByte, false>(g(), 3, 3);
-      _b2 = storageValue<UByte,  true>(g(), 3, 5)
-          | storageValue<UByte,  true>(b(), 5, 0);
+      _b1 = storageValue<UByte,  true>(storeR(), 5, 3)
+          | storageValue<UByte, false>(storeG(), 3, 3);
+      _b2 = storageValue<UByte,  true>(storeG(), 3, 5)
+          | storageValue<UByte,  true>(storeB(), 5, 0);
 
       return true;
-    }
-
-  protected:
-    virtual bool toNormalizedRGB(float& _nr, float& _ng, float& _nb) const
-    {
-      return toNormalizedImpl(_nr, _ng, _nb);
-    }
-
-    virtual bool fromNormalizedRGB(const float& _nr, const float& _ng, const float& _nb)
-    {
-      return fromNormalizedImpl(_nr, _ng, _nb);
     }
 };
 
@@ -170,7 +174,7 @@ class ImagePixel<BaseImagePixel::PixelRGB565> : public BaseImagePixel,
 
 template <>
 class ImagePixel<BaseImagePixel::PixelRGB888> : public BaseImagePixel,
-                                                public internal::ImagePixelRGBStorage<8, 8, 8>
+                                                public internal::ImagePixelRGBAccessor<8, 8, 8>
 {
   public:
     ImagePixel() {}
@@ -178,9 +182,9 @@ class ImagePixel<BaseImagePixel::PixelRGB888> : public BaseImagePixel,
     template <typename UByte>
     bool unpack(const UByte& _b1, const UByte& _b2, const UByte& _b3)
     {
-      r() = storageGet<UByte, true>(_b1, 8, 0);
-      g() = storageGet<UByte, true>(_b2, 8, 0);
-      b() = storageGet<UByte, true>(_b3, 8, 0);
+      loadR(storageGet<UByte, true>(_b1, 8, 0));
+      loadG(storageGet<UByte, true>(_b2, 8, 0));
+      loadB(storageGet<UByte, true>(_b3, 8, 0));
 
       return true;
     }
@@ -188,24 +192,12 @@ class ImagePixel<BaseImagePixel::PixelRGB888> : public BaseImagePixel,
     template <typename UByte>
     bool pack(UByte& _b1, UByte& _b2, UByte& _b3) const
     {
-      _b1 = storageValue<UByte, true>(r(), 8, 0);
-      _b2 = storageValue<UByte, true>(g(), 8, 0);
-      _b3 = storageValue<UByte, true>(b(), 8, 0);
+      _b1 = storageValue<UByte, true>(storeR(), 8, 0);
+      _b2 = storageValue<UByte, true>(storeG(), 8, 0);
+      _b3 = storageValue<UByte, true>(storeB(), 8, 0);
 
       return true;
     }
-
-  protected:
-    virtual bool toNormalizedRGB(float& _nr, float& _ng, float& _nb) const
-    {
-      return toNormalizedImpl(_nr, _ng, _nb);
-    }
-
-    virtual bool fromNormalizedRGB(const float& _nr, const float& _ng, const float& _nb)
-    {
-      return fromNormalizedImpl(_nr, _ng, _nb);
-    }
-
 };
 
 

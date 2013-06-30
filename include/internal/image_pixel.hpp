@@ -16,10 +16,10 @@
 /* **** **** **** **** **** */ namespace internal /* **** **** **** **** **** */ {
 
 
-class BaseImagePixelStorage
+class BaseImagePixelAccessor
 {
   protected:
-    BaseImagePixelStorage() {}
+    BaseImagePixelAccessor() {}
 
     template <typename UType>
     static UType storageBitmask(size_t _size)
@@ -68,29 +68,14 @@ class BaseImagePixel
       PixelRGB888
     };
 
-    virtual ~BaseImagePixel() {}
-
-    virtual bool convertTo(BaseImagePixel& _dst) const
-    {
-      float nr;
-      float nb;
-      float ng;
-
-      return toNormalizedRGB(nr, nb, ng)
-          && _dst.fromNormalizedRGB(nr, nb, ng);
-    }
-
   protected:
     BaseImagePixel() {}
-
-    virtual bool toNormalizedRGB(float& _nr, float& _ng, float& _nb) const = 0;
-    virtual bool fromNormalizedRGB(const float& _nr, const float& _ng, const float& _nb) = 0;
 };
 
 
 template <BaseImagePixel::PixelType PT>
 class ImagePixel : public BaseImagePixel,
-                   private internal::BaseImagePixelStorage,
+                   private internal::BaseImagePixelAccessor,
                    private assert_inst<false> // Generic instance, non-functional
 {
 };
@@ -103,6 +88,8 @@ class BaseImagePixelSet
   protected:
     BaseImagePixelSet() {}
 };
+
+
 
 
 template <typename BaseImagePixel::PixelType PT, size_t _pixelsCount>
@@ -156,6 +143,45 @@ class ImagePixelSet : public BaseImagePixelSet,
   private:
     Pixel  m_pixels[_pixelsCount];
     size_t m_pixelFirst;
+};
+
+
+
+
+template <typename PixelType1, typename PixelType2>
+class ImagePixelConvertion
+{
+  public:
+    ImagePixelConvertion() {}
+
+    bool operator()(const PixelType1& _p1, PixelType2& _p2) const
+    {
+      float nr;
+      float ng;
+      float nb;
+
+      return _p1.toNormalizedRGB(nr, ng, nb)
+          && _p2.fromNormalizedRGB(nr, ng, nb);
+    }
+};
+
+
+template <typename PixelSetType1, typename PixelSetType2>
+class ImagePixelSetConvertion
+{
+  public:
+    ImagePixelSetConvertion() {}
+
+    bool operator()(const PixelSetType1& _s1, PixelSetType2& _s2) const
+    {
+      ImagePixelConvertion<typename PixelSetType1::Pixel, typename PixelSetType2::Pixel> convertion;
+      bool isOk = true;
+
+      for (size_t i = 0; i < _s1.pixelsCount(); ++i)
+        isOk &= convertion(_s1[i], _s2[i]);
+
+      return isOk;
+    }
 };
 
 

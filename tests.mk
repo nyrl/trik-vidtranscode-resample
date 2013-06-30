@@ -4,7 +4,7 @@ TESTS_SRC=$(shell find tests -name test_*.cpp)
 TESTS=$(subst .cpp,,$(basename $(notdir $(TESTS_SRC))))
 
 
-all: run
+all: build
 
 build: $(TESTS)
 

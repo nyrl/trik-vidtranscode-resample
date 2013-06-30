@@ -50,8 +50,10 @@ class AlgoResampleVH : private assert_inst<(   VerticalInterpolation::s_isAlgori
 
     typedef ImagePixelSet<ImageIn::s_pixelType,  VerticalInterpolation::s_windowSize>   PixelSetInVertical;
     typedef ImagePixelSet<ImageIn::s_pixelType,  HorizontalInterpolation::s_windowSize> PixelSetInHorizontal;
-    typedef ImagePixelSet<ImageIn::s_pixelType,  1>                                     PixelSetInSingle;
-    typedef ImagePixelSet<ImageOut::s_pixelType, 1>                                     PixelSetOutSingle;
+    typedef ImagePixelSet<ImageIn::s_pixelType,  1>                                     PixelSetInResult;
+    typedef ImagePixelSet<ImageOut::s_pixelType, 1>                                     PixelSetOutResult;
+
+    typedef ImagePixelSetConvertion<PixelSetInResult, PixelSetOutResult> PixelSetIn2OutConvertion;
 
   public:
     AlgoResampleVH()
@@ -67,6 +69,7 @@ class AlgoResampleVH : private assert_inst<(   VerticalInterpolation::s_isAlgori
       RowSetOut   rowSetOut;
 
       PixelSetInHorizontal horizontalPixelSet;
+      const PixelSetIn2OutConvertion resultPixelSetConvertion;
 
       const float in2outRFactor = static_cast<float>(_imageIn.height()) / static_cast<float>(_imageOut.height());
       const float in2outCFactor = static_cast<float>(_imageIn.width())  / static_cast<float>(_imageOut.width() );
@@ -101,7 +104,7 @@ class AlgoResampleVH : private assert_inst<(   VerticalInterpolation::s_isAlgori
           // TODO cache?
           const HorizontalInterpolation& horizontalInterpolation(colIdxInFract);
 
-          if (!outputHorizontalPixelSet(horizontalPixelSet, rowSetOut, horizontalInterpolation))
+          if (!outputHorizontalPixelSet(horizontalPixelSet, rowSetOut, horizontalInterpolation, resultPixelSetConvertion))
             return false;
         }
       }
@@ -174,17 +177,17 @@ class AlgoResampleVH : private assert_inst<(   VerticalInterpolation::s_isAlgori
 
     bool outputHorizontalPixelSet(const PixelSetInHorizontal& _pixSet,
                                   RowSetOut& _rowSetOut,
-                                  const HorizontalInterpolation& _interpolation) const
+                                  const HorizontalInterpolation& _interpolation,
+                                  const PixelSetIn2OutConvertion& _convertion) const
     {
-      PixelSetInSingle  resIn;
-      PixelSetOutSingle resOut;
+      PixelSetInResult  resIn;
+      PixelSetOutResult resOut;
 
       if (!_interpolation(_pixSet, resIn))
         return false;
 
-      assert(resIn.pixelsCount() == resOut.pixelsCount());
-      for (size_t pixIdx = 0; pixIdx < resIn.pixelsCount(); ++pixIdx)
-        resIn[pixIdx].convertTo(resOut.insertNewPixel());
+      if (!_convertion(resIn, resOut))
+        return false;
 
       if (!_rowSetOut.writePixelSet(resOut))
         return false;
