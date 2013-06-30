@@ -39,18 +39,6 @@ class ImagePixelRGBAccessor : protected BaseImagePixelAccessor
       return true;
     }
 
-    std::ostream& operator<<(std::ostream& _os)
-    {
-      float nr;
-      float ng;
-      float nb;
-
-      toNormalizedRGB(nr, ng, nb);
-      _os << '(' << nr << ' ' << ng << ' ' << nb << ')';
-
-      return _os;
-    }
-
   protected:
     ImagePixelRGBAccessor()
      :m_r(0.0),
@@ -64,20 +52,6 @@ class ImagePixelRGBAccessor : protected BaseImagePixelAccessor
       m_g(_src.m_g),
       m_b(_src.m_b)
     {
-    }
-
-    void operatorMultiply(const float& _f)
-    {
-      m_r *= _f;
-      m_g *= _f;
-      m_b *= _f;
-    }
-
-    void operatorAdd(const ImagePixelRGBAccessor& _add)
-    {
-      m_r += _add.m_r;
-      m_g += _add.m_g;
-      m_b += _add.m_b;
     }
 
     void loadR(unsigned _r)
@@ -108,6 +82,30 @@ class ImagePixelRGBAccessor : protected BaseImagePixelAccessor
     unsigned storeB() const
     {
       return roundf(range(0.0f, m_b, bMax()));
+    }
+
+    void operatorMultiplyImpl(const float& _f)
+    {
+      m_r *= _f;
+      m_g *= _f;
+      m_b *= _f;
+    }
+
+    void operatorIncrementImpl(const ImagePixelRGBAccessor& _p)
+    {
+      m_r += _p.m_r;
+      m_g += _p.m_g;
+      m_b += _p.m_b;
+    }
+
+    void operatorExtractImpl(std::ostream& _os) const
+    {
+      float nr;
+      float ng;
+      float nb;
+
+      toNormalizedRGB(nr, ng, nb);
+      _os << '(' << nr << ' ' << ng << ' ' << nb << ')';
     }
 
   private:
@@ -158,15 +156,22 @@ class ImagePixel<BaseImagePixel::PixelRGB565> : public BaseImagePixel,
 
     ImagePixel operator*(const float& _f) const
     {
-      ImagePixel result(*this);
-      result.operatorMultiply(_f);
-      return result;
+      ImagePixel p(*this);
+      p.operatorMultiplyImpl(_f);
+      return p;
     }
 
     ImagePixel& operator+=(const ImagePixel& _p)
     {
-      operatorAdd(_p);
+      operatorIncrementImpl(_p);
       return *this;
+    }
+
+  private:
+    friend std::ostream& operator<<(std::ostream& _os, const ImagePixel& _p)
+    {
+      _p.operatorExtractImpl(_os);
+      return _os;
     }
 };
 
@@ -202,15 +207,22 @@ class ImagePixel<BaseImagePixel::PixelRGB888> : public BaseImagePixel,
 
     ImagePixel operator*(const float& _f) const
     {
-      ImagePixel result(*this);
-      result.operatorMultiply(_f);
-      return result;
+      ImagePixel p(*this);
+      p.operatorMultiplyImpl(_f);
+      return p;
     }
 
     ImagePixel& operator+=(const ImagePixel& _p)
     {
-      operatorAdd(_p);
+      operatorIncrementImpl(_p);
       return *this;
+    }
+
+  private:
+    friend std::ostream& operator<<(std::ostream& _os, const ImagePixel& _p)
+    {
+      _p.operatorExtractImpl(_os);
+      return _os;
     }
 };
 

@@ -7,6 +7,7 @@
 
 
 #include <climits>
+#include <iostream>
 
 #include "include/internal/stdcpp.hpp"
 
@@ -143,6 +144,15 @@ class ImagePixelSet : public BaseImagePixelSet,
   private:
     Pixel  m_pixels[_pixelsCount];
     size_t m_pixelFirst;
+
+    friend std::ostream& operator<<(std::ostream& _os, const ImagePixelSet& _s)
+    {
+      _os << "[" << _s.pixelsCount << ":";
+      for (size_t i = 0; i < _s.pixelsCount(); ++i)
+        _os << " " << _s[i];
+      _os << "]";
+      return _os;
+    }
 };
 
 
