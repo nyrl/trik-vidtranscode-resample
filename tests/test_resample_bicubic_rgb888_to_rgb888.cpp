@@ -22,24 +22,30 @@ int main(int _argc, char* _argv[])
 {
   if (_argc != 7)
   {
-    cerr << "Usage: " << _argv[0] << " <in-file-rgb888> <height> <width> <out-file-rgb888> <height> <width>" << endl;
+    cerr << "Usage: " << _argv[0] << " <in-file-rgb888> <width> <height> <out-file-rgb888> <width> <height>" << endl;
     exit(_argc == 1 ? EX_OK : EX_USAGE);
   }
 
-  size_t srcHeight = atoi(_argv[2]);
-  size_t srcWidth = atoi(_argv[3]);
+  size_t srcWidth = atoi(_argv[2]);
+  size_t srcHeight = atoi(_argv[3]);
   vector<uint8_t> srcBuffer;
-  ifstream srcFs(_argv[1]);
-  copy(istream_iterator<char>(srcFs), istream_iterator<char>(), back_inserter(srcBuffer));
+  ifstream srcFs(_argv[1], ios_base::in | ios_base::binary);
+  istreambuf_iterator<ifstream::char_type> srcFsIt(srcFs);
+
+  copy(srcFsIt, istreambuf_iterator<ifstream::char_type>(), back_inserter(srcBuffer));
   srcFs.close();
 
-  size_t dstHeight = atoi(_argv[5]);
-  size_t dstWidth = atoi(_argv[6]);
+  size_t dstWidth = atoi(_argv[5]);
+  size_t dstHeight = atoi(_argv[6]);
   vector<uint8_t> dstBuffer(dstHeight*dstWidth*3);
-  ofstream dstFs(_argv[4]);
+  ofstream dstFs(_argv[4], ios_base::out | ios_base::binary | ios_base::trunc);
+  ostreambuf_iterator<ofstream::char_type> dstFsIt(dstFs);
 
-  ImgRGB888i srcImage(&srcBuffer.front(), srcBuffer.size(), srcHeight, srcWidth, srcWidth*3);
-  ImgRGB888o dstImage(&dstBuffer.front(), dstBuffer.size(), dstHeight, dstWidth, dstWidth*3);
+  cout << "Resampling " << _argv[1] << " " << srcWidth << "x" << srcHeight << " (" << srcBuffer.size() << ")"
+              << " -> " << _argv[4] << " " << dstWidth << "x" << dstHeight << " (" << dstBuffer.size() << ")" << endl;
+
+  ImgRGB888i srcImage(&srcBuffer.front(), srcBuffer.size(), srcWidth, srcHeight, srcWidth*3);
+  ImgRGB888o dstImage(&dstBuffer.front(), dstBuffer.size(), dstWidth, dstHeight, dstWidth*3);
 
   AlgResample resampler;
   if (!resampler(srcImage, dstImage))
@@ -48,7 +54,7 @@ int main(int _argc, char* _argv[])
     exit(EX_DATAERR);
   }
 
-  copy(dstBuffer.begin(), dstBuffer.end(), ostream_iterator<char>(dstFs));
+  copy(dstBuffer.begin(), dstBuffer.end(), dstFsIt);
   dstFs.close();
 
   return EX_OK;

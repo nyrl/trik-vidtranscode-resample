@@ -71,8 +71,8 @@ class AlgoResampleVH : private assert_inst<(   VerticalInterpolation::s_isAlgori
       PixelSetInHorizontal horizontalPixelSet;
       const PixelSetIn2OutConvertion resultPixelSetConvertion;
 
-      const float in2outRFactor = static_cast<float>(_imageIn.height()) / static_cast<float>(_imageOut.height());
       const float in2outCFactor = static_cast<float>(_imageIn.width())  / static_cast<float>(_imageOut.width() );
+      const float in2outRFactor = static_cast<float>(_imageIn.height()) / static_cast<float>(_imageOut.height());
 
       for (size_t rowIdxOut = 0; rowIdxOut < _imageOut.height(); ++rowIdxOut)
       {

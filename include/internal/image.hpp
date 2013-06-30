@@ -21,10 +21,10 @@
 class BaseImageAccessor
 {
   protected:
-    BaseImageAccessor(size_t _imageSize, size_t _height, size_t _width, size_t _lineLength)
+    BaseImageAccessor(size_t _imageSize, size_t _width, size_t _height, size_t _lineLength)
      :m_imageSize(_imageSize),
-      m_height(_height),
       m_width(_width),
+      m_height(_height),
       m_lineLength(_lineLength)
     {
     }
@@ -38,14 +38,14 @@ class BaseImageAccessor
       return true;
     }
 
-    const size_t& height() const
-    {
-      return m_height;
-    }
-
     const size_t& width() const
     {
       return m_width;
+    }
+
+    const size_t& height() const
+    {
+      return m_height;
     }
 
     const size_t& lineLength() const
@@ -65,8 +65,8 @@ class BaseImageAccessor
 
   private:
     size_t   m_imageSize;
-    size_t   m_height;
     size_t   m_width;
+    size_t   m_height;
     size_t   m_lineLength;
 };
 
@@ -75,8 +75,8 @@ template <typename UByteCV>
 class ImageAccessor : protected BaseImageAccessor
 {
   protected:
-    ImageAccessor(UByteCV* _imagePtr, size_t _imageSize, size_t _height, size_t _width, size_t _lineLength)
-     :BaseImageAccessor(_imageSize, _height, _width, _lineLength),
+    ImageAccessor(UByteCV* _imagePtr, size_t _imageSize, size_t _width, size_t _height, size_t _lineLength)
+     :BaseImageAccessor(_imageSize, _width, _height, _lineLength),
       m_ptr(_imagePtr)
     {
     }
@@ -134,20 +134,20 @@ class Image : public BaseImage,
     {
     }
 
-    Image(size_t	_height,
-          size_t	_width)
+    Image(size_t	_width,
+          size_t	_height)
      :BaseImage(),
-      ImageAccessor(NULL, 0, _height, _width, 0)
+      ImageAccessor(NULL, 0, _width, _height, 0)
     {
     }
 
     Image(UByteCV*	_imagePtr,
           size_t	_imageSize,
-          size_t	_height,
           size_t	_width,
+          size_t	_height,
           size_t	_lineLength)
      :BaseImage(),
-      ImageAccessor(_imagePtr, _imageSize, _height, _width, _lineLength)
+      ImageAccessor(_imagePtr, _imageSize, _width, _height, _lineLength)
     {
     }
 
@@ -185,14 +185,14 @@ class Image : public BaseImage,
       return true;
     }
 
-    const size_t& height() const
-    {
-      return ImageAccessor::height();
-    }
-
     const size_t& width() const
     {
       return ImageAccessor::width();
+    }
+
+    const size_t& height() const
+    {
+      return ImageAccessor::height();
     }
 
     const size_t& imageSize() const
