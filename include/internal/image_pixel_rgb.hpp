@@ -20,7 +20,8 @@
 
 
 template <size_t _RBits, size_t _GBits, size_t _BBits>
-class ImagePixelRGBAccessor : protected BaseImagePixelAccessor
+class ImagePixelRGBAccessor : protected BaseImagePixelAccessor,
+                              private assert_inst<(_RBits>=1 && _GBits>=1 && _BBits>=1)>
 {
   public:
     bool toNormalizedRGB(float& _nr, float& _ng, float& _nb) const
@@ -113,9 +114,9 @@ class ImagePixelRGBAccessor : protected BaseImagePixelAccessor
     float m_g;
     float m_b;
 
-    static float rMax() { return 1u<<_RBits; }
-    static float gMax() { return 1u<<_GBits; }
-    static float bMax() { return 1u<<_BBits; }
+    static float rMax() { return (1u<<_RBits) - 1; }
+    static float gMax() { return (1u<<_GBits) - 1; }
+    static float bMax() { return (1u<<_BBits) - 1; }
     static float range(float _min, float _val, float _max) { return std::min(_max, std::max(_min, _val)); }
 };
 
