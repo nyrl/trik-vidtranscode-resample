@@ -23,7 +23,7 @@ int main(int _argc, char* _argv[])
   if (_argc != 7)
   {
     cerr << "Usage: " << _argv[0] << " <in-file-rgb888> <width> <height> <out-file-rgb888> <width> <height>" << endl;
-    exit(_argc == 1 ? EX_OK : EX_USAGE);
+    exit(EX_USAGE);
   }
 
   size_t srcWidth = atoi(_argv[2]);
