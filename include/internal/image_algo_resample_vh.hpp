@@ -152,10 +152,6 @@ class AlgoResampleVH : private assert_inst<(   VerticalInterpolation::s_isAlgori
       bool isOk = true;
       PixelSetInVertical pixelSetV;
 
-#if 0
-      _pixelSetH.reset();
-#endif
-
       isOk &= _rowSetIn.readPixelSet(pixelSetV);
       isOk &= _interpolation(pixelSetV, _pixelSetH);
 
