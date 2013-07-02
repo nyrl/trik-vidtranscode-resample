@@ -197,14 +197,17 @@ class V4L2Input
     bool doClose()
     {
       bool isOk = true;
-      int res;
-      if ((res = v4l2_close(m_v4l2fd)) != 0)
+      if (m_v4l2fd != -1)
       {
-        if (v4l2_log_file)
-          fprintf(v4l2_log_file, "v4l2_close() failed: %d\n", errno);
-        isOk = false;
+        int res;
+        if ((res = v4l2_close(m_v4l2fd)) != 0)
+        {
+          if (v4l2_log_file)
+            fprintf(v4l2_log_file, "v4l2_close() failed: %d\n", errno);
+          isOk = false;
+        }
+        m_v4l2fd = -1;
       }
-      m_v4l2fd = -1;
 
       return isOk;
     }

@@ -276,6 +276,8 @@ int main(int _argc, char* const _argv[])
       exit(EX_SOFTWARE);
 
     trik::demos::FileOutput::Frame     dstFrame;
+    if (!s_videoDst.getFrame(dstFrame))
+      exit(EX_SOFTWARE);
 
     if (!resample(s_videoSrc.description(), srcFrame, s_videoDst.description(), dstFrame))
       exit(EX_SOFTWARE);

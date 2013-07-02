@@ -173,13 +173,16 @@ class FileOutput
     bool doClose()
     {
       bool isOk = true;
-      int res;
-      if ((res = ::close(m_fd)) != 0)
+      if (m_fd != -1)
       {
-        fprintf(stderr, "close() failed: %d\n", errno);
-        isOk = false;
+        int res;
+        if ((res = ::close(m_fd)) != 0)
+        {
+          fprintf(stderr, "close() failed: %d\n", errno);
+          isOk = false;
+        }
+        m_fd = -1;
       }
-      m_fd = -1;
 
       return isOk;
     }
