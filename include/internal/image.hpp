@@ -29,12 +29,13 @@ class BaseImageAccessor
     {
     }
 
-    bool rowRangeCheck(size_t _rowIndex) const
+    bool rowRangeCheck(const size_t& _rowIndex, size_t& _ofs) const
     {
       if (   _rowIndex >= m_height
           || (_rowIndex+1)*m_lineLength > m_imageSize)
         return false;
 
+      _ofs = _rowIndex*m_lineLength;
       return true;
     }
 
@@ -96,11 +97,11 @@ class ImageAccessor : protected BaseImageAccessor
       if (m_ptr == NULL)
         return false;
 
-      if (!rowRangeCheck(_rowIndex))
+      size_t ofs;
+      if (!rowRangeCheck(_rowIndex, ofs))
         return false;
 
-      _rowPtr = m_ptr + _rowIndex*lineLength();
-
+      _rowPtr = m_ptr + ofs;
       return true;
     }
 
