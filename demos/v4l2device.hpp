@@ -15,169 +15,46 @@
 #include <map>
 #include <cinttypes>
 #include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <errno.h>
 
 #include <linux/videodev2.h>
 #include <libv4l2.h>
 
+#include "demos/common.hpp"
+
 
 /* **** **** **** **** **** */ namespace trik /* **** **** **** **** **** */ {
 /* **** **** **** **** **** */ namespace demos /* **** **** **** **** **** */ {
 
+typedef VideoFormat<uint32_t> V4L2Format;
 
-class V4L2Format
+class V4L2Config : public VideoConfig<V4L2Format>
 {
   public:
-    typedef uint32_t PixelFormat;
-    typedef std::map<PixelFormat, std::string> FormatMap;
-    typedef std::shared_ptr<FormatMap> FormatMapPtr;
-
-    explicit V4L2Format()
-     :m_knownFormats(),
-      m_format(0)
-    {
-    }
-
-    explicit V4L2Format(const FormatMapPtr& _knownFormats)
-     :m_knownFormats(_knownFormats),
-      m_format((  !m_knownFormats
-                || m_knownFormats->empty())
-               ? 0
-               : m_knownFormats->begin()->first)
-    {
-    }
-
-    explicit V4L2Format(const PixelFormat& _fmt, const FormatMapPtr& _knownFormats)
-     :m_knownFormats(_knownFormats),
-      m_format((  !m_knownFormats
-                || m_knownFormats->find(_fmt) == m_knownFormats->end())
-               ? 0
-               : _fmt)
-    {
-    }
-
-    const PixelFormat& v4l2fmt() const
-    {
-      return m_format;
-    }
-
-    bool v4l2fmt(const PixelFormat& _fmt)
-    {
-      if (   _fmt != 0
-          && (  !m_knownFormats
-              || m_knownFormats->find(_fmt) == m_knownFormats->end()))
-        return false;
-
-      m_format = _fmt;
-      return true;
-    }
-
-    void reportKnownFormats(std::ostream& _os) const
-    {
-      if (m_knownFormats)
-      {
-        const FormatMap::const_iterator& end(m_knownFormats->end());
-        bool first = true;
-        for (FormatMap::const_iterator it(m_knownFormats->begin()); it != end; ++it)
-        {
-          if (first)
-            first = false;
-          else
-            _os << ", ";
-          _os << it->second;
-        }
-      }
-      else
-        _os << "(null)";
-    }
-
-    friend std::istream& operator>>(std::istream& _is, V4L2Format& _fmt)
-    {
-      if (_fmt.m_knownFormats)
-      {
-        std::string s;
-        _is >> s;
-
-        const FormatMap::const_iterator& end(_fmt.m_knownFormats->end());
-        for (FormatMap::const_iterator it(_fmt.m_knownFormats->begin()); it != end; ++it)
-          if (it->second.compare(s) == 0)
-          {
-            _fmt.m_format = it->first;
-            return _is;
-          }
-      }
-
-      _is.setstate(std::ios::failbit);
-      return _is;
-    }
-
-    friend std::ostream& operator<<(std::ostream& _os, const V4L2Format& _fmt)
-    {
-      if (!_fmt.m_knownFormats)
-        _os.setstate(std::ios::failbit);
-      else
-      {
-        const FormatMap::const_iterator& it = _fmt.m_knownFormats->find(_fmt.m_format);
-        if (it == _fmt.m_knownFormats->end())
-          _os.setstate(std::ios::failbit);
-        else
-          _os << it->second;
-      }
-
-      return _os;
-    }
-
-  private:
-    FormatMapPtr m_knownFormats;
-    PixelFormat  m_format;
-};
-
-
-
-
-class V4L2Config
-{
-  public:
-    typedef uint32_t Dimension;
-    typedef V4L2Format Format;
-
     V4L2Config()
-     :m_path(),
-      m_width(),
-      m_height(),
-      m_format()
+     :VideoConfig(),
+      m_path()
     {
     }
 
-    explicit V4L2Config(const std::string& _path)
-     :m_path(_path),
-      m_width(),
-      m_height(),
-      m_format()
+    V4L2Config(const std::string& _path, const VideoDimension& _width, const VideoDimension& _height)
+     :VideoConfig(_width, _height),
+      m_path(_path)
     {
     }
 
-    V4L2Config(const std::string& _path, const Dimension& _width, const Dimension& _height)
-     :m_path(_path),
-      m_width(_width),
-      m_height(_height),
-      m_format()
+    explicit V4L2Config(const VideoFormat::FormatMapPtr& _formatMap)
+     :VideoConfig(_formatMap),
+      m_path()
     {
     }
 
-    explicit V4L2Config(const Format::FormatMapPtr& _formatMap)
-     :m_path(),
-      m_width(),
-      m_height(),
-      m_format(_formatMap)
-    {
-    }
-
-     V4L2Config(const V4L2Config& _config, const Format::FormatMapPtr& _formatMap)
-     :m_path(_config.m_path),
-      m_width(_config.m_width),
-      m_height(_config.m_height),
-      m_format(_formatMap)
+     V4L2Config(const V4L2Config& _config, const VideoFormat::FormatMapPtr& _formatMap)
+      :VideoConfig(_config, _formatMap),
+       m_path(_config.m_path)
     {
     }
 
@@ -185,92 +62,26 @@ class V4L2Config
     std::string&       path()       { return m_path; }
     void               path(const std::string& _path) { m_path = _path; }
 
-    const Dimension&   width() const { return m_width; }
-    Dimension&         width()       { return m_width; }
-    void               width(const Dimension& _width) { m_width = _width; }
-
-    const Dimension&   height() const { return m_height; }
-    Dimension&         height()       { return m_height; }
-    void               height(const Dimension& _height) { m_height = _height; }
-
-    const Format&      format() const { return m_format; }
-    Format&            format() { return m_format; }
-    void               format(const Format& _format) { m_format = _format; }
-
   private:
     std::string m_path;
-    Dimension   m_width;
-    Dimension   m_height;
-    Format      m_format;
 };
 
-
-
-
-class V4L2BufferDescription
-{
-  public:
-    typedef void*    BufferPtr;
-    typedef size_t   BufferSize;
-    typedef uint32_t BufferIndex;
-    typedef uint32_t Dimension;
-    typedef V4L2Format Format;
-
-    V4L2BufferDescription()
-     :m_ptr(),
-      m_size(),
-      m_index(),
-      m_width(),
-      m_height(),
-      m_lineLength(),
-      m_format()
-    {
-    }
-
-    V4L2BufferDescription(const BufferPtr& _ptr, const BufferSize& _size,
-                          const BufferIndex& _index,
-                          const Dimension& _width, const Dimension& _height,
-                          const BufferSize& _lineLength,
-                          const Format& _format)
-     :m_ptr(_ptr),
-      m_size(_size),
-      m_index(_index),
-      m_width(_width),
-      m_height(_height),
-      m_lineLength(_lineLength),
-      m_format(_format)
-    {
-    }
-
-    const BufferPtr&    ptr()        const { return m_ptr; }
-    const BufferSize&   size()       const { return m_size; }
-    const BufferIndex&  index()      const { return m_index; }
-    const Dimension&    width()      const { return m_width; }
-    const Dimension&    height()     const { return m_height; }
-    const BufferSize&   lineLength() const { return m_lineLength; }
-
-  private:
-    BufferPtr   m_ptr;
-    BufferSize  m_size;
-    BufferIndex m_index;
-    Dimension   m_width;
-    Dimension   m_height;
-    BufferSize  m_lineLength;
-    Format      m_format;
-};
 
 
 
 class V4L2Input
 {
   public:
-    typedef V4L2Config Config;
-    typedef void*    BufferPtr;
-    typedef size_t   BufferSize;
-    typedef uint32_t BufferIndex;
+    typedef V4L2Config                              Config;
+    typedef VideoImageDescription<V4L2Format>       Description;
+    typedef VideoFrame<uint8_t*>                    Frame;
+    typedef uint32_t                                FrameIndex;
+    typedef void*                                   BufferPtr;
+    typedef size_t                                  BufferSize;
 
     V4L2Input()
      :m_config(knownFormats()),
+      m_description(),
       m_v4l2fd(-1),
       m_v4l2buffers()
     {
@@ -278,6 +89,7 @@ class V4L2Input
 
     explicit V4L2Input(const Config& _config, const std::string& _format)
      :m_config(_config, knownFormats()),
+      m_description(),
       m_v4l2fd(-1),
       m_v4l2buffers()
     {
@@ -309,6 +121,8 @@ class V4L2Input
       bool isOk = true;
       if (!doMunmapBuffers())
         isOk = false;
+      if (!doUnsetFormat())
+        isOk = false;
       if (!doClose())
         isOk = false;
 
@@ -337,32 +151,25 @@ class V4L2Input
       return m_v4l2fd;
     }
 
-    bool getFrame(V4L2BufferDescription& _frame)
+    const Description& description() const
     {
-      BufferPtr ptr;
-      BufferSize size;
-      BufferIndex index;
-
-      if (!doGetFrame(ptr, size, index))
-        return false;
-
-      _frame = V4L2BufferDescription(ptr, size,
-                                     index,
-                                     m_v4l2format.fmt.pix.width, m_v4l2format.fmt.pix.height,
-                                     m_v4l2format.fmt.pix.bytesperline,
-                                     m_config.format());
-      return true;
+      return m_description;
     }
 
-    bool ungetFrame(const V4L2BufferDescription& _frame)
+    bool getFrame(Frame& _frame, FrameIndex& _index)
     {
-      return doUngetFrame(_frame.index());
+      return doGetFrame(_frame, _index);
+    }
+
+    bool ungetFrame(const FrameIndex& _index)
+    {
+      return doUngetFrame(_index);
     }
 
   protected:
-    static V4L2Format::FormatMapPtr knownFormats()
+    static V4L2Config::VideoFormat::FormatMapPtr knownFormats()
     {
-      V4L2Format::FormatMapPtr res = std::make_shared<V4L2Format::FormatMap>();
+      V4L2Config::VideoFormat::FormatMapPtr res = std::make_shared<V4L2Config::VideoFormat::FormatMap>();
 
       res->insert(std::make_pair(V4L2_PIX_FMT_RGB24,  "RGB888"));
       res->insert(std::make_pair(V4L2_PIX_FMT_RGB565, "RGB565"));
@@ -408,8 +215,8 @@ class V4L2Input
       m_v4l2format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
       m_v4l2format.fmt.pix.width = m_config.width();
       m_v4l2format.fmt.pix.height = m_config.height();
-      m_v4l2format.fmt.pix.pixelformat = m_config.format().v4l2fmt();
-      m_v4l2format.fmt.pix.field = V4L2_FIELD_INTERLACED;
+      m_v4l2format.fmt.pix.pixelformat = m_config.format().rawFormat();
+      m_v4l2format.fmt.pix.field = V4L2_FIELD_NONE;
 
       int res;
       if ((res = v4l2_ioctl(m_v4l2fd, VIDIOC_S_FMT, &m_v4l2format)) != 0)
@@ -420,15 +227,17 @@ class V4L2Input
       }
 
       // note that actual parametes might differ from what was set to it!
-      // check format, other are not important
-      if (m_v4l2format.fmt.pix.pixelformat != m_config.format().v4l2fmt())
-      {
-        if (v4l2_log_file)
-          fprintf(v4l2_log_file, "v4l2_ioctl(VIDIOC_S_FMT) changed format to %"PRIu32", configured %"PRIu32"\n",
-                  m_v4l2format.fmt.pix.pixelformat, m_config.format().v4l2fmt());
-        return false;
-      }
+      m_description = Description(m_v4l2format.fmt.pix.width, m_v4l2format.fmt.pix.height,
+                                  V4L2Format(m_config.format(), m_v4l2format.fmt.pix.pixelformat),
+                                  m_v4l2format.fmt.pix.bytesperline,
+                                  m_v4l2format.fmt.pix.sizeimage);
 
+      return true;
+    }
+
+    bool doUnsetFormat()
+    {
+      m_description = Description();
       return true;
     }
 
@@ -456,7 +265,7 @@ class V4L2Input
       }
       m_v4l2buffers.resize(reqBufs.count);
 
-      for (BufferIndex bufIdx = 0; bufIdx < m_v4l2buffers.size(); ++bufIdx)
+      for (size_t bufIdx = 0; bufIdx < m_v4l2buffers.size(); ++bufIdx)
       {
         v4l2_buffer buf;
         memset(&buf, 0, sizeof(buf));
@@ -468,7 +277,7 @@ class V4L2Input
         if ((res = v4l2_ioctl(m_v4l2fd, VIDIOC_QUERYBUF, &buf)) != 0)
         {
           if (v4l2_log_file)
-            fprintf(v4l2_log_file, "v4l2_ioctl(VIDIOC_QUERYBUF)[%"PRIu32"] failed: %d/%d\n", bufIdx, res, errno);
+            fprintf(v4l2_log_file, "v4l2_ioctl(VIDIOC_QUERYBUF)[%zu] failed: %d/%d\n", bufIdx, res, errno);
           return false;
         }
 
@@ -479,7 +288,7 @@ class V4L2Input
         if (m_v4l2buffers[bufIdx].m_ptr == MAP_FAILED)
         {
           if (v4l2_log_file)
-            fprintf(v4l2_log_file, "v4l2_mmap[%"PRIu32"] failed: %d\n", bufIdx, errno);
+            fprintf(v4l2_log_file, "v4l2_mmap[%zu] failed: %d\n", bufIdx, errno);
           return false;
         }
       }
@@ -491,14 +300,14 @@ class V4L2Input
     {
       bool isOk = true;
 
-      for (BufferIndex bufIdx = 0; bufIdx < m_v4l2buffers.size(); ++bufIdx)
+      for (size_t bufIdx = 0; bufIdx < m_v4l2buffers.size(); ++bufIdx)
         if (m_v4l2buffers[bufIdx].m_ptr != MAP_FAILED)
         {
           int res;
           if ((res = v4l2_munmap(m_v4l2buffers[bufIdx].m_ptr, m_v4l2buffers[bufIdx].m_size)) != 0)
           {
             if (v4l2_log_file)
-              fprintf(v4l2_log_file, "v4l2_munmap(%p)[%"PRIu32"] failed: %d\n", m_v4l2buffers[bufIdx].m_ptr, bufIdx, errno);
+              fprintf(v4l2_log_file, "v4l2_munmap(%p)[%zu] failed: %d\n", m_v4l2buffers[bufIdx].m_ptr, bufIdx, errno);
             isOk = false;
           }
         }
@@ -509,7 +318,7 @@ class V4L2Input
 
     bool doStart()
     {
-      for (BufferIndex bufIdx = 0; bufIdx < m_v4l2buffers.size(); ++bufIdx)
+      for (size_t bufIdx = 0; bufIdx < m_v4l2buffers.size(); ++bufIdx)
       {
         v4l2_buffer buf;
         memset(&buf, 0, sizeof(buf));
@@ -520,7 +329,7 @@ class V4L2Input
         if ((res = v4l2_ioctl(m_v4l2fd, VIDIOC_QBUF, &buf)) != 0)
         {
           if (v4l2_log_file)
-            fprintf(v4l2_log_file, "v4l2_ioctl(VIDIOC_QBUF)[%"PRIu32"] failed: %d/%d\n", bufIdx, res, errno);
+            fprintf(v4l2_log_file, "v4l2_ioctl(VIDIOC_QBUF)[%zu] failed: %d/%d\n", bufIdx, res, errno);
           return false;
         }
       }
@@ -552,7 +361,7 @@ class V4L2Input
       return isOk;
     }
 
-    bool doGetFrame(BufferPtr& _ptr, BufferSize& _size, BufferIndex& _index)
+    bool doGetFrame(Frame& _frame, FrameIndex& _index)
     {
       v4l2_buffer buf;
       memset(&buf, 0, sizeof(buf));
@@ -573,13 +382,16 @@ class V4L2Input
           fprintf(v4l2_log_file, "v4l2_ioctl(VIDIOC_DQBUF) returned index out range: %"PRIu32"\n", _index);
         return false;
       }
+#if 1
+printf("Frame sizes: %zu/%"PRIu32"/%zu\n", m_v4l2buffers[_index].m_size, buf.length, m_description.bytesPerImage());
+#endif
 
-      _ptr  = m_v4l2buffers[_index].m_ptr;
-      _size = m_v4l2buffers[_index].m_size;
+      _frame = Frame(reinterpret_cast<Frame::Ptr>(m_v4l2buffers[_index].m_ptr),
+                     std::min<Frame::Size>(m_v4l2buffers[_index].m_size, m_description.bytesPerImage()));
       return true;
     }
 
-    bool doUngetFrame(const BufferIndex& _index)
+    bool doUngetFrame(const FrameIndex& _index)
     {
       v4l2_buffer buf;
       memset(&buf, 0, sizeof(buf));
@@ -599,6 +411,7 @@ class V4L2Input
 
   private:
     Config      m_config;
+    Description m_description;
     int         m_v4l2fd;
     v4l2_format m_v4l2format;
 
@@ -606,8 +419,8 @@ class V4L2Input
     {
       MmapBuffer() : m_ptr(MAP_FAILED), m_size(0) {}
 
-      BufferPtr   m_ptr;
-      BufferSize  m_size;
+      BufferPtr  m_ptr;
+      BufferSize m_size;
     };
     std::vector<MmapBuffer> m_v4l2buffers;
 
@@ -615,6 +428,8 @@ class V4L2Input
     V4L2Input(const V4L2Input&);
     V4L2Input& operator=(const V4L2Input&);
 };
+
+
 
 
 } /* **** **** **** **** **** * namespace demos * **** **** **** **** **** */

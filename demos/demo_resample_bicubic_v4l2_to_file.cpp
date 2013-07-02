@@ -1,8 +1,5 @@
 #include <sysexits.h>
 #include <unistd.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <getopt.h>
 
 #include <stdio.h>
@@ -14,34 +11,36 @@
 #include <string>
 #include <ios>
 #include <iostream>
-#include <fstream>
 #include <sstream>
 
 #include "internal/image.hpp"
 #include "internal/image_algo.hpp"
 
 #include "demos/v4l2device.hpp"
+#include "demos/filedevice.hpp"
 
 
 using namespace std;
 
 
-trik::demos::V4L2Input s_videoSrc(trik::demos::V4L2Config("/dev/video", 800, 600), "RGB888");
+static trik::demos::V4L2Input  s_videoSrc(trik::demos::V4L2Config("/dev/video", 800, 600), "RGB888");
+static trik::demos::FileOutput s_videoDst(trik::demos::FileConfig("video.out", 320, 240), "RGB888");
+static size_t s_repeatCount = 1;
 
 
 
 static bool parseConfig(int _argc, char* const _argv[])
 {
   struct option long_opts[] = {
-    { "src",			1,	NULL,	0 },
+    { "src-path",		1,	NULL,	0 },
     { "src-width",		1,	NULL,	0 },
     { "src-height",		1,	NULL,	0 },
     { "src-format",		1,	NULL,	0 },
-    { "dst",			1,	NULL,	0 },
+    { "dst-path",		1,	NULL,	0 },
     { "dst-width",		1,	NULL,	0 },
     { "dst-height",		1,	NULL,	0 },
-    { "dst-line-length",	1,	NULL,	0 },
     { "dst-format",		1,	NULL,	0 },
+    { "repeat",			1,	NULL,	0 },
     { "help",			0,	NULL,	'?' },
     { NULL,			0,	NULL,	0 },
   };
@@ -60,7 +59,7 @@ static bool parseConfig(int _argc, char* const _argv[])
           case 0:
             if ((istringstream(optarg) >> s_videoSrc.config().path()).fail())
             {
-              fprintf(stderr, "Cannot parse src argument\n");
+              fprintf(stderr, "Cannot parse src-path argument\n");
               return false;
             }
             break;
@@ -89,17 +88,16 @@ static bool parseConfig(int _argc, char* const _argv[])
             }
             break;
 
-#if 0
           case 4:
-            if ((istringstream(optarg) >> s_videoDst.path()).fail())
+            if ((istringstream(optarg) >> s_videoDst.config().path()).fail())
             {
-              fprintf(stderr, "Cannot parse dst argument\n");
+              fprintf(stderr, "Cannot parse dst-path argument\n");
               return false;
             }
             break;
 
           case 5:
-            if ((istringstream(optarg) >> s_videoDst.width()).fail())
+            if ((istringstream(optarg) >> s_videoDst.config().width()).fail())
             {
               fprintf(stderr, "Cannot parse dst-width argument\n");
               return false;
@@ -107,7 +105,7 @@ static bool parseConfig(int _argc, char* const _argv[])
             break;
 
           case 6:
-            if ((istringstream(optarg) >> s_videoDst.height()).fail())
+            if ((istringstream(optarg) >> s_videoDst.config().height()).fail())
             {
               fprintf(stderr, "Cannot parse dst-height argument\n");
               return false;
@@ -115,21 +113,20 @@ static bool parseConfig(int _argc, char* const _argv[])
             break;
 
           case 7:
-            if ((istringstream(optarg) >> s_videoDst.lineLength()).fail())
-            {
-              fprintf(stderr, "Cannot parse dst-line-lenght argument\n");
-              return false;
-            }
-            break;
-
-          case 8:
-            if ((istringstream(optarg) >> s_videoDst.format()).fail())
+            if ((istringstream(optarg) >> s_videoDst.config().format()).fail())
             {
               fprintf(stderr, "Cannot parse dst-format argument\n");
               return false;
             }
             break;
-#endif
+
+          case 8:
+            if ((istringstream(optarg) >> s_repeatCount).fail())
+            {
+              fprintf(stderr, "Cannot parse repeat argument\n");
+              return false;
+            }
+            break;
 
           default:
             return false;
@@ -150,12 +147,22 @@ static bool parseConfig(int _argc, char* const _argv[])
 }
 
 
-
+static bool resample(const trik::demos::V4L2Input::Description&  _srcDescr,
+                     const trik::demos::V4L2Input::Frame&        _srcFrame,
+                     const trik::demos::FileOutput::Description& _dstDescr,
+                     const trik::demos::FileOutput::Frame&       _dstFrame)
+{
 
 #if 0
 typedef trik::image::ImageAlgorithm<trik::image::BaseImageAlgorithm::AlgoResampleBicubic, ImgRGB888i, ImgRGB888o> AlgResample888;
 typedef trik::image::ImageAlgorithm<trik::image::BaseImageAlgorithm::AlgoResampleBicubic, ImgRGB888i, ImgRGB888o> AlgResample565;
 #endif
+
+#warning TODO
+  return false;
+
+}
+
 
 
 int main(int _argc, char* const _argv[])
@@ -165,7 +172,17 @@ int main(int _argc, char* const _argv[])
   if (!parseConfig(_argc, _argv))
   {
     fprintf(stderr, "Usage:\n"
-                    "  %s [opts]\n",
+                    "  %s [opts]\n"
+                    "where opts are:\n"
+                    "  --src-path   <path>\n"
+                    "  --src-width  <width>\n"
+                    "  --src-height <height>\n"
+                    "  --src-format <format>\n"
+                    "  --dst-path   <path>\n"
+                    "  --dst-width  <width>\n"
+                    "  --dst-height <height>\n"
+                    "  --dst-format <format>\n",
+                    "  --repeat     <count>\n",
             _argv[0]);
     exit(EX_USAGE);
   }
@@ -178,35 +195,56 @@ int main(int _argc, char* const _argv[])
   if (!s_videoSrc.start())
     exit(EX_NOINPUT);
 
+  if (!s_videoDst.open())
+    exit(EX_CANTCREAT);
+
+  if (!s_videoDst.start())
+    exit(EX_CANTCREAT);
+
   const int videoSrcFd = s_videoSrc.v4l2fd();
 
-  for (unsigned retry = 0; retry < 10; ++retry)
+  for (size_t repeat = 0; repeat < s_repeatCount; ++repeat)
   {
     int fdsMax;
     fd_set fdsIn;
     FD_ZERO(&fdsIn);
-    FD_SET(s_videoSrc.v4l2fd(), &fdsIn);
+    FD_SET(videoSrcFd, &fdsIn);
 
     struct timeval timeout;
     timeout.tv_sec = 1;
     timeout.tv_usec = 0;
 
-    if ((res = select(s_videoSrc.v4l2fd()+1, &fdsIn, NULL, NULL, &timeout)) == -1)
+    if ((res = select(videoSrcFd+1, &fdsIn, NULL, NULL, &timeout)) == -1)
     {
       fprintf(stderr, "select() failed: %d\n", errno);
       exit(EX_OSERR);
     }
 
-    trik::demos::V4L2BufferDescription buf;
-    if (!s_videoSrc.getFrame(buf))
+    if (!FD_ISSET(videoSrcFd, &fdsIn))
+    {
+      fprintf(stderr, "video src has not provided frame\n");
+      exit(EX_NOINPUT);
+    }
+
+    trik::demos::V4L2Input::Frame      srcFrame;
+    trik::demos::V4L2Input::FrameIndex srcFrameIndex;
+    if (!s_videoSrc.getFrame(srcFrame, srcFrameIndex))
       exit(EX_SOFTWARE);
-    printf("got frame: %p (%zu) %"PRIu32"x%"PRIu32"\n", buf.ptr(), buf.size(), buf.width(), buf.height());
-    if (!s_videoSrc.ungetFrame(buf))
+
+    trik::demos::FileOutput::Frame     dstFrame;
+
+    if (!resample(s_videoSrc.description(), srcFrame, s_videoDst.description(), dstFrame))
+      exit(EX_SOFTWARE);
+
+    if (!s_videoDst.putFrame(dstFrame))
+      exit(EX_SOFTWARE);
+
+    if (!s_videoSrc.ungetFrame(srcFrameIndex))
       exit(EX_SOFTWARE);
   }
 
-  // We got input frame, time to generate output
-
+  s_videoDst.stop();
+  s_videoDst.close();
   s_videoSrc.stop();
   s_videoSrc.close();
 
