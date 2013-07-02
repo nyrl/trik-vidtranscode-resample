@@ -251,6 +251,7 @@ class VideoFrame
 
     const Ptr&    ptr()  const { return m_ptr; }
     const Size&   size() const { return m_size; }
+    void          size(const size_t& _size) { m_size = _size; }
 
   private:
     Ptr   m_ptr;

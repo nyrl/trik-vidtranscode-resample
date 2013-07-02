@@ -147,6 +147,39 @@ static bool parseConfig(int _argc, char* const _argv[])
 }
 
 
+
+
+template <trik::image::BaseImagePixel::PixelType         _PixelTypeSrc,
+          trik::image::BaseImagePixel::PixelType         _PixelTypeDst,
+          trik::image::BaseImageAlgorithm::AlgorithmType _Algorithm>
+static bool execAlgorithm(const trik::demos::V4L2Input::Description&  _srcDesc,
+                          const trik::demos::V4L2Input::Frame&        _srcFrame,
+                          const trik::demos::FileOutput::Description& _dstDesc,
+                          trik::demos::FileOutput::Frame&             _dstFrame)
+{
+  typedef trik::image::Image<_PixelTypeSrc, const uint8_t>            ImageSrc;
+  typedef trik::image::Image<_PixelTypeDst, uint8_t>                  ImageDst;
+  typedef trik::image::ImageAlgorithm<_Algorithm, ImageSrc, ImageDst> Algorithm;
+
+  ImageSrc imageSrc(_srcFrame.ptr(), _srcFrame.size(),
+                    _srcDesc.width(), _srcDesc.height(),
+                    _srcDesc.bytesPerLine());
+  ImageDst imageDst(_dstFrame.ptr(), _dstFrame.size(),
+                    _dstDesc.width(), _dstDesc.height(),
+                    _dstDesc.bytesPerLine());
+  Algorithm algorithm;
+
+  if (!algorithm(imageSrc, imageDst))
+  {
+    fprintf(stderr, "algorithm failed\n");
+    return false;
+  }
+
+  _dstFrame.size(imageDst.actualImageSize());
+  return true;
+}
+
+
 static bool resample(const trik::demos::V4L2Input::Description&  _srcDesc,
                      const trik::demos::V4L2Input::Frame&        _srcFrame,
                      const trik::demos::FileOutput::Description& _dstDesc,
@@ -154,54 +187,23 @@ static bool resample(const trik::demos::V4L2Input::Description&  _srcDesc,
 {
   if (_srcDesc.format().rawFormat() == V4L2_PIX_FMT_RGB24 && _dstDesc.format().rawFormat() == V4L2_PIX_FMT_RGB565)
   {
-    typedef trik::image::Image<trik::image::BaseImagePixel::PixelRGB888, const uint8_t> ImageSrc;
-    typedef trik::image::Image<trik::image::BaseImagePixel::PixelRGB565, uint8_t>       ImageDst;
-    trik::image::ImageAlgorithm<trik::image::BaseImageAlgorithm::AlgoResampleBicubic, ImageSrc, ImageDst> algorithm;
-
-    ImageSrc imageSrc(_srcFrame.ptr(), _srcFrame.size(),
-                      _srcDesc.width(), _srcDesc.height(),
-                      _srcDesc.bytesPerLine());
-    ImageDst imageDst(_dstFrame.ptr(), _dstFrame.size(),
-                      _dstDesc.width(), _dstDesc.height(),
-                      /*_dstDesc.bytesPerLine()*/2*_dstDesc.width());
-#warning TODO dirty hack above
-
-    if (!algorithm(imageSrc, imageDst))
-    {
-      fprintf(stderr, "algorithm(RGB888->RGB565) failed\n");
+    if (!execAlgorithm<trik::image::BaseImagePixel::PixelRGB888,
+                       trik::image::BaseImagePixel::PixelRGB565,
+                       trik::image::BaseImageAlgorithm::AlgoResampleBicubic>(_srcDesc, _srcFrame, _dstDesc, _dstFrame))
       return false;
-    }
-
-#warning TODO update dst image usage
   }
   else if (_srcDesc.format().rawFormat() == V4L2_PIX_FMT_RGB24 && _dstDesc.format().rawFormat() == V4L2_PIX_FMT_RGB24)
   {
-    typedef trik::image::Image<trik::image::BaseImagePixel::PixelRGB888, const uint8_t> ImageSrc;
-    typedef trik::image::Image<trik::image::BaseImagePixel::PixelRGB888, uint8_t>       ImageDst;
-    trik::image::ImageAlgorithm<trik::image::BaseImageAlgorithm::AlgoResampleBicubic, ImageSrc, ImageDst> algorithm;
-
-    ImageSrc imageSrc(_srcFrame.ptr(), _srcFrame.size(),
-                      _srcDesc.width(), _srcDesc.height(),
-                      _srcDesc.bytesPerLine());
-    ImageDst imageDst(_dstFrame.ptr(), _dstFrame.size(),
-                      _dstDesc.width(), _dstDesc.height(),
-                      /*_dstDesc.bytesPerLine()*/3*_dstDesc.width());
-#warning TODO dirty hack above
-
-    if (!algorithm(imageSrc, imageDst))
-    {
-      fprintf(stderr, "algorithm(RGB888->RGB888) failed\n");
+    if (!execAlgorithm<trik::image::BaseImagePixel::PixelRGB888,
+                       trik::image::BaseImagePixel::PixelRGB888,
+                       trik::image::BaseImageAlgorithm::AlgoResampleBicubic>(_srcDesc, _srcFrame, _dstDesc, _dstFrame))
       return false;
-    }
-
-#warning TODO update dst image usage
   }
   else
   {
     fprintf(stderr, "algorithm does not know requested conversion\n");
     return false;
   }
-
 
   return true;
 }
