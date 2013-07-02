@@ -184,6 +184,19 @@ class ImagePixelConvertion
     }
 };
 
+template <typename PixelType>
+class ImagePixelConvertion<PixelType, PixelType> // specialization for same type copy
+{
+  public:
+    ImagePixelConvertion() {}
+
+    bool operator()(const PixelType& _p1, PixelType& _p2) const
+    {
+      _p2 = _p1;
+      return true;
+    }
+};
+
 
 template <typename PixelSetType1, typename PixelSetType2>
 class ImagePixelSetConvertion
