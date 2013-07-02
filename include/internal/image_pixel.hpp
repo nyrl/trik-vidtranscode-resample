@@ -202,18 +202,23 @@ template <typename PixelSetType1, typename PixelSetType2>
 class ImagePixelSetConvertion
 {
   public:
-    ImagePixelSetConvertion() {}
+    ImagePixelSetConvertion()
+     :m_convertion()
+    {
+    }
 
     bool operator()(const PixelSetType1& _s1, PixelSetType2& _s2) const
     {
-      ImagePixelConvertion<typename PixelSetType1::Pixel, typename PixelSetType2::Pixel> convertion;
       bool isOk = true;
 
       for (size_t i = 0; i < _s1.pixelsCount(); ++i)
-        isOk &= convertion(_s1[i], _s2[i]);
+        isOk &= m_convertion(_s1[i], _s2[i]);
 
       return isOk;
     }
+
+  private:
+    ImagePixelConvertion<typename PixelSetType1::Pixel, typename PixelSetType2::Pixel> m_convertion;
 };
 
 

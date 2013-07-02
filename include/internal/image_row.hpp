@@ -117,7 +117,7 @@ class ImageRowSet : public BaseImageRowSet,
                     private assert_inst<(_rowsCount > 0)> // sanity check
 {
   public:
-    typedef ImageRow<PT, UByteCV> Row;
+    typedef ImageRow<PT, UByteCV>         Row;
     typedef ImagePixelSet<PT, _rowsCount> PixelSet;
 
     ImageRowSet()

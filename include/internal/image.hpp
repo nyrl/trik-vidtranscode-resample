@@ -128,9 +128,12 @@ template <BaseImagePixel::PixelType PT, typename UByteCV>
 class Image : public BaseImage,
               private internal::ImageAccessor<UByteCV>
 {
+  protected:
+    typedef internal::ImageAccessor<UByteCV> ImageAccessor;
+
   public:
     static const BaseImagePixel::PixelType s_pixelType = PT;
-    typedef UByteCV UByteCVType;
+    typedef UByteCV               UByteCVType;
     typedef ImageRow<PT, UByteCV> RowType;
 
 
@@ -183,41 +186,19 @@ class Image : public BaseImage,
 
       for (size_t idx = 1; idx <= _rowsAfter; ++idx)
         if (!getRow(_rowSet.prepareNewRow(),
-                    std::min(ImageAccessor::lastRow(), _baseRow+idx)))
+                    (idx >= ImageAccessor::lastRow() ? ImageAccessor::lastRow() : _baseRow+idx)))
           return false;
 
       return true;
     }
 
-    const size_t& width() const
-    {
-      return ImageAccessor::width();
-    }
-
-    const size_t& height() const
-    {
-      return ImageAccessor::height();
-    }
-
-    const size_t& imageSize() const
-    {
-      return ImageAccessor::imageSize();
-    }
-
-    size_t actualImageSize() const
-    {
-      return ImageAccessor::actualImageSize();
-    }
-
-    UByteCV* getPtr() const
-    {
-      return ImageAccessor::getPtr();
-    }
-
+    using ImageAccessor::width;
+    using ImageAccessor::height;
+    using ImageAccessor::imageSize;
+    using ImageAccessor::actualImageSize;
+    using ImageAccessor::getPtr;
 
   protected:
-    typedef internal::ImageAccessor<UByteCV> ImageAccessor;
-
     static size_t fixupLineLength(size_t _width, size_t _lineLength)
     {
       return _lineLength==0 ? RowType::calcLineLength(_width) : _lineLength;
