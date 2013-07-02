@@ -50,6 +50,11 @@ class ImageRow<BaseImagePixel::PixelRGB565, UByteCV> : public BaseImageRow,
       return _pixel.pack(ptr[0], ptr[1]);
     }
 
+    static size_t calcLineLength(size_t _width)
+    {
+      return _width * 2;
+    }
+
   protected:
     typedef internal::ImageRowAccessor<UByteCV> ImageRowAccessor;
 };
@@ -92,6 +97,11 @@ class ImageRow<BaseImagePixel::PixelRGB888, UByteCV> : public BaseImageRow,
         return false;
 
       return _pixel.pack(ptr[0], ptr[1], ptr[2]);
+    }
+
+    static size_t calcLineLength(size_t _width)
+    {
+      return _width * 3;
     }
 
   protected:

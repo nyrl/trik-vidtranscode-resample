@@ -58,6 +58,11 @@ class BaseImageAccessor
       return m_imageSize;
     }
 
+    size_t actualImageSize() const
+    {
+      return m_height * m_lineLength;
+    }
+
     size_t lastRow() const
     {
       return m_height == 0 ? 0 : m_height-1;
@@ -137,7 +142,7 @@ class Image : public BaseImage,
     Image(size_t	_width,
           size_t	_height)
      :BaseImage(),
-      ImageAccessor(NULL, 0, _width, _height, 0)
+      ImageAccessor(NULL, 0, _width, _height, fixupLineLength(_width, 0))
     {
     }
 
@@ -147,7 +152,7 @@ class Image : public BaseImage,
           size_t	_height,
           size_t	_lineLength)
      :BaseImage(),
-      ImageAccessor(_imagePtr, _imageSize, _width, _height, _lineLength)
+      ImageAccessor(_imagePtr, _imageSize, _width, _height, fixupLineLength(_width, _lineLength))
     {
     }
 
@@ -198,6 +203,11 @@ class Image : public BaseImage,
       return ImageAccessor::imageSize();
     }
 
+    size_t actualImageSize() const
+    {
+      return ImageAccessor::actualImageSize();
+    }
+
     UByteCV* getPtr() const
     {
       return ImageAccessor::getPtr();
@@ -207,6 +217,10 @@ class Image : public BaseImage,
   protected:
     typedef internal::ImageAccessor<UByteCV> ImageAccessor;
 
+    static size_t fixupLineLength(size_t _width, size_t _lineLength)
+    {
+      return _lineLength==0 ? RowType::calcLineLength(_width) : _lineLength;
+    }
 };
 
 
