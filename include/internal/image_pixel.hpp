@@ -23,34 +23,34 @@ class BaseImagePixelAccessor
     BaseImagePixelAccessor() {}
 
     template <typename UType>
-    static UType storageBitmask(size_t _size)
+    static UType utypeBitmask(size_t _size)
     {
       assert(_size <= sizeof(UType) * CHAR_BIT);
       return (static_cast<UType>(1u) << _size) - 1;
     }
 
     template <typename UType, bool _ofsPositive>
-    static UType storageGet(const UType& _value, size_t _size, size_t _ofs)
+    static UType utypeGet(const UType& _value, size_t _size, size_t _ofs)
     {
       assert(_size <= sizeof(UType) * CHAR_BIT);
       assert(_ofs  <= sizeof(UType) * CHAR_BIT);
 
       if (_ofsPositive)
-        return (_value >> _ofs) & storageBitmask<UType>(_size);
+        return (_value >> _ofs) & utypeBitmask<UType>(_size);
       else
-        return (_value & storageBitmask<UType>(_size)) << _ofs;
+        return (_value & utypeBitmask<UType>(_size)) << _ofs;
     }
 
     template <typename UType, bool _ofsPositive>
-    static UType storageValue(const UType& _value, size_t _size, size_t _ofs)
+    static UType utypeValue(const UType& _value, size_t _size, size_t _ofs)
     {
       assert(_size <= sizeof(UType) * CHAR_BIT);
       assert(_ofs  <= sizeof(UType) * CHAR_BIT);
 
       if (_ofsPositive)
-        return (_value & storageBitmask<UType>(_size)) << _ofs;
+        return (_value & utypeBitmask<UType>(_size)) << _ofs;
       else
-        return (_value >> _ofs) & storageBitmask<UType>(_size);
+        return (_value >> _ofs) & utypeBitmask<UType>(_size);
     }
 };
 
