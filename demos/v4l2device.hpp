@@ -382,9 +382,6 @@ class V4L2Input
           fprintf(v4l2_log_file, "v4l2_ioctl(VIDIOC_DQBUF) returned index out range: %"PRIu32"\n", _index);
         return false;
       }
-#if 1
-printf("Frame sizes: %zu/%"PRIu32"/%zu\n", m_v4l2buffers[_index].m_size, buf.length, m_description.bytesPerImage());
-#endif
 
       _frame = Frame(reinterpret_cast<Frame::Ptr>(m_v4l2buffers[_index].m_ptr),
                      std::min<Frame::Size>(m_v4l2buffers[_index].m_size, m_description.bytesPerImage()));

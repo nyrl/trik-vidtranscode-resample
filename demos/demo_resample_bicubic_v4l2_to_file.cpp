@@ -163,7 +163,8 @@ static bool resample(const trik::demos::V4L2Input::Description&  _srcDesc,
                       _srcDesc.bytesPerLine());
     ImageDst imageDst(_dstFrame.ptr(), _dstFrame.size(),
                       _dstDesc.width(), _dstDesc.height(),
-                      _dstDesc.bytesPerLine());
+                      /*_dstDesc.bytesPerLine()*/2*_dstDesc.width());
+#warning TODO dirty hack above
 
     if (!algorithm(imageSrc, imageDst))
     {
@@ -184,7 +185,8 @@ static bool resample(const trik::demos::V4L2Input::Description&  _srcDesc,
                       _srcDesc.bytesPerLine());
     ImageDst imageDst(_dstFrame.ptr(), _dstFrame.size(),
                       _dstDesc.width(), _dstDesc.height(),
-                      _dstDesc.bytesPerLine());
+                      /*_dstDesc.bytesPerLine()*/3*_dstDesc.width());
+#warning TODO dirty hack above
 
     if (!algorithm(imageSrc, imageDst))
     {
