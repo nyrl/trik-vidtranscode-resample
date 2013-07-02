@@ -147,21 +147,63 @@ static bool parseConfig(int _argc, char* const _argv[])
 }
 
 
-static bool resample(const trik::demos::V4L2Input::Description&  _srcDescr,
+static bool resample(const trik::demos::V4L2Input::Description&  _srcDesc,
                      const trik::demos::V4L2Input::Frame&        _srcFrame,
-                     const trik::demos::FileOutput::Description& _dstDescr,
-                     const trik::demos::FileOutput::Frame&       _dstFrame)
+                     const trik::demos::FileOutput::Description& _dstDesc,
+                     trik::demos::FileOutput::Frame&             _dstFrame)
 {
+  if (_srcDesc.format().rawFormat() == V4L2_PIX_FMT_RGB24 && _dstDesc.format().rawFormat() == V4L2_PIX_FMT_RGB565)
+  {
+    typedef trik::image::Image<trik::image::BaseImagePixel::PixelRGB888, const uint8_t> ImageSrc;
+    typedef trik::image::Image<trik::image::BaseImagePixel::PixelRGB565, uint8_t>       ImageDst;
+    trik::image::ImageAlgorithm<trik::image::BaseImageAlgorithm::AlgoResampleBicubic, ImageSrc, ImageDst> algorithm;
 
-#if 0
-typedef trik::image::ImageAlgorithm<trik::image::BaseImageAlgorithm::AlgoResampleBicubic, ImgRGB888i, ImgRGB888o> AlgResample888;
-typedef trik::image::ImageAlgorithm<trik::image::BaseImageAlgorithm::AlgoResampleBicubic, ImgRGB888i, ImgRGB888o> AlgResample565;
-#endif
+    ImageSrc imageSrc(_srcFrame.ptr(), _srcFrame.size(),
+                      _srcDesc.width(), _srcDesc.height(),
+                      _srcDesc.bytesPerLine());
+    ImageDst imageDst(_dstFrame.ptr(), _dstFrame.size(),
+                      _dstDesc.width(), _dstDesc.height(),
+                      _dstDesc.bytesPerLine());
 
-#warning TODO
-  return false;
+    if (!algorithm(imageSrc, imageDst))
+    {
+      fprintf(stderr, "algorithm(RGB888->RGB565) failed\n");
+      return false;
+    }
 
+#warning TODO update dst image usage
+  }
+  else if (_srcDesc.format().rawFormat() == V4L2_PIX_FMT_RGB24 && _dstDesc.format().rawFormat() == V4L2_PIX_FMT_RGB24)
+  {
+    typedef trik::image::Image<trik::image::BaseImagePixel::PixelRGB888, const uint8_t> ImageSrc;
+    typedef trik::image::Image<trik::image::BaseImagePixel::PixelRGB888, uint8_t>       ImageDst;
+    trik::image::ImageAlgorithm<trik::image::BaseImageAlgorithm::AlgoResampleBicubic, ImageSrc, ImageDst> algorithm;
+
+    ImageSrc imageSrc(_srcFrame.ptr(), _srcFrame.size(),
+                      _srcDesc.width(), _srcDesc.height(),
+                      _srcDesc.bytesPerLine());
+    ImageDst imageDst(_dstFrame.ptr(), _dstFrame.size(),
+                      _dstDesc.width(), _dstDesc.height(),
+                      _dstDesc.bytesPerLine());
+
+    if (!algorithm(imageSrc, imageDst))
+    {
+      fprintf(stderr, "algorithm(RGB888->RGB888) failed\n");
+      return false;
+    }
+
+#warning TODO update dst image usage
+  }
+  else
+  {
+    fprintf(stderr, "algorithm does not know requested conversion\n");
+    return false;
+  }
+
+
+  return true;
 }
+
 
 
 

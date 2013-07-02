@@ -70,16 +70,19 @@ class FileOutput
 {
   public:
     typedef FileConfig                              Config;
+    typedef VideoImageDescription<FileFormat>       Description;
     typedef VideoFrame<uint8_t*>                    Frame;
 
     FileOutput()
      :m_config(knownFormats()),
+      m_description(),
       m_fd(-1)
     {
     }
 
     explicit FileOutput(const Config& _config, const std::string& _format)
      :m_config(_config, knownFormats()),
+      m_description(),
       m_fd(-1)
     {
       std::istringstream is(_format);
@@ -96,7 +99,8 @@ class FileOutput
 
     bool open()
     {
-      if (doOpen())
+      if (   doOpen()
+          && doSetFormat())
         return true;
 
       close();
@@ -106,6 +110,8 @@ class FileOutput
     bool close()
     {
       bool isOk = true;
+      if (!doUnsetFormat())
+        isOk = false;
       if (!doClose())
         isOk = false;
 
@@ -122,9 +128,19 @@ class FileOutput
       return true;
     }
 
+    bool getFrame(Frame& _frame)
+    {
+      return doGetFrame(_frame);
+    }
+
     bool putFrame(const Frame& _frame)
     {
       return doPutFrame(_frame);
+    }
+
+    const Description& description() const
+    {
+      return m_description;
     }
 
   protected:
@@ -143,7 +159,7 @@ class FileOutput
       if (m_fd != -1)
         return false;
 
-      m_fd = ::open(m_config.path().c_str(), O_WRONLY|O_TRUNC, S_IRUSR|S_IWUSR);
+      m_fd = ::open(m_config.path().c_str(), O_WRONLY|O_TRUNC|O_CREAT, S_IRUSR|S_IWUSR);
       if (m_fd < 0)
       {
         fprintf(stderr, "open(%s) failed: %d\n", m_config.path().c_str(), errno);
@@ -168,6 +184,21 @@ class FileOutput
       return isOk;
     }
 
+    bool doSetFormat()
+    {
+      m_frameBuffer.resize(m_config.width() * m_config.height() * 4); // 4 bytes per pixel should be enought
+      m_description = Description(m_config.width(), m_config.height(),
+                                  m_config.format(),
+                                  0, 0);
+      return true;
+    }
+
+    bool doUnsetFormat()
+    {
+      m_description = Description();
+      m_frameBuffer.resize(0);
+      return true;
+    }
 
     bool doStart()
     {
@@ -176,6 +207,12 @@ class FileOutput
 
     bool doStop()
     {
+      return true;
+    }
+
+    bool doGetFrame(Frame& _frame)
+    {
+      _frame = Frame(&m_frameBuffer.front(), m_frameBuffer.size());
       return true;
     }
 
@@ -192,8 +229,10 @@ class FileOutput
     }
 
   private:
-    Config      m_config;
-    int         m_fd;
+    Config               m_config;
+    Description          m_description;
+    int                  m_fd;
+    std::vector<uint8_t> m_frameBuffer;
 
     FileOutput(const FileOutput&);
     FileOutput& operator=(const FileOutput&);
