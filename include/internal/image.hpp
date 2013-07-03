@@ -186,7 +186,7 @@ class Image : public BaseImage,
 
       for (size_t idx = 1; idx <= _rowsAfter; ++idx)
         if (!getRow(_rowSet.prepareNewRow(),
-                    (idx >= ImageAccessor::lastRow() ? ImageAccessor::lastRow() : _baseRow+idx)))
+                    std::min(_baseRow+idx, ImageAccessor::lastRow())))
           return false;
 
       return true;
