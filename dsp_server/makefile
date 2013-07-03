@@ -7,16 +7,10 @@ BIOS_INSTALL_DIR?=$(DEPOT)/bios_6_35_01_29
 FC_INSTALL_DIR?=$(DEPOT)/framework_components_3_23_03_17
 XDAIS_INSTALL_DIR?=$(DEPOT)/xdais_7_23_00_06
 IPC_INSTALL_DIR?=$(DEPOT)/ipc_1_25_02_12
-CODEGEN_INSTALL_DIR?=$(DEPOT)/cgt6x_7_4_2
-
-# set this to your DSPLink installation.  Note that it must contain
-# a directory named "dsplink".  Some installations of DSPLink include a
-# packages/ subdirectory before the "dsplink/" directory; if your DSPLink
-# distribution has this packages/ subdirectory, you must add it to the
-# end of your DSPLINK_INSTALL_DIR variable, like this:
 LINK_INSTALL_DIR?=$(DEPOT)/syslink_2_21_01_05
 OSAL_INSTALL_DIR?=$(DEPOT)/osal_1_23_00_04
-LINUXUTILS_INSTALL_DIR?=$(DEPOT)/linuxutils_3_23_00_01
+CMEM_INSTALL_DIR?=$(DEPOT)/linuxutils_3_23_00_01
+CODEGEN_INSTALL_DIR?=$(DEPOT)/cgt6x_7_4_2
 
 EXTRA_XDCPACKAGES_DIR?=$(PWD)/..
 
@@ -36,7 +30,7 @@ XDCARGS=CODEGEN_INSTALL_DIR=\"$(CODEGEN_INSTALL_DIR)\"
 
 # Construct XDCPATH from the paths above - this is the path containing
 # dependencies required for this Server
-XDCPATH=$(XDC_INSTALL_DIR)/packages;$(CE_INSTALL_DIR)/packages;$(BIOS_INSTALL_DIR)/packages;$(LINK_INSTALL_DIR)/packages;$(IPC_INSTALL_DIR)/packages;$(XDAIS_INSTALL_DIR)/packages;$(FC_INSTALL_DIR)/packages;$(OSAL_INSTALL_DIR)/packages;$(LINUXUTILS_INSTALL_DIR)/packages;$(EXTRA_XDCPACKAGES_DIR)
+XDCPATH=$(XDC_INSTALL_DIR)/packages;$(CE_INSTALL_DIR)/packages;$(BIOS_INSTALL_DIR)/packages;$(LINK_INSTALL_DIR)/packages;$(IPC_INSTALL_DIR)/packages;$(XDAIS_INSTALL_DIR)/packages;$(FC_INSTALL_DIR)/packages;$(OSAL_INSTALL_DIR)/packages;$(CMEM_INSTALL_DIR)/packages;$(EXTRA_XDCPACKAGES_DIR)
 
 TRACE_LEVEL=
 TRACE_GROUPS=
