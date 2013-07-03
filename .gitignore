@@ -2,9 +2,11 @@
 .executables
 .interfaces
 .libraries
+.libraries,*
 .xdcenv.mak
 
 lib
+bin
 
 package.mak
 package
@@ -12,3 +14,4 @@ package
 demo-*
 
 /trik_vidtranscode_resample.tar
+/dsp_server/trik_vidtranscode_resample_dsp_server.tar
