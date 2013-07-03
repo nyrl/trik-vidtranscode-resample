@@ -5,7 +5,7 @@ CE_INSTALL_DIR?=/home/nyrl/trik/ti-ce3/codec_engine_3_23_00_07
 XDAIS_INSTALL_DIR?=/home/nyrl/trik/ti-ce3/xdais_7_23_00_06
 CODEGEN_INSTALL_DIR?=/home/nyrl/trik/ti-ce3/cgt6x_7_4_2
 
-TRIK_LIBIMAGE?=$(PWD)/../libimage
+TRIK_LIBIMAGE?=$(PWD)/libimage
 TRIK_INCPATH=$(PWD)/include;$(TRIK_LIBIMAGE)/include
 
 #uncomment this for verbose builds
