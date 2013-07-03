@@ -13,9 +13,9 @@
 /* **** **** **** **** **** */ namespace image /* **** **** **** **** **** */ {
 
 
-template <typename UByteCV>
-class ImageRow<BaseImagePixel::PixelRGB565, UByteCV> : public BaseImageRow,
-                                                       private internal::ImageRowAccessor<UByteCV>
+template <typename _UByteCV>
+class ImageRow<BaseImagePixel::PixelRGB565, _UByteCV> : public BaseImageRow,
+                                                        private internal::ImageRowAccessor<_UByteCV>
 {
   public:
     typedef ImagePixel<BaseImagePixel::PixelRGB565> PixelType;
@@ -26,7 +26,7 @@ class ImageRow<BaseImagePixel::PixelRGB565, UByteCV> : public BaseImageRow,
     {
     }
 
-    ImageRow(UByteCV* _ptr, size_t _lineLength, size_t _width)
+    ImageRow(_UByteCV* _ptr, size_t _lineLength, size_t _width)
      :BaseImageRow(),
       ImageRowAccessor(_ptr, _lineLength, _width)
     {
@@ -34,7 +34,7 @@ class ImageRow<BaseImagePixel::PixelRGB565, UByteCV> : public BaseImageRow,
 
     bool readPixel(PixelType& _pixel)
     {
-      UByteCV* ptr;
+      _UByteCV* ptr;
       if (!ImageRowAccessor::accessPixel(ptr, 2))
         return false;
 
@@ -43,7 +43,7 @@ class ImageRow<BaseImagePixel::PixelRGB565, UByteCV> : public BaseImageRow,
 
     bool writePixel(const PixelType& _pixel)
     {
-      UByteCV* ptr;
+      _UByteCV* ptr;
       if (!ImageRowAccessor::accessPixel(ptr, 2))
         return false;
 
@@ -56,15 +56,15 @@ class ImageRow<BaseImagePixel::PixelRGB565, UByteCV> : public BaseImageRow,
     }
 
   protected:
-    typedef internal::ImageRowAccessor<UByteCV> ImageRowAccessor;
+    typedef internal::ImageRowAccessor<_UByteCV> ImageRowAccessor;
 };
 
 
 
 
-template <typename UByteCV>
-class ImageRow<BaseImagePixel::PixelRGB888, UByteCV> : public BaseImageRow,
-                                                       private internal::ImageRowAccessor<UByteCV>
+template <typename _UByteCV>
+class ImageRow<BaseImagePixel::PixelRGB888, _UByteCV> : public BaseImageRow,
+                                                        private internal::ImageRowAccessor<_UByteCV>
 {
   public:
     typedef ImagePixel<BaseImagePixel::PixelRGB888> PixelType;
@@ -75,7 +75,7 @@ class ImageRow<BaseImagePixel::PixelRGB888, UByteCV> : public BaseImageRow,
     {
     }
 
-    ImageRow(UByteCV* _ptr, size_t _lineLength, size_t _width)
+    ImageRow(_UByteCV* _ptr, size_t _lineLength, size_t _width)
      :BaseImageRow(),
       ImageRowAccessor(_ptr, _lineLength, _width)
     {
@@ -83,7 +83,7 @@ class ImageRow<BaseImagePixel::PixelRGB888, UByteCV> : public BaseImageRow,
 
     bool readPixel(PixelType& _pixel)
     {
-      UByteCV* ptr;
+      _UByteCV* ptr;
       if (!ImageRowAccessor::accessPixel(ptr, 3))
         return false;
 
@@ -92,7 +92,7 @@ class ImageRow<BaseImagePixel::PixelRGB888, UByteCV> : public BaseImageRow,
 
     bool writePixel(const PixelType& _pixel)
     {
-      UByteCV* ptr;
+      _UByteCV* ptr;
       if (!ImageRowAccessor::accessPixel(ptr, 3))
         return false;
 
@@ -105,7 +105,7 @@ class ImageRow<BaseImagePixel::PixelRGB888, UByteCV> : public BaseImageRow,
     }
 
   protected:
-    typedef internal::ImageRowAccessor<UByteCV> ImageRowAccessor;
+    typedef internal::ImageRowAccessor<_UByteCV> ImageRowAccessor;
 };
 
 

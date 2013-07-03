@@ -26,7 +26,7 @@ class BaseImageAlgorithm
 };
 
 
-template <BaseImageAlgorithm::AlgorithmType ALG, typename ImageIn, typename ImageOut>
+template <BaseImageAlgorithm::AlgorithmType _ALG, typename _ImageIn, typename _ImageOut>
 class ImageAlgorithm : public BaseImageAlgorithm,
                        private assert_inst<false> // non-functional generic template
 {

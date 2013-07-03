@@ -48,7 +48,7 @@ class BaseImageRowAccessor
 };
 
 
-template <typename UByteCV>
+template <typename _UByteCV>
 class ImageRowAccessor : private BaseImageRowAccessor
 {
   protected:
@@ -58,13 +58,13 @@ class ImageRowAccessor : private BaseImageRowAccessor
     {
     }
 
-    ImageRowAccessor(UByteCV* _rowPtr, size_t _lineLength, size_t _width)
+    ImageRowAccessor(_UByteCV* _rowPtr, size_t _lineLength, size_t _width)
      :BaseImageRowAccessor(_lineLength, _width),
       m_ptr(_rowPtr)
     {
     }
 
-    bool accessPixel(UByteCV*& _pixelPtr, size_t _bytes)
+    bool accessPixel(_UByteCV*& _pixelPtr, size_t _bytes)
     {
       if (m_ptr == NULL)
         return false;
@@ -79,7 +79,7 @@ class ImageRowAccessor : private BaseImageRowAccessor
     }
 
   private:
-    UByteCV* m_ptr;
+    _UByteCV* m_ptr;
 };
 
 
@@ -95,9 +95,9 @@ class BaseImageRow
 };
 
 
-template <BaseImagePixel::PixelType PT, typename UByteCV>
+template <BaseImagePixel::PixelType _PT, typename _UByteCV>
 class ImageRow : public BaseImageRow,
-                 private internal::ImageRowAccessor<UByteCV>,
+                 private internal::ImageRowAccessor<_UByteCV>,
                  private assert_inst<false> // Generic instance, non-functional
 {
 };
@@ -112,13 +112,13 @@ class BaseImageRowSet
 };
 
 
-template <typename BaseImagePixel::PixelType PT, typename UByteCV, size_t _rowsCount>
+template <BaseImagePixel::PixelType _PT, typename _UByteCV, size_t _rowsCount>
 class ImageRowSet : public BaseImageRowSet,
                     private assert_inst<(_rowsCount > 0)> // sanity check
 {
   public:
-    typedef ImageRow<PT, UByteCV>         Row;
-    typedef ImagePixelSet<PT, _rowsCount> PixelSet;
+    typedef ImageRow<_PT, _UByteCV>        Row;
+    typedef ImagePixelSet<_PT, _rowsCount> PixelSet;
 
     ImageRowSet()
      :BaseImageRowSet(),

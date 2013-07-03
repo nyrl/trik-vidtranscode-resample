@@ -66,11 +66,11 @@ class AlgoInterpolationCubic : public BaseAlgoInterpolation1Dim<1, 2>
 
 
 
-template <typename ImageIn, typename ImageOut>
-class ImageAlgorithm<BaseImageAlgorithm::AlgoResampleBicubic, ImageIn, ImageOut>
+template <typename _ImageIn, typename _ImageOut>
+class ImageAlgorithm<BaseImageAlgorithm::AlgoResampleBicubic, _ImageIn, _ImageOut>
  : public BaseImageAlgorithm,
    public internal::AlgoResampleVH<internal::AlgoInterpolationCubic, internal::AlgoInterpolationCubic,
-                                   ImageIn, ImageOut>
+                                   _ImageIn, _ImageOut>
 {
 };
 

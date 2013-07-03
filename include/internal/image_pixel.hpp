@@ -22,35 +22,35 @@ class BaseImagePixelAccessor
   protected:
     BaseImagePixelAccessor() {}
 
-    template <typename UType>
-    static UType utypeBitmask(size_t _size)
+    template <typename _UType>
+    static _UType utypeBitmask(size_t _size)
     {
-      assert(_size <= sizeof(UType) * CHAR_BIT);
-      return (static_cast<UType>(1u) << _size) - 1;
+      assert(_size <= sizeof(_UType) * CHAR_BIT);
+      return (static_cast<_UType>(1u) << _size) - 1;
     }
 
-    template <typename UType, bool _ofsPositive>
-    static UType utypeGet(const UType& _value, size_t _size, size_t _ofs)
+    template <typename _UType, bool _ofsPositive>
+    static _UType utypeGet(const _UType& _value, size_t _size, size_t _ofs)
     {
-      assert(_size <= sizeof(UType) * CHAR_BIT);
-      assert(_ofs  <= sizeof(UType) * CHAR_BIT);
+      assert(_size <= sizeof(_UType) * CHAR_BIT);
+      assert(_ofs  <= sizeof(_UType) * CHAR_BIT);
 
       if (_ofsPositive)
-        return (_value >> _ofs) & utypeBitmask<UType>(_size);
+        return (_value >> _ofs) & utypeBitmask<_UType>(_size);
       else
-        return (_value & utypeBitmask<UType>(_size)) << _ofs;
+        return (_value & utypeBitmask<_UType>(_size)) << _ofs;
     }
 
-    template <typename UType, bool _ofsPositive>
-    static UType utypeValue(const UType& _value, size_t _size, size_t _ofs)
+    template <typename _UType, bool _ofsPositive>
+    static _UType utypeValue(const _UType& _value, size_t _size, size_t _ofs)
     {
-      assert(_size <= sizeof(UType) * CHAR_BIT);
-      assert(_ofs  <= sizeof(UType) * CHAR_BIT);
+      assert(_size <= sizeof(_UType) * CHAR_BIT);
+      assert(_ofs  <= sizeof(_UType) * CHAR_BIT);
 
       if (_ofsPositive)
-        return (_value & utypeBitmask<UType>(_size)) << _ofs;
+        return (_value & utypeBitmask<_UType>(_size)) << _ofs;
       else
-        return (_value >> _ofs) & utypeBitmask<UType>(_size);
+        return (_value >> _ofs) & utypeBitmask<_UType>(_size);
     }
 };
 
@@ -74,7 +74,7 @@ class BaseImagePixel
 };
 
 
-template <BaseImagePixel::PixelType PT>
+template <BaseImagePixel::PixelType _PT>
 class ImagePixel : public BaseImagePixel,
                    private internal::BaseImagePixelAccessor,
                    private assert_inst<false> // Generic instance, non-functional
@@ -93,12 +93,12 @@ class BaseImagePixelSet
 
 
 
-template <typename BaseImagePixel::PixelType PT, size_t _pixelsCount>
+template <BaseImagePixel::PixelType _PT, size_t _pixelsCount>
 class ImagePixelSet : public BaseImagePixelSet,
                       private assert_inst<(_pixelsCount > 0)> // sanity check
 {
   public:
-    typedef ImagePixel<PT> Pixel;
+    typedef ImagePixel<_PT> Pixel;
 
     ImagePixelSet()
      :BaseImagePixelSet(),
@@ -167,13 +167,13 @@ class ImagePixelSet : public BaseImagePixelSet,
 
 
 
-template <typename PixelType1, typename PixelType2>
+template <typename _PixelType1, typename _PixelType2>
 class ImagePixelConvertion
 {
   public:
     ImagePixelConvertion() {}
 
-    bool operator()(const PixelType1& _p1, PixelType2& _p2) const
+    bool operator()(const _PixelType1& _p1, _PixelType2& _p2) const
     {
       float nr;
       float ng;
@@ -184,13 +184,13 @@ class ImagePixelConvertion
     }
 };
 
-template <typename PixelType>
-class ImagePixelConvertion<PixelType, PixelType> // specialization for same type copy
+template <typename _PixelType>
+class ImagePixelConvertion<_PixelType, _PixelType> // specialization for same type copy
 {
   public:
     ImagePixelConvertion() {}
 
-    bool operator()(const PixelType& _p1, PixelType& _p2) const
+    bool operator()(const _PixelType& _p1, _PixelType& _p2) const
     {
       _p2 = _p1;
       return true;
@@ -198,7 +198,7 @@ class ImagePixelConvertion<PixelType, PixelType> // specialization for same type
 };
 
 
-template <typename PixelSetType1, typename PixelSetType2>
+template <typename _PixelSetType1, typename _PixelSetType2>
 class ImagePixelSetConvertion
 {
   public:
@@ -207,7 +207,7 @@ class ImagePixelSetConvertion
     {
     }
 
-    bool operator()(const PixelSetType1& _s1, PixelSetType2& _s2) const
+    bool operator()(const _PixelSetType1& _s1, _PixelSetType2& _s2) const
     {
       bool isOk = true;
 
@@ -218,7 +218,7 @@ class ImagePixelSetConvertion
     }
 
   private:
-    ImagePixelConvertion<typename PixelSetType1::Pixel, typename PixelSetType2::Pixel> m_convertion;
+    ImagePixelConvertion<typename _PixelSetType1::Pixel, typename _PixelSetType2::Pixel> m_convertion;
 };
 
 

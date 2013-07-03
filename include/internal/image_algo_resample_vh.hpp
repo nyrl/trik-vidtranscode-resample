@@ -26,8 +26,8 @@ class BaseAlgoInterpolation1Dim
     static const size_t s_windowAfter  = _windowAfter;
     static const size_t s_windowSize   = _windowBefore+1+_windowAfter;
 
-    template <typename VertialInterpolation, typename HorizontalInterpolation,
-              typename ImageIn, typename ImageOut>
+    template <typename _VertialInterpolation, typename _HorizontalInterpolation,
+              typename _ImageIn, typename _ImageOut>
     friend class AlgoResampleVH;
 };
 
@@ -39,19 +39,19 @@ class BaseAlgoInterpolation1Dim
  * Then interpolate one row of results using horizontal interpolation algorithm to get single output point
  * Then output point is converted from input color space to output
  */
-template <typename VerticalInterpolation, typename HorizontalInterpolation,
-          typename ImageIn, typename ImageOut>
-class AlgoResampleVH : private assert_inst<(   VerticalInterpolation::s_isAlgorithmInterpolation1Dim
-                                            || HorizontalInterpolation::s_isAlgorithmInterpolation1Dim)> // algorithm kind sanity check
+template <typename _VerticalInterpolation, typename _HorizontalInterpolation,
+          typename _ImageIn, typename _ImageOut>
+class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgorithmInterpolation1Dim
+                                            || _HorizontalInterpolation::s_isAlgorithmInterpolation1Dim)> // algorithm kind sanity check
 {
   private:
-    typedef ImageRowSet<ImageIn::s_pixelType,  typename ImageIn::UByteCVType,  VerticalInterpolation::s_windowSize> RowSetIn;
-    typedef ImageRowSet<ImageOut::s_pixelType, typename ImageOut::UByteCVType, 1>                                   RowSetOut;
+    typedef ImageRowSet<_ImageIn::PT,  typename _ImageIn::UByteCV,  _VerticalInterpolation::s_windowSize> RowSetIn;
+    typedef ImageRowSet<_ImageOut::PT, typename _ImageOut::UByteCV, 1>                                    RowSetOut;
 
-    typedef ImagePixelSet<ImageIn::s_pixelType,  VerticalInterpolation::s_windowSize>   PixelSetInVertical;
-    typedef ImagePixelSet<ImageIn::s_pixelType,  HorizontalInterpolation::s_windowSize> PixelSetInHorizontal;
-    typedef ImagePixelSet<ImageIn::s_pixelType,  1>                                     PixelSetInResult;
-    typedef ImagePixelSet<ImageOut::s_pixelType, 1>                                     PixelSetOutResult;
+    typedef ImagePixelSet<_ImageIn::PT,  _VerticalInterpolation::s_windowSize>   PixelSetInVertical;
+    typedef ImagePixelSet<_ImageIn::PT,  _HorizontalInterpolation::s_windowSize> PixelSetInHorizontal;
+    typedef ImagePixelSet<_ImageIn::PT,  1>                                      PixelSetInResult;
+    typedef ImagePixelSet<_ImageOut::PT, 1>                                      PixelSetOutResult;
 
     typedef ImagePixelSetConvertion<PixelSetInResult, PixelSetOutResult> PixelSetIn2OutConvertion;
 
@@ -62,8 +62,8 @@ class AlgoResampleVH : private assert_inst<(   VerticalInterpolation::s_isAlgori
     }
 
 
-    bool operator()(const ImageIn& _imageIn,
-                    ImageOut& _imageOut) const
+    bool operator()(const _ImageIn& _imageIn,
+                    _ImageOut& _imageOut) const
     {
       RowSetIn    rowSetIn;
       RowSetOut   rowSetOut;
@@ -85,7 +85,7 @@ class AlgoResampleVH : private assert_inst<(   VerticalInterpolation::s_isAlgori
           return false;
 
         // TODO cache?
-        const VerticalInterpolation& verticalInterpolation(rowIdxInFract);
+        const _VerticalInterpolation& verticalInterpolation(rowIdxInFract);
 
         size_t colIdxInLast;
         if (!initializeHorizontalPixelSet(rowSetIn, horizontalPixelSet, verticalInterpolation, colIdxInLast))
@@ -102,7 +102,7 @@ class AlgoResampleVH : private assert_inst<(   VerticalInterpolation::s_isAlgori
             return false;
 
           // TODO cache?
-          const HorizontalInterpolation& horizontalInterpolation(colIdxInFract);
+          const _HorizontalInterpolation& horizontalInterpolation(colIdxInFract);
 
           if (!outputHorizontalPixelSet(horizontalPixelSet, rowSetOut, horizontalInterpolation, resultPixelSetConvertion))
             return false;
@@ -121,11 +121,11 @@ class AlgoResampleVH : private assert_inst<(   VerticalInterpolation::s_isAlgori
       return true;
     }
 
-    bool prepareRowSet(const ImageIn& _imageIn,  RowSetIn&  _rowSetIn,  size_t _rowIdxIn,
-                       ImageOut&      _imageOut, RowSetOut& _rowSetOut, size_t _rowIdxOut) const
+    bool prepareRowSet(const _ImageIn& _imageIn,  RowSetIn&  _rowSetIn,  size_t _rowIdxIn,
+                       _ImageOut&      _imageOut, RowSetOut& _rowSetOut, size_t _rowIdxOut) const
     {
-      if (!_imageIn.template getRowSet<VerticalInterpolation::s_windowBefore,
-                                       VerticalInterpolation::s_windowAfter>(_rowSetIn, _rowIdxIn))
+      if (!_imageIn.template getRowSet<_VerticalInterpolation::s_windowBefore,
+                                       _VerticalInterpolation::s_windowAfter>(_rowSetIn, _rowIdxIn))
         return false;
 
       if (!_imageOut.template getRowSet<0, 0>(_rowSetOut, _rowIdxOut))
@@ -135,7 +135,7 @@ class AlgoResampleVH : private assert_inst<(   VerticalInterpolation::s_isAlgori
     }
 
     bool readNextHorizontalPixel(RowSetIn& _rowSetIn, PixelSetInHorizontal& _pixelSetH,
-                                 const VerticalInterpolation& _interpolation) const
+                                 const _VerticalInterpolation& _interpolation) const
     {
       PixelSetInVertical pixelSetV;
 
@@ -146,7 +146,7 @@ class AlgoResampleVH : private assert_inst<(   VerticalInterpolation::s_isAlgori
     }
 
     bool initializeHorizontalPixelSet(RowSetIn& _rowSetIn, PixelSetInHorizontal& _pixelSetH,
-                                      const VerticalInterpolation& _interpolation,
+                                      const _VerticalInterpolation& _interpolation,
                                       size_t& _colIdxLast) const
     {
       bool isOk = true;
@@ -155,10 +155,10 @@ class AlgoResampleVH : private assert_inst<(   VerticalInterpolation::s_isAlgori
       isOk &= _rowSetIn.readPixelSet(pixelSetV);
       isOk &= _interpolation(pixelSetV, _pixelSetH);
 
-      for (size_t idx = 0; idx < VerticalInterpolation::s_windowBefore; ++idx)
+      for (size_t idx = 0; idx < _VerticalInterpolation::s_windowBefore; ++idx)
         isOk &= _pixelSetH.insertLastPixelCopy();
 
-      for (size_t idx = 0; idx < VerticalInterpolation::s_windowAfter; ++idx)
+      for (size_t idx = 0; idx < _VerticalInterpolation::s_windowAfter; ++idx)
         isOk &= readNextHorizontalPixel(_rowSetIn, _pixelSetH, _interpolation);
 
       _colIdxLast = 0;
@@ -166,7 +166,7 @@ class AlgoResampleVH : private assert_inst<(   VerticalInterpolation::s_isAlgori
     }
 
     bool updateHorizontalPixelSet(RowSetIn& _rowSetIn, PixelSetInHorizontal& _pixelSetH,
-                                  const VerticalInterpolation& _interpolation,
+                                  const _VerticalInterpolation& _interpolation,
                                   size_t& _colIdxLast, size_t _colIdxDesired) const
     {
       bool isOk = true;
@@ -177,7 +177,7 @@ class AlgoResampleVH : private assert_inst<(   VerticalInterpolation::s_isAlgori
 
     bool outputHorizontalPixelSet(const PixelSetInHorizontal& _pixSet,
                                   RowSetOut& _rowSetOut,
-                                  const HorizontalInterpolation& _interpolation,
+                                  const _HorizontalInterpolation& _interpolation,
                                   const PixelSetIn2OutConvertion& _convertion) const
     {
       PixelSetInResult  resIn;

@@ -77,22 +77,22 @@ class BaseImageAccessor
 };
 
 
-template <typename UByteCV>
+template <typename _UByteCV>
 class ImageAccessor : protected BaseImageAccessor
 {
   protected:
-    ImageAccessor(UByteCV* _imagePtr, size_t _imageSize, size_t _width, size_t _height, size_t _lineLength)
+    ImageAccessor(_UByteCV* _imagePtr, size_t _imageSize, size_t _width, size_t _height, size_t _lineLength)
      :BaseImageAccessor(_imageSize, _width, _height, _lineLength),
       m_ptr(_imagePtr)
     {
     }
 
-    UByteCV* getPtr() const
+    _UByteCV* getPtr() const
     {
       return m_ptr;
     }
 
-    bool getRowPtr(UByteCV*& _rowPtr, size_t _rowIndex) const
+    bool getRowPtr(_UByteCV*& _rowPtr, size_t _rowIndex) const
     {
       if (m_ptr == NULL)
         return false;
@@ -106,7 +106,7 @@ class ImageAccessor : protected BaseImageAccessor
     }
 
   private:
-    UByteCV* m_ptr;
+    _UByteCV* m_ptr;
 };
 
 
@@ -124,17 +124,17 @@ class BaseImage
 
 
 
-template <BaseImagePixel::PixelType PT, typename UByteCV>
+template <BaseImagePixel::PixelType _PT, typename _UByteCV>
 class Image : public BaseImage,
-              private internal::ImageAccessor<UByteCV>
+              private internal::ImageAccessor<_UByteCV>
 {
   protected:
-    typedef internal::ImageAccessor<UByteCV> ImageAccessor;
+    typedef internal::ImageAccessor<_UByteCV> ImageAccessor;
 
   public:
-    static const BaseImagePixel::PixelType s_pixelType = PT;
-    typedef UByteCV               UByteCVType;
-    typedef ImageRow<PT, UByteCV> RowType;
+    static const BaseImagePixel::PixelType PT = _PT;
+    typedef _UByteCV                UByteCV;
+    typedef ImageRow<_PT, _UByteCV> RowType;
 
 
     Image()
@@ -150,7 +150,7 @@ class Image : public BaseImage,
     {
     }
 
-    Image(UByteCV*	_imagePtr,
+    Image(_UByteCV*	_imagePtr,
           size_t	_imageSize,
           size_t	_width,
           size_t	_height,
@@ -163,7 +163,7 @@ class Image : public BaseImage,
 
     bool getRow(RowType& _row, size_t _rowIndex) const
     {
-      UByteCV* rowPtr;
+      _UByteCV* rowPtr;
       if (!ImageAccessor::getRowPtr(rowPtr, _rowIndex))
         return false;
 
@@ -172,7 +172,7 @@ class Image : public BaseImage,
     }
 
     template <size_t _rowsBefore, size_t _rowsAfter>
-    bool getRowSet(ImageRowSet<PT, UByteCV, _rowsBefore+1+_rowsAfter>& _rowSet, size_t _baseRow) const
+    bool getRowSet(ImageRowSet<_PT, _UByteCV, _rowsBefore+1+_rowsAfter>& _rowSet, size_t _baseRow) const
     {
       assert(_rowSet.rowsCount() == _rowsBefore+1+_rowsAfter);
 
