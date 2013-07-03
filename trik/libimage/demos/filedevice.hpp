@@ -21,7 +21,7 @@
 
 #include <linux/videodev2.h>
 
-#include "demos/common.hpp"
+#include "common.hpp"
 
 
 /* **** **** **** **** **** */ namespace trik /* **** **** **** **** **** */ {

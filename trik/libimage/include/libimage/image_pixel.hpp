@@ -1,5 +1,5 @@
-#ifndef TRIK_VIDEO_RESAMPLE_INTERNAL_IMAGE_PIXEL_HPP_
-#define TRIK_VIDEO_RESAMPLE_INTERNAL_IMAGE_PIXEL_HPP_
+#ifndef TRIK_LIBIMAGE_IMAGE_PIXEL_HPP_
+#define TRIK_LIBIMAGE_IMAGE_PIXEL_HPP_
 
 #ifndef __cplusplus
 #error C++-only header
@@ -9,11 +9,11 @@
 #include <climits>
 #include <iostream>
 
-#include "include/internal/stdcpp.hpp"
+#include <libimage/stdcpp.hpp>
 
 
 /* **** **** **** **** **** */ namespace trik /* **** **** **** **** **** */ {
-/* **** **** **** **** **** */ namespace image /* **** **** **** **** **** */ {
+/* **** **** **** **** **** */ namespace libimage /* **** **** **** **** **** */ {
 /* **** **** **** **** **** */ namespace internal /* **** **** **** **** **** */ {
 
 
@@ -224,11 +224,11 @@ class ImagePixelSetConvertion
 
 
 
-} /* **** **** **** **** **** * namespace image * **** **** **** **** **** */
+} /* **** **** **** **** **** * namespace libimage * **** **** **** **** **** */
 } /* **** **** **** **** **** * namespace trik * **** **** **** **** **** */
 
 
-#include "include/internal/image_pixel_rgb.hpp"
+#include <libimage/image_pixel_rgb.hpp>
 
 
-#endif // !TRIK_VIDEO_RESAMPLE_INTERNAL_IMAGE_PIXEL_HPP_
+#endif // !TRIK_LIBIMAGE_IMAGE_PIXEL_HPP_

@@ -1,5 +1,5 @@
-#ifndef TRIK_VIDEO_RESAMPLE_INTERNAL_STDCPP_HPP_
-#define TRIK_VIDEO_RESAMPLE_INTERNAL_STDCPP_HPP_
+#ifndef TRIK_LIBIMAGE_STDCPP_HPP_
+#define TRIK_LIBIMAGE_STDCPP_HPP_
 
 #ifndef __cplusplus
 #error C++-only header
@@ -38,4 +38,4 @@ class assert_inst // kind of static_assert for TI compiler
 } /* **** **** **** **** **** * namespace trik * **** **** **** **** **** */
 
 
-#endif // !TRIK_VIDEO_RESAMPLE_INTERNAL_STDCPP_HPP_
+#endif // !TRIK_LIBIMAGE_STDCPP_HPP_

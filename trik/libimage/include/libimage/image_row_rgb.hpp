@@ -1,16 +1,16 @@
-#ifndef TRIK_VIDEO_RESAMPLE_INTERNAL_IMAGE_ROW_RGB_HPP_
-#define TRIK_VIDEO_RESAMPLE_INTERNAL_IMAGE_ROW_RGB_HPP_
+#ifndef TRIK_LIBIMAGE_IMAGE_ROW_RGB_HPP_
+#define TRIK_LIBIMAGE_IMAGE_ROW_RGB_HPP_
 
 #ifndef __cplusplus
 #error C++-only header
 #endif
 
 
-#include "include/internal/stdcpp.hpp"
+#include <libimage/stdcpp.hpp>
 
 
 /* **** **** **** **** **** */ namespace trik /* **** **** **** **** **** */ {
-/* **** **** **** **** **** */ namespace image /* **** **** **** **** **** */ {
+/* **** **** **** **** **** */ namespace libimage /* **** **** **** **** **** */ {
 
 
 template <typename _UByteCV>
@@ -109,8 +109,8 @@ class ImageRow<BaseImagePixel::PixelRGB888, _UByteCV> : public BaseImageRow,
 };
 
 
-} /* **** **** **** **** **** * namespace image * **** **** **** **** **** */
+} /* **** **** **** **** **** * namespace libimage * **** **** **** **** **** */
 } /* **** **** **** **** **** * namespace trik * **** **** **** **** **** */
 
 
-#endif // !TRIK_VIDEO_RESAMPLE_INTERNAL_IMAGE_ROW_RGB_HPP_
+#endif // !TRIK_LIBIMAGE_IMAGE_ROW_RGB_HPP_

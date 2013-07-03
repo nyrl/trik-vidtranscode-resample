@@ -1,13 +1,13 @@
-#ifndef TRIK_VIDEO_RESAMPLE_INTERNAL_IFACE_HELPERS_H_
-#define TRIK_VIDEO_RESAMPLE_INTERNAL_IFACE_HELPERS_H_
+#ifndef TRIK_VIDEO_RESAMPLE_INTERNAL_VIDTRANSCODE_RESAMPLE_HELPERS_H_
+#define TRIK_VIDEO_RESAMPLE_INTERNAL_VIDTRANSCODE_RESAMPLE_HELPERS_H_
 
 #include <xdc/std.h>
 #include <ti/xdais/xdas.h>
 
 #include <stdbool.h>
 
-#include "include/internal/iface.h"
 #include "trik_vidtranscode_resample.h"
+#include "internal/vidtranscode_resample_iface.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -68,4 +68,4 @@ TrikVideoResampleStatus resampleBuffer(const XDAS_Int8* restrict	_iInBuf,
 } // extern "C"
 #endif // __cplusplus
 
-#endif // !TRIK_VIDEO_RESAMPLE_INTERNAL_IFACE_HELPERS_H_
+#endif // !TRIK_VIDEO_RESAMPLE_INTERNAL_VIDTRANSCODE_RESAMPLE_HELPERS_H_

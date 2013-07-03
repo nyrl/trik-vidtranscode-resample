@@ -1,17 +1,17 @@
-#ifndef TRIK_VIDEO_RESAMPLE_INTERNAL_IMAGE_ALGO_CUBIC_HPP_
-#define TRIK_VIDEO_RESAMPLE_INTERNAL_IMAGE_ALGO_CUBIC_HPP_
+#ifndef TRIK_LIBIMAGE_IMAGE_ALGO_CUBIC_HPP_
+#define TRIK_LIBIMAGE_IMAGE_ALGO_CUBIC_HPP_
 
 #ifndef __cplusplus
 #error C++-only header
 #endif
 
 
-#include "include/internal/stdcpp.hpp"
-#include "include/internal/image_algo_resample_vh.hpp"
+#include <libimage/stdcpp.hpp>
+#include <libimage/image_algo_resample_vh.hpp>
 
 
 /* **** **** **** **** **** */ namespace trik /* **** **** **** **** **** */ {
-/* **** **** **** **** **** */ namespace image /* **** **** **** **** **** */ {
+/* **** **** **** **** **** */ namespace libimage /* **** **** **** **** **** */ {
 /* **** **** **** **** **** */ namespace internal /* **** **** **** **** **** */ {
 
 
@@ -75,8 +75,8 @@ class ImageAlgorithm<BaseImageAlgorithm::AlgoResampleBicubic, _ImageIn, _ImageOu
 };
 
 
-} /* **** **** **** **** **** * namespace image * **** **** **** **** **** */
+} /* **** **** **** **** **** * namespace libimage * **** **** **** **** **** */
 } /* **** **** **** **** **** * namespace trik * **** **** **** **** **** */
 
 
-#endif // !TRIK_VIDEO_RESAMPLE_INTERNAL_IMAGE_ALGO_CUBIC_HPP_
+#endif // !TRIK_LIBIMAGE_IMAGE_ALGO_CUBIC_HPP_

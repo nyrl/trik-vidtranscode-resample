@@ -3,10 +3,10 @@
 #include <algorithm>
 #include <cstring>
 
-#include "include/internal/iface.h"
-#include "include/internal/iface_helpers.h"
-#include "include/internal/image.hpp"
-#include "include/internal/image_algo.hpp"
+#include "internal/vidtranscode_resample_iface.h"
+#include "internal/vidtranscode_resample_helpers.h"
+#include <libimage/image.hpp>
+#include <libimage/image_algo.hpp>
 
 
 static const char s_trikVideoResampleVersion[] = "1.00.00.00";
@@ -210,19 +210,19 @@ bool reportVersion(XDAS_Int8* restrict	_iBuffer,
 
 
 
-static bool convertVideoFormat(XDAS_Int32 _iFormat, trik::image::BaseImagePixel::PixelType& _pixelType)
+static bool convertVideoFormat(XDAS_Int32 _iFormat, trik::libimage::BaseImagePixel::PixelType& _pixelType)
 {
   switch (_iFormat)
   {
-    case TRIK_VIDEO_RESAMPLE_VIDEO_FORMAT_RGB888: _pixelType = trik::image::BaseImagePixel::PixelRGB888; return true;
-    case TRIK_VIDEO_RESAMPLE_VIDEO_FORMAT_RGB565: _pixelType = trik::image::BaseImagePixel::PixelRGB565; return true;
+    case TRIK_VIDEO_RESAMPLE_VIDEO_FORMAT_RGB888: _pixelType = trik::libimage::BaseImagePixel::PixelRGB888; return true;
+    case TRIK_VIDEO_RESAMPLE_VIDEO_FORMAT_RGB565: _pixelType = trik::libimage::BaseImagePixel::PixelRGB565; return true;
     default: return false;
   }
 }
 
-template <trik::image::BaseImagePixel::PixelType         _PixelTypeSrc,
-          trik::image::BaseImagePixel::PixelType         _PixelTypeDst,
-          trik::image::BaseImageAlgorithm::AlgorithmType _Algorithm>
+template <trik::libimage::BaseImagePixel::PixelType         _PixelTypeSrc,
+          trik::libimage::BaseImagePixel::PixelType         _PixelTypeDst,
+          trik::libimage::BaseImageAlgorithm::AlgorithmType _Algorithm>
 static bool resampleBufferImpl(const XDAS_UInt8* restrict _inBuffer,
                                const size_t&              _inBufferSize,
                                const size_t&              _inWidth,
@@ -234,9 +234,9 @@ static bool resampleBufferImpl(const XDAS_UInt8* restrict _inBuffer,
                                const size_t&              _outHeight,
                                const size_t&              _outLineLength)
 {
-  typedef trik::image::Image<_PixelTypeSrc, const XDAS_UInt8> ImageSrc;
-  typedef trik::image::Image<_PixelTypeDst, XDAS_UInt8>       ImageDst;
-  typedef trik::image::ImageAlgorithm<_Algorithm, ImageSrc, ImageDst> Algorithm;
+  typedef trik::libimage::Image<_PixelTypeSrc, const XDAS_UInt8> ImageSrc;
+  typedef trik::libimage::Image<_PixelTypeDst, XDAS_UInt8>       ImageDst;
+  typedef trik::libimage::ImageAlgorithm<_Algorithm, ImageSrc, ImageDst> Algorithm;
 
   ImageSrc imageSrc(_inBuffer,  _inBufferSize,  _inWidth,  _inHeight,  _inLineLength);
   ImageDst imageDst(_outBuffer, _outBufferSize, _outWidth, _outHeight, _outLineLength);
@@ -268,7 +268,7 @@ TrikVideoResampleStatus resampleBuffer(const XDAS_Int8* restrict	_iInBuf,
     return TRIK_VIDEO_RESAMPLE_STATUS_INVALID_ARGUMENTS;
 
 
-  trik::image::BaseImagePixel::PixelType inPixelType;
+  trik::libimage::BaseImagePixel::PixelType inPixelType;
   if (!convertVideoFormat(_iInFormat, inPixelType))
     return TRIK_VIDEO_RESAMPLE_STATUS_UNKNOWN_IN_FORMAT;
 
@@ -281,7 +281,7 @@ TrikVideoResampleStatus resampleBuffer(const XDAS_Int8* restrict	_iInBuf,
   const XDAS_UInt8* restrict inBuffer     = reinterpret_cast<const XDAS_UInt8*>(_iInBuf);
 
 
-  trik::image::BaseImagePixel::PixelType outPixelType;
+  trik::libimage::BaseImagePixel::PixelType outPixelType;
   if (!convertVideoFormat(_iInFormat, outPixelType))
     return TRIK_VIDEO_RESAMPLE_STATUS_UNKNOWN_OUT_FORMAT;
 
@@ -297,22 +297,22 @@ TrikVideoResampleStatus resampleBuffer(const XDAS_Int8* restrict	_iInBuf,
     return TRIK_VIDEO_RESAMPLE_STATUS_INVALID_ARGUMENTS;
 
 
-  if (   inPixelType  == trik::image::BaseImagePixel::PixelRGB888
-      && outPixelType == trik::image::BaseImagePixel::PixelRGB888)
+  if (   inPixelType  == trik::libimage::BaseImagePixel::PixelRGB888
+      && outPixelType == trik::libimage::BaseImagePixel::PixelRGB888)
   {
-    if (!resampleBufferImpl<trik::image::BaseImagePixel::PixelRGB888,
-                            trik::image::BaseImagePixel::PixelRGB888,
-                            trik::image::BaseImageAlgorithm::AlgoResampleBicubic>(inBuffer,  inBufferSize,  inWidth,  inHeight,  inLineLength,
-                                                                                  outBuffer, outBufferSize, outWidth, outHeight, outLineLength))
+    if (!resampleBufferImpl<trik::libimage::BaseImagePixel::PixelRGB888,
+                            trik::libimage::BaseImagePixel::PixelRGB888,
+                            trik::libimage::BaseImageAlgorithm::AlgoResampleBicubic>(inBuffer,  inBufferSize,  inWidth,  inHeight,  inLineLength,
+                                                                                     outBuffer, outBufferSize, outWidth, outHeight, outLineLength))
       return TRIK_VIDEO_RESAMPLE_STATUS_FAILED;
   }
-  else if (   inPixelType  == trik::image::BaseImagePixel::PixelRGB888
-           && outPixelType == trik::image::BaseImagePixel::PixelRGB565)
+  else if (   inPixelType  == trik::libimage::BaseImagePixel::PixelRGB888
+           && outPixelType == trik::libimage::BaseImagePixel::PixelRGB565)
   {
-    if (!resampleBufferImpl<trik::image::BaseImagePixel::PixelRGB888,
-                            trik::image::BaseImagePixel::PixelRGB565,
-                            trik::image::BaseImageAlgorithm::AlgoResampleBicubic>(inBuffer,  inBufferSize,  inWidth,  inHeight,  inLineLength,
-                                                                                  outBuffer, outBufferSize, outWidth, outHeight, outLineLength))
+    if (!resampleBufferImpl<trik::libimage::BaseImagePixel::PixelRGB888,
+                            trik::libimage::BaseImagePixel::PixelRGB565,
+                            trik::libimage::BaseImageAlgorithm::AlgoResampleBicubic>(inBuffer,  inBufferSize,  inWidth,  inHeight,  inLineLength,
+                                                                                     outBuffer, outBufferSize, outWidth, outHeight, outLineLength))
       return TRIK_VIDEO_RESAMPLE_STATUS_FAILED;
   }
   else

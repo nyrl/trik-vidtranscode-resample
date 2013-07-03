@@ -12,8 +12,8 @@
 #include <limits.h>
 
 #include "trik_vidtranscode_resample.h"
-#include "include/internal/iface.h"
-#include "include/internal/iface_helpers.h"
+#include "internal/vidtranscode_resample_iface.h"
+#include "internal/vidtranscode_resample_helpers.h"
 
 
 #define TRIK_VIDTRANSCODE_RESAMPLE_IALGFXNS  \

@@ -9,7 +9,6 @@ lib
 package.mak
 package
 
-/trik_vidtranscode_resample.tar
+demo-*
 
-/test_*
-/demo_*
+/trik/vidtranscode_resample/trik_vidtranscode_resample.tar

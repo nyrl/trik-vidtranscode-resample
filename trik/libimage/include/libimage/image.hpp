@@ -1,5 +1,5 @@
-#ifndef TRIK_VIDEO_RESAMPLE_INTERNAL_IMAGE_HPP_
-#define TRIK_VIDEO_RESAMPLE_INTERNAL_IMAGE_HPP_
+#ifndef TRIK_LIBIMAGE_IMAGE_HPP_
+#define TRIK_LIBIMAGE_IMAGE_HPP_
 
 #ifndef __cplusplus
 #error C++-only header
@@ -8,9 +8,9 @@
 
 #include <algorithm>
 
-#include "include/internal/stdcpp.hpp"
-#include "include/internal/image_row.hpp"
-#include "include/internal/image_pixel.hpp"
+#include <libimage/stdcpp.hpp>
+#include <libimage/image_row.hpp>
+#include <libimage/image_pixel.hpp>
 
 
 #ifdef __GNUC__
@@ -18,7 +18,7 @@
 #endif
 
 /* **** **** **** **** **** */ namespace trik /* **** **** **** **** **** */ {
-/* **** **** **** **** **** */ namespace image /* **** **** **** **** **** */ {
+/* **** **** **** **** **** */ namespace libimage /* **** **** **** **** **** */ {
 /* **** **** **** **** **** */ namespace internal /* **** **** **** **** **** */ {
 
 
@@ -210,8 +210,8 @@ class Image : public BaseImage,
 };
 
 
-} /* **** **** **** **** **** * namespace image * **** **** **** **** **** */
+} /* **** **** **** **** **** * namespace libimage * **** **** **** **** **** */
 } /* **** **** **** **** **** * namespace trik * **** **** **** **** **** */
 
 
-#endif // !TRIK_VIDEO_RESAMPLE_INTERNAL_IMAGE_HPP_
+#endif // !TRIK_LIBIMAGE_IMAGE_HPP_

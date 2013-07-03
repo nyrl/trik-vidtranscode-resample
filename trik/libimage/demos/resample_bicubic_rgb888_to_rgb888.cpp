@@ -6,16 +6,16 @@
 #include <fstream>
 #include <iterator>
 
-#include "include/internal/image.hpp"
-#include "include/internal/image_algo.hpp"
+#include <libimage/image.hpp>
+#include <libimage/image_algo.hpp>
 
 
 using namespace std;
 
-typedef trik::image::Image<trik::image::BaseImagePixel::PixelRGB888, const uint8_t> ImgRGB888i;
-typedef trik::image::Image<trik::image::BaseImagePixel::PixelRGB888, uint8_t>       ImgRGB888o;
+typedef trik::libimage::Image<trik::libimage::BaseImagePixel::PixelRGB888, const uint8_t> ImgRGB888i;
+typedef trik::libimage::Image<trik::libimage::BaseImagePixel::PixelRGB888, uint8_t>       ImgRGB888o;
 
-typedef trik::image::ImageAlgorithm<trik::image::BaseImageAlgorithm::AlgoResampleBicubic, ImgRGB888i, ImgRGB888o> AlgResample;
+typedef trik::libimage::ImageAlgorithm<trik::libimage::BaseImageAlgorithm::AlgoResampleBicubic, ImgRGB888i, ImgRGB888o> AlgResample;
 
 
 int main(int _argc, char* _argv[])

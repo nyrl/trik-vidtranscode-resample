@@ -1,16 +1,16 @@
-#ifndef TRIK_VIDEO_RESAMPLE_INTERNAL_IMAGE_ALGO_HPP_
-#define TRIK_VIDEO_RESAMPLE_INTERNAL_IMAGE_ALGO_HPP_
+#ifndef TRIK_LIBIMAGE_IMAGE_ALGO_HPP_
+#define TRIK_LIBIMAGE_IMAGE_ALGO_HPP_
 
 #ifndef __cplusplus
 #error C++-only header
 #endif
 
 
-#include "include/internal/stdcpp.hpp"
+#include <libimage/stdcpp.hpp>
 
 
 /* **** **** **** **** **** */ namespace trik /* **** **** **** **** **** */ {
-/* **** **** **** **** **** */ namespace image /* **** **** **** **** **** */ {
+/* **** **** **** **** **** */ namespace libimage /* **** **** **** **** **** */ {
 
 
 class BaseImageAlgorithm
@@ -33,11 +33,11 @@ class ImageAlgorithm : public BaseImageAlgorithm,
 };
 
 
-} /* **** **** **** **** **** * namespace image * **** **** **** **** **** */
+} /* **** **** **** **** **** * namespace libimage * **** **** **** **** **** */
 } /* **** **** **** **** **** * namespace trik * **** **** **** **** **** */
 
 
-#include "include/internal/image_algo_cubic.hpp"
+#include <libimage/image_algo_cubic.hpp>
 
 
-#endif // !TRIK_VIDEO_RESAMPLE_INTERNAL_IMAGE_ALGO_HPP_
+#endif // !TRIK_LIBIMAGE_IMAGE_ALGO_HPP_

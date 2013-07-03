@@ -13,11 +13,11 @@
 #include <iostream>
 #include <sstream>
 
-#include "internal/image.hpp"
-#include "internal/image_algo.hpp"
+#include <libimage/image.hpp>
+#include <libimage/image_algo.hpp>
 
-#include "demos/v4l2device.hpp"
-#include "demos/filedevice.hpp"
+#include "v4l2device.hpp"
+#include "filedevice.hpp"
 
 
 using namespace std;
@@ -149,17 +149,17 @@ static bool parseConfig(int _argc, char* const _argv[])
 
 
 
-template <trik::image::BaseImagePixel::PixelType         _PixelTypeSrc,
-          trik::image::BaseImagePixel::PixelType         _PixelTypeDst,
-          trik::image::BaseImageAlgorithm::AlgorithmType _Algorithm>
+template <trik::libimage::BaseImagePixel::PixelType         _PixelTypeSrc,
+          trik::libimage::BaseImagePixel::PixelType         _PixelTypeDst,
+          trik::libimage::BaseImageAlgorithm::AlgorithmType _Algorithm>
 static bool execAlgorithm(const trik::demos::V4L2Input::Description&  _srcDesc,
                           const trik::demos::V4L2Input::Frame&        _srcFrame,
                           const trik::demos::FileOutput::Description& _dstDesc,
                           trik::demos::FileOutput::Frame&             _dstFrame)
 {
-  typedef trik::image::Image<_PixelTypeSrc, const uint8_t>            ImageSrc;
-  typedef trik::image::Image<_PixelTypeDst, uint8_t>                  ImageDst;
-  typedef trik::image::ImageAlgorithm<_Algorithm, ImageSrc, ImageDst> Algorithm;
+  typedef trik::libimage::Image<_PixelTypeSrc, const uint8_t>            ImageSrc;
+  typedef trik::libimage::Image<_PixelTypeDst, uint8_t>                  ImageDst;
+  typedef trik::libimage::ImageAlgorithm<_Algorithm, ImageSrc, ImageDst> Algorithm;
 
   ImageSrc imageSrc(_srcFrame.ptr(), _srcFrame.size(),
                     _srcDesc.width(), _srcDesc.height(),
@@ -187,16 +187,16 @@ static bool resample(const trik::demos::V4L2Input::Description&  _srcDesc,
 {
   if (_srcDesc.format().rawFormat() == V4L2_PIX_FMT_RGB24 && _dstDesc.format().rawFormat() == V4L2_PIX_FMT_RGB565)
   {
-    if (!execAlgorithm<trik::image::BaseImagePixel::PixelRGB888,
-                       trik::image::BaseImagePixel::PixelRGB565,
-                       trik::image::BaseImageAlgorithm::AlgoResampleBicubic>(_srcDesc, _srcFrame, _dstDesc, _dstFrame))
+    if (!execAlgorithm<trik::libimage::BaseImagePixel::PixelRGB888,
+                       trik::libimage::BaseImagePixel::PixelRGB565,
+                       trik::libimage::BaseImageAlgorithm::AlgoResampleBicubic>(_srcDesc, _srcFrame, _dstDesc, _dstFrame))
       return false;
   }
   else if (_srcDesc.format().rawFormat() == V4L2_PIX_FMT_RGB24 && _dstDesc.format().rawFormat() == V4L2_PIX_FMT_RGB24)
   {
-    if (!execAlgorithm<trik::image::BaseImagePixel::PixelRGB888,
-                       trik::image::BaseImagePixel::PixelRGB888,
-                       trik::image::BaseImageAlgorithm::AlgoResampleBicubic>(_srcDesc, _srcFrame, _dstDesc, _dstFrame))
+    if (!execAlgorithm<trik::libimage::BaseImagePixel::PixelRGB888,
+                       trik::libimage::BaseImagePixel::PixelRGB888,
+                       trik::libimage::BaseImageAlgorithm::AlgoResampleBicubic>(_srcDesc, _srcFrame, _dstDesc, _dstFrame))
       return false;
   }
   else
