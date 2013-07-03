@@ -18,10 +18,10 @@ const TRIK_VIDTRANSCODE_RESAMPLE_Params* getDefaultParams(void)
     {							/* m_base, IVIDTRANSCODE_Params */
       sizeof(TRIK_VIDTRANSCODE_RESAMPLE_Params),	/* size = sizeof this struct */
       1,						/* numOutputStreams = only one output stream by default */
-      TRIK_VIDEO_RESAMPLE_VIDEO_FORMAT_RGB888,		/* formatInput = RGB888 */
+      TRIK_VIDTRANSCODE_RESAMPLE_VIDEO_FORMAT_RGB888,	/* formatInput = RGB888 */
       {
-        TRIK_VIDEO_RESAMPLE_VIDEO_FORMAT_RGB565,	/* formatOutput[0] = RGB565 */
-        TRIK_VIDEO_RESAMPLE_VIDEO_FORMAT_UNKNOWN,	/* formatOutput[1] - disabled */
+        TRIK_VIDTRANSCODE_RESAMPLE_VIDEO_FORMAT_RGB565,	/* formatOutput[0] = RGB565 */
+        TRIK_VIDTRANSCODE_RESAMPLE_VIDEO_FORMAT_UNKNOWN,/* formatOutput[1] - disabled */
       },
       1024,						/* maxHeightInput = up to 1024wx1024h */
       1024,						/* maxWidthInput = see maxHeightInput */
@@ -214,8 +214,8 @@ static bool convertVideoFormat(XDAS_Int32 _iFormat, trik::libimage::BaseImagePix
 {
   switch (_iFormat)
   {
-    case TRIK_VIDEO_RESAMPLE_VIDEO_FORMAT_RGB888: _pixelType = trik::libimage::BaseImagePixel::PixelRGB888; return true;
-    case TRIK_VIDEO_RESAMPLE_VIDEO_FORMAT_RGB565: _pixelType = trik::libimage::BaseImagePixel::PixelRGB565; return true;
+    case TRIK_VIDTRANSCODE_RESAMPLE_VIDEO_FORMAT_RGB888: _pixelType = trik::libimage::BaseImagePixel::PixelRGB888; return true;
+    case TRIK_VIDTRANSCODE_RESAMPLE_VIDEO_FORMAT_RGB565: _pixelType = trik::libimage::BaseImagePixel::PixelRGB565; return true;
     default: return false;
   }
 }
@@ -265,15 +265,15 @@ TrikVideoResampleStatus resampleBuffer(const XDAS_Int8* restrict	_iInBuf,
                                        XDAS_Int32			_iOutLineLength)
 {
   if (_iInBuf == NULL || _iOutBuf == NULL)
-    return TRIK_VIDEO_RESAMPLE_STATUS_INVALID_ARGUMENTS;
+    return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_INVALID_ARGUMENTS;
 
 
   trik::libimage::BaseImagePixel::PixelType inPixelType;
   if (!convertVideoFormat(_iInFormat, inPixelType))
-    return TRIK_VIDEO_RESAMPLE_STATUS_UNKNOWN_IN_FORMAT;
+    return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_UNKNOWN_IN_FORMAT;
 
   if (_iInBufSize < 0 || _iInWidth < 0 || _iInHeight < 0)
-    return TRIK_VIDEO_RESAMPLE_STATUS_INVALID_ARGUMENTS;
+    return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_INVALID_ARGUMENTS;
   const size_t               inBufferSize = _iInBufSize;
   const size_t               inWidth      = _iInWidth;
   const size_t               inHeight     = _iInHeight;
@@ -283,10 +283,10 @@ TrikVideoResampleStatus resampleBuffer(const XDAS_Int8* restrict	_iInBuf,
 
   trik::libimage::BaseImagePixel::PixelType outPixelType;
   if (!convertVideoFormat(_iInFormat, outPixelType))
-    return TRIK_VIDEO_RESAMPLE_STATUS_UNKNOWN_OUT_FORMAT;
+    return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_UNKNOWN_OUT_FORMAT;
 
   if (_iOutBufSize < 0 || _iOutWidth < 0 || _iOutHeight < 0)
-    return TRIK_VIDEO_RESAMPLE_STATUS_INVALID_ARGUMENTS;
+    return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_INVALID_ARGUMENTS;
   size_t                     outBufferSize = _iOutBufSize;
   const size_t               outWidth      = _iOutWidth;
   const size_t               outHeight     = _iOutHeight;
@@ -294,7 +294,7 @@ TrikVideoResampleStatus resampleBuffer(const XDAS_Int8* restrict	_iInBuf,
   XDAS_UInt8* restrict       outBuffer     = reinterpret_cast<XDAS_UInt8*>(_iOutBuf);
 
   if (_iOutBufUsed == NULL)
-    return TRIK_VIDEO_RESAMPLE_STATUS_INVALID_ARGUMENTS;
+    return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_INVALID_ARGUMENTS;
 
 
   if (   inPixelType  == trik::libimage::BaseImagePixel::PixelRGB888
@@ -304,7 +304,7 @@ TrikVideoResampleStatus resampleBuffer(const XDAS_Int8* restrict	_iInBuf,
                             trik::libimage::BaseImagePixel::PixelRGB888,
                             trik::libimage::BaseImageAlgorithm::AlgoResampleBicubic>(inBuffer,  inBufferSize,  inWidth,  inHeight,  inLineLength,
                                                                                      outBuffer, outBufferSize, outWidth, outHeight, outLineLength))
-      return TRIK_VIDEO_RESAMPLE_STATUS_FAILED;
+      return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_FAILED;
   }
   else if (   inPixelType  == trik::libimage::BaseImagePixel::PixelRGB888
            && outPixelType == trik::libimage::BaseImagePixel::PixelRGB565)
@@ -313,12 +313,12 @@ TrikVideoResampleStatus resampleBuffer(const XDAS_Int8* restrict	_iInBuf,
                             trik::libimage::BaseImagePixel::PixelRGB565,
                             trik::libimage::BaseImageAlgorithm::AlgoResampleBicubic>(inBuffer,  inBufferSize,  inWidth,  inHeight,  inLineLength,
                                                                                      outBuffer, outBufferSize, outWidth, outHeight, outLineLength))
-      return TRIK_VIDEO_RESAMPLE_STATUS_FAILED;
+      return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_FAILED;
   }
   else
-    return TRIK_VIDEO_RESAMPLE_STATUS_INCOMPATIBLE_FORMATS;
+    return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_INCOMPATIBLE_FORMATS;
 
   *_iOutBufUsed = outBufferSize;
-  return TRIK_VIDEO_RESAMPLE_STATUS_OK;
+  return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_OK;
 }
 

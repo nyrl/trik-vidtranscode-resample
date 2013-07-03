@@ -23,8 +23,8 @@
 using namespace std;
 
 
-static trik::demos::V4L2Input  s_videoSrc(trik::demos::V4L2Config("/dev/video", 800, 600), "RGB888");
-static trik::demos::FileOutput s_videoDst(trik::demos::FileConfig("video.out", 320, 240), "RGB888");
+static trik::libimage::demos::V4L2Input  s_videoSrc(trik::libimage::demos::V4L2Config("/dev/video", 800, 600), "RGB888");
+static trik::libimage::demos::FileOutput s_videoDst(trik::libimage::demos::FileConfig("video.out", 320, 240), "RGB888");
 static size_t s_repeatCount = 1;
 
 
@@ -152,10 +152,10 @@ static bool parseConfig(int _argc, char* const _argv[])
 template <trik::libimage::BaseImagePixel::PixelType         _PixelTypeSrc,
           trik::libimage::BaseImagePixel::PixelType         _PixelTypeDst,
           trik::libimage::BaseImageAlgorithm::AlgorithmType _Algorithm>
-static bool execAlgorithm(const trik::demos::V4L2Input::Description&  _srcDesc,
-                          const trik::demos::V4L2Input::Frame&        _srcFrame,
-                          const trik::demos::FileOutput::Description& _dstDesc,
-                          trik::demos::FileOutput::Frame&             _dstFrame)
+static bool execAlgorithm(const trik::libimage::demos::V4L2Input::Description&  _srcDesc,
+                          const trik::libimage::demos::V4L2Input::Frame&        _srcFrame,
+                          const trik::libimage::demos::FileOutput::Description& _dstDesc,
+                          trik::libimage::demos::FileOutput::Frame&             _dstFrame)
 {
   typedef trik::libimage::Image<_PixelTypeSrc, const uint8_t>            ImageSrc;
   typedef trik::libimage::Image<_PixelTypeDst, uint8_t>                  ImageDst;
@@ -180,10 +180,10 @@ static bool execAlgorithm(const trik::demos::V4L2Input::Description&  _srcDesc,
 }
 
 
-static bool resample(const trik::demos::V4L2Input::Description&  _srcDesc,
-                     const trik::demos::V4L2Input::Frame&        _srcFrame,
-                     const trik::demos::FileOutput::Description& _dstDesc,
-                     trik::demos::FileOutput::Frame&             _dstFrame)
+static bool resample(const trik::libimage::demos::V4L2Input::Description&  _srcDesc,
+                     const trik::libimage::demos::V4L2Input::Frame&        _srcFrame,
+                     const trik::libimage::demos::FileOutput::Description& _dstDesc,
+                     trik::libimage::demos::FileOutput::Frame&             _dstFrame)
 {
   if (_srcDesc.format().rawFormat() == V4L2_PIX_FMT_RGB24 && _dstDesc.format().rawFormat() == V4L2_PIX_FMT_RGB565)
   {
@@ -272,12 +272,12 @@ int main(int _argc, char* const _argv[])
       exit(EX_NOINPUT);
     }
 
-    trik::demos::V4L2Input::Frame      srcFrame;
-    trik::demos::V4L2Input::FrameIndex srcFrameIndex;
+    trik::libimage::demos::V4L2Input::Frame      srcFrame;
+    trik::libimage::demos::V4L2Input::FrameIndex srcFrameIndex;
     if (!s_videoSrc.getFrame(srcFrame, srcFrameIndex))
       exit(EX_SOFTWARE);
 
-    trik::demos::FileOutput::Frame     dstFrame;
+    trik::libimage::demos::FileOutput::Frame     dstFrame;
     if (!s_videoDst.getFrame(dstFrame))
       exit(EX_SOFTWARE);
 

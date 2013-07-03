@@ -1,5 +1,5 @@
-#ifndef TRIK_VIDEO_RESAMPLE_DEMOS_FILEDEVICE_HPP_
-#define TRIK_VIDEO_RESAMPLE_DEMOS_FILEDEVICE_HPP_
+#ifndef TRIK_VIDTRANSCODE_RESAMPLE_LIBIMAGE_DEMOS_FILEDEVICE_HPP_
+#define TRIK_VIDTRANSCODE_RESAMPLE_LIBIMAGE_DEMOS_FILEDEVICE_HPP_
 
 #ifndef __cplusplus
 #error C++-only header
@@ -25,6 +25,7 @@
 
 
 /* **** **** **** **** **** */ namespace trik /* **** **** **** **** **** */ {
+/* **** **** **** **** **** */ namespace libimage /* **** **** **** **** **** */ {
 /* **** **** **** **** **** */ namespace demos /* **** **** **** **** **** */ {
 
 typedef VideoFormat<uint32_t> FileFormat;
@@ -244,7 +245,8 @@ class FileOutput
 
 
 } /* **** **** **** **** **** * namespace demos * **** **** **** **** **** */
+} /* **** **** **** **** **** * namespace libimage * **** **** **** **** **** */
 } /* **** **** **** **** **** * namespace trik * **** **** **** **** **** */
 
 
-#endif // !TRIK_VIDEO_RESAMPLE_DEMOS_FILEDEVICE_HPP_
+#endif // !TRIK_VIDTRANSCODE_RESAMPLE_LIBIMAGE_DEMOS_FILEDEVICE_HPP_

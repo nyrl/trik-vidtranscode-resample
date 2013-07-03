@@ -237,7 +237,7 @@ XDAS_Int32 TRIK_VIDTRANSCODE_RESAMPLE_process(
                                                         outBufFormat, outBufHeight, outBufWidth, outBufLineLength);
         switch (result)
         {
-            case TRIK_VIDEO_RESAMPLE_STATUS_OK:
+            case TRIK_VIDTRANSCODE_RESAMPLE_STATUS_OK:
                 break;
 
             // TODO other statuses

@@ -1,5 +1,5 @@
-#ifndef TRIK_VIDEO_RESAMPLE_DEMOS_COMMON_HPP_
-#define TRIK_VIDEO_RESAMPLE_DEMOS_COMMON_HPP_
+#ifndef TRIK_VIDTRANSCODE_RESAMPLE_LIBIMAGE_DEMOS_COMMON_HPP_
+#define TRIK_VIDTRANSCODE_RESAMPLE_LIBIMAGE_DEMOS_COMMON_HPP_
 
 #ifndef __cplusplus
 #error C++-only header
@@ -14,6 +14,7 @@
 
 
 /* **** **** **** **** **** */ namespace trik /* **** **** **** **** **** */ {
+/* **** **** **** **** **** */ namespace libimage /* **** **** **** **** **** */ {
 /* **** **** **** **** **** */ namespace demos /* **** **** **** **** **** */ {
 
 
@@ -261,7 +262,8 @@ class VideoFrame
 
 
 } /* **** **** **** **** **** * namespace demos * **** **** **** **** **** */
+} /* **** **** **** **** **** * namespace libimage * **** **** **** **** **** */
 } /* **** **** **** **** **** * namespace trik * **** **** **** **** **** */
 
 
-#endif // !TRIK_VIDEO_RESAMPLE_DEMOS_V4L2DEVICE_HPP_
+#endif // !TRIK_VIDTRANSCODE_RESAMPLE_LIBIMAGE_DEMOS_V4L2DEVICE_HPP_

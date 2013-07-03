@@ -1,5 +1,5 @@
-#ifndef TRIK_VIDEO_RESAMPLE_DEMOS_V4L2DEVICE_HPP_
-#define TRIK_VIDEO_RESAMPLE_DEMOS_V4L2DEVICE_HPP_
+#ifndef TRIK_VIDTRANSCODE_RESAMPLE_LIBIMAGE_DEMOS_V4L2DEVICE_HPP_
+#define TRIK_VIDTRANSCODE_RESAMPLE_LIBIMAGE_DEMOS_V4L2DEVICE_HPP_
 
 #ifndef __cplusplus
 #error C++-only header
@@ -27,6 +27,7 @@
 
 
 /* **** **** **** **** **** */ namespace trik /* **** **** **** **** **** */ {
+/* **** **** **** **** **** */ namespace libimage /* **** **** **** **** **** */ {
 /* **** **** **** **** **** */ namespace demos /* **** **** **** **** **** */ {
 
 typedef VideoFormat<uint32_t> V4L2Format;
@@ -433,7 +434,8 @@ class V4L2Input
 
 
 } /* **** **** **** **** **** * namespace demos * **** **** **** **** **** */
+} /* **** **** **** **** **** * namespace libimage * **** **** **** **** **** */
 } /* **** **** **** **** **** * namespace trik * **** **** **** **** **** */
 
 
-#endif // !TRIK_VIDEO_RESAMPLE_DEMOS_V4L2DEVICE_HPP_
+#endif // !TRIK_VIDTRANSCODE_RESAMPLE_LIBIMAGE_DEMOS_V4L2DEVICE_HPP_
