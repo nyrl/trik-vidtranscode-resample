@@ -13,6 +13,10 @@
 #include "include/internal/image_pixel.hpp"
 
 
+#ifdef __GNUC__
+#warning TODO: add 'restrict' to UByteCVs
+#endif
+
 /* **** **** **** **** **** */ namespace trik /* **** **** **** **** **** */ {
 /* **** **** **** **** **** */ namespace image /* **** **** **** **** **** */ {
 /* **** **** **** **** **** */ namespace internal /* **** **** **** **** **** */ {

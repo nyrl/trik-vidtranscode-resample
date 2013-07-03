@@ -29,8 +29,7 @@ Pkg.otherFiles.$add(publicHeader);
  * not be explicitly specified.
  */
 var SRCS = ["src/iface.c",
-            "src/iface_helpers.cpp",
-            "src/resample.cpp"];
+            "src/iface_helpers.cpp"];
 
 for (var i = 0; i < Build.targets.length; i++) {
     var targ = Build.targets[i];

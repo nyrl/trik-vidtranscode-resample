@@ -6,7 +6,7 @@
 
 #include <stdbool.h>
 
-#include "include/trik_video_resample/iface.h"
+#include "include/internal/iface.h"
 #include "trik_vidtranscode_resample.h"
 
 #ifdef __cplusplus
@@ -42,7 +42,7 @@ typedef enum TrikVideoResampleStatus
   TRIK_VIDEO_RESAMPLE_STATUS_INVALID_ARGUMENTS,
   TRIK_VIDEO_RESAMPLE_STATUS_UNKNOWN_IN_FORMAT,
   TRIK_VIDEO_RESAMPLE_STATUS_UNKNOWN_OUT_FORMAT,
-  TRIK_VIDEO_RESAMPLE_STATUS_UNSUPPORTED_FORMATS,
+  TRIK_VIDEO_RESAMPLE_STATUS_INCOMPATIBLE_FORMATS,
   TRIK_VIDEO_RESAMPLE_STATUS_FAILED,
   TRIK_VIDEO_RESAMPLE_STATUS_OTHER
 
