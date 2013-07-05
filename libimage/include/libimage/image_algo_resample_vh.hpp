@@ -6,6 +6,9 @@
 #endif
 
 
+#include <map>
+#include <utility>
+
 #include <libimage/stdcpp.hpp>
 #include <libimage/image_algo.hpp>
 
@@ -55,10 +58,13 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
 
     typedef ImagePixelSetConvertion<PixelSetInResult, PixelSetOutResult> PixelSetIn2OutConvertion;
 
+    typedef std::map<float, _VerticalInterpolation>   VerticalInterpolationCache;
+    typedef std::map<float, _HorizontalInterpolation> HorizontalInterpolationCache;
+
   public:
     AlgoResampleVH()
     {
-      // TODO build interpolation algorithms cache?
+      // TODO build interpolation algorithms cache now?
     }
 
 
@@ -70,6 +76,9 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
 
       PixelSetInHorizontal horizontalPixelSet;
       const PixelSetIn2OutConvertion resultPixelSetConvertion;
+
+      VerticalInterpolationCache verticalInterpolationCache;
+      HorizontalInterpolationCache horizontalInterpolationCache;
 
       const float in2outCFactor = static_cast<float>(_imageIn.width())  / static_cast<float>(_imageOut.width() );
       const float in2outRFactor = static_cast<float>(_imageIn.height()) / static_cast<float>(_imageOut.height());
@@ -84,8 +93,8 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
         if (!prepareRowSet(_imageIn, rowSetIn, rowIdxIn, _imageOut, rowSetOut, rowIdxOut))
           return false;
 
-        // TODO cache?
-        const _VerticalInterpolation& verticalInterpolation(rowIdxInFract);
+        const _VerticalInterpolation& verticalInterpolation = getInterpolationCache(verticalInterpolationCache,
+                                                                                    rowIdxInFract);
 
         size_t colIdxInLast;
         if (!initializeHorizontalPixelSet(rowSetIn, horizontalPixelSet, verticalInterpolation, colIdxInLast))
@@ -101,8 +110,8 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
           if (!updateHorizontalPixelSet(rowSetIn, horizontalPixelSet, verticalInterpolation, colIdxInLast, colIdxIn))
             return false;
 
-          // TODO cache?
-          const _HorizontalInterpolation& horizontalInterpolation(colIdxInFract);
+          const _HorizontalInterpolation& horizontalInterpolation = getInterpolationCache(horizontalInterpolationCache,
+                                                                                          colIdxInFract);
 
           if (!outputHorizontalPixelSet(horizontalPixelSet, rowSetOut, horizontalInterpolation, resultPixelSetConvertion))
             return false;
@@ -193,6 +202,17 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
         return false;
 
       return true;
+    }
+
+    template <typename _InterpolationCache>
+    const typename _InterpolationCache::mapped_type& getInterpolationCache(_InterpolationCache& _cache,
+                                                                           float _fract) const
+    {
+      const typename _InterpolationCache::const_iterator it(_cache.find(_fract));
+      if (it != _cache.end())
+        return it->second;
+
+      return _cache.insert(std::make_pair(_fract, typename _InterpolationCache::mapped_type(_fract))).first->second;
     }
 
 };
