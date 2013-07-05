@@ -18,7 +18,8 @@ class BaseImageAlgorithm
   public:
     enum AlgorithmType
     {
-      AlgoResampleBicubic
+      AlgoResampleBicubic,
+      AlgoResampleBilinear
     };
 
   protected:
@@ -38,6 +39,7 @@ class ImageAlgorithm : public BaseImageAlgorithm,
 
 
 #include <libimage/image_algo_cubic.hpp>
+#include <libimage/image_algo_linear.hpp>
 
 
 #endif // !TRIK_LIBIMAGE_IMAGE_ALGO_HPP_
