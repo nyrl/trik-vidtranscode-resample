@@ -66,6 +66,7 @@ class BaseImagePixel
     enum PixelType
     {
       PixelRGB565,
+      PixelRGB565X,
       PixelRGB888
     };
 

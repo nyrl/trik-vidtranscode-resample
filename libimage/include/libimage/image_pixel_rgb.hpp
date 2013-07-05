@@ -139,7 +139,6 @@ class ImagePixel<BaseImagePixel::PixelRGB565> : public BaseImagePixel,
       loadG(  utypeGet<UByte, false>(_b1, 3, 3)
             | utypeGet<UByte,  true>(_b2, 3, 5));
       loadB(  utypeGet<UByte,  true>(_b2, 5, 0));
-
       return true;
     }
 
@@ -150,7 +149,6 @@ class ImagePixel<BaseImagePixel::PixelRGB565> : public BaseImagePixel,
           | utypeValue<UByte, false>(storeG(), 3, 3);
       _b2 = utypeValue<UByte,  true>(storeG(), 3, 5)
           | utypeValue<UByte,  true>(storeB(), 5, 0);
-
       return true;
     }
 
@@ -176,6 +174,55 @@ class ImagePixel<BaseImagePixel::PixelRGB565> : public BaseImagePixel,
 };
 
 
+
+
+template <>
+class ImagePixel<BaseImagePixel::PixelRGB565X> : public BaseImagePixel,
+                                                 public internal::ImagePixelRGBAccessor<5, 6, 5>
+{
+  public:
+    ImagePixel() {}
+
+    template <typename UByte>
+    bool unpack(const UByte& _b1, const UByte& _b2)
+    {
+      loadR(  utypeGet<UByte,  true>(_b1, 5, 0));
+      loadG(  utypeGet<UByte,  true>(_b1, 3, 5)
+            | utypeGet<UByte, false>(_b2, 3, 3));
+      loadB(  utypeGet<UByte,  true>(_b2, 5, 3));
+      return true;
+    }
+
+    template <typename UByte>
+    bool pack(UByte& _b1, UByte& _b2) const
+    {
+      _b1 = utypeValue<UByte,  true>(storeR(), 5, 0)
+          | utypeValue<UByte,  true>(storeG(), 3, 5);
+      _b2 = utypeValue<UByte, false>(storeG(), 3, 3)
+          | utypeValue<UByte,  true>(storeB(), 5, 3);
+      return true;
+    }
+
+    ImagePixel operator*(const float& _f) const
+    {
+      ImagePixel p(*this);
+      p.operatorMultiplyImpl(_f);
+      return p;
+    }
+
+    ImagePixel& operator+=(const ImagePixel& _p)
+    {
+      operatorIncrementImpl(_p);
+      return *this;
+    }
+
+  private:
+    friend std::ostream& operator<<(std::ostream& _os, const ImagePixel& _p)
+    {
+      _p.operatorExtractImpl(_os);
+      return _os;
+    }
+};
 
 
 template <>
