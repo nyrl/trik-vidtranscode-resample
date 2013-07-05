@@ -30,13 +30,18 @@ class BaseImageRowAccessor
     {
     }
 
-    bool accessPixelMarkup(size_t _bytes)
+    bool accessPixelCheck(size_t _bytes, size_t _pixels)
     {
-      if (   m_remainWidth == 0
-          || m_remainSize < _bytes)
+      return m_remainWidth >= _pixels
+          && m_remainSize >= _bytes;
+    }
+
+    bool accessPixelMarkup(size_t _bytes, size_t _pixels)
+    {
+      if (!accessPixelCheck(_bytes, _pixels))
         return false;
 
-      m_remainWidth -= 1;
+      m_remainWidth -= _pixels;
       m_remainSize -= _bytes;
 
       return true;
@@ -64,16 +69,29 @@ class ImageRowAccessor : private BaseImageRowAccessor
     {
     }
 
-    bool accessPixel(_UByteCV*& _pixelPtr, size_t _bytes)
+    bool accessPixel(_UByteCV*& _pixelPtr, size_t _bytes, size_t _pixels=1)
     {
       if (m_ptr == NULL)
         return false;
 
-      if (!accessPixelMarkup(_bytes))
+      if (!accessPixelMarkup(_bytes, _pixels))
         return false;
 
       _pixelPtr = m_ptr;
       m_ptr += _bytes;
+
+      return true;
+    }
+
+    bool accessPixelDontMove(_UByteCV*& _pixelPtr, size_t _bytes, size_t _pixels)
+    {
+      if (m_ptr == NULL)
+        return false;
+
+      if (!accessPixelCheck(_bytes, _pixels))
+        return false;
+
+      _pixelPtr = m_ptr;
 
       return true;
     }
@@ -191,6 +209,7 @@ class ImageRowSet : public BaseImageRowSet,
 
 
 #include <libimage/image_row_rgb.hpp>
+#include <libimage/image_row_yuv.hpp>
 
 
 #endif // !TRIK_LIBIMAGE_IMAGE_ROW_HPP_

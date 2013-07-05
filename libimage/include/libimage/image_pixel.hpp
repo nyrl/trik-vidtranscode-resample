@@ -67,7 +67,9 @@ class BaseImagePixel
     {
       PixelRGB565,
       PixelRGB565X,
-      PixelRGB888
+      PixelRGB888,
+      PixelYUV444,
+      PixelYUV422
     };
 
   protected:
@@ -230,6 +232,7 @@ class ImagePixelSetConvertion
 
 
 #include <libimage/image_pixel_rgb.hpp>
+#include <libimage/image_pixel_yuv.hpp>
 
 
 #endif // !TRIK_LIBIMAGE_IMAGE_PIXEL_HPP_
