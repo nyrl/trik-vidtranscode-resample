@@ -223,6 +223,7 @@ static bool convertVideoFormat(XDAS_Int32 _iFormat, trik::libimage::BaseImagePix
   }
 }
 
+
 template <trik::libimage::BaseImagePixel::PixelType         _PixelTypeSrc,
           trik::libimage::BaseImagePixel::PixelType         _PixelTypeDst,
           trik::libimage::BaseImageAlgorithm::AlgorithmType _Algorithm>
@@ -252,6 +253,76 @@ static bool resampleBufferImpl(const XDAS_UInt8* restrict _inBuffer,
   _outBufferSize = imageDst.actualImageSize();
   return true;
 }
+
+template <trik::libimage::BaseImageAlgorithm::AlgorithmType _Algorithm>
+static TrikVideoResampleStatus resampleBufferAlgorithmImpl(const XDAS_UInt8* restrict _inBuffer,
+                                                           const size_t&              _inBufferSize,
+                                                           const trik::libimage::BaseImagePixel::PixelType& _inPixelType,
+                                                           const size_t&              _inWidth,
+                                                           const size_t&              _inHeight,
+                                                           const size_t&              _inLineLength,
+                                                           XDAS_UInt8* restrict       _outBuffer,
+                                                           size_t&                    _outBufferSize,
+                                                           const trik::libimage::BaseImagePixel::PixelType& _outPixelType,
+                                                           const size_t&              _outWidth,
+                                                           const size_t&              _outHeight,
+                                                           const size_t&              _outLineLength)
+{
+  // YUV422 camera -> RGB565X (trik lcd)
+  if (        _inPixelType  == trik::libimage::BaseImagePixel::PixelYUV422
+           && _outPixelType == trik::libimage::BaseImagePixel::PixelRGB565X)
+  {
+    if (!resampleBufferImpl<trik::libimage::BaseImagePixel::PixelYUV422,
+                            trik::libimage::BaseImagePixel::PixelRGB565X,
+                            _Algorithm>(_inBuffer,  _inBufferSize,  _inWidth,  _inHeight,  _inLineLength,
+                                        _outBuffer, _outBufferSize, _outWidth, _outHeight, _outLineLength))
+      return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_FAILED;
+  }
+  // YUV422 camera -> RGB888 plane
+  else if (   _inPixelType  == trik::libimage::BaseImagePixel::PixelYUV422
+           && _outPixelType == trik::libimage::BaseImagePixel::PixelRGB888)
+  {
+    if (!resampleBufferImpl<trik::libimage::BaseImagePixel::PixelYUV422,
+                            trik::libimage::BaseImagePixel::PixelRGB888,
+                            _Algorithm>(_inBuffer,  _inBufferSize,  _inWidth,  _inHeight,  _inLineLength,
+                                        _outBuffer, _outBufferSize, _outWidth, _outHeight, _outLineLength))
+      return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_FAILED;
+  }
+  // RGB888 compat camera -> RGB565X (trik lcd)
+  else if (   _inPixelType  == trik::libimage::BaseImagePixel::PixelRGB888
+           && _outPixelType == trik::libimage::BaseImagePixel::PixelRGB565X)
+  {
+    if (!resampleBufferImpl<trik::libimage::BaseImagePixel::PixelRGB888,
+                            trik::libimage::BaseImagePixel::PixelRGB565X,
+                            _Algorithm>(_inBuffer,  _inBufferSize,  _inWidth,  _inHeight,  _inLineLength,
+                                        _outBuffer, _outBufferSize, _outWidth, _outHeight, _outLineLength))
+      return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_FAILED;
+  }
+  // For testing purposes
+  else if (   _inPixelType  == trik::libimage::BaseImagePixel::PixelRGB888
+           && _outPixelType == trik::libimage::BaseImagePixel::PixelRGB888)
+  {
+    if (!resampleBufferImpl<trik::libimage::BaseImagePixel::PixelRGB888,
+                            trik::libimage::BaseImagePixel::PixelRGB888,
+                            _Algorithm>(_inBuffer,  _inBufferSize,  _inWidth,  _inHeight,  _inLineLength,
+                                        _outBuffer, _outBufferSize, _outWidth, _outHeight, _outLineLength))
+      return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_FAILED;
+  }
+  else if (   _inPixelType  == trik::libimage::BaseImagePixel::PixelRGB888
+           && _outPixelType == trik::libimage::BaseImagePixel::PixelRGB565)
+  {
+    if (!resampleBufferImpl<trik::libimage::BaseImagePixel::PixelRGB888,
+                            trik::libimage::BaseImagePixel::PixelRGB565,
+                            _Algorithm>(_inBuffer,  _inBufferSize,  _inWidth,  _inHeight,  _inLineLength,
+                                        _outBuffer, _outBufferSize, _outWidth, _outHeight, _outLineLength))
+      return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_FAILED;
+  }
+  else
+    return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_INCOMPATIBLE_FORMATS;
+
+  return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_OK;
+}
+
 
 TrikVideoResampleStatus resampleBuffer(const XDAS_Int8* restrict	_iInBuf,
                                        XDAS_Int32			_iInBufSize,
@@ -299,59 +370,15 @@ TrikVideoResampleStatus resampleBuffer(const XDAS_Int8* restrict	_iInBuf,
   if (_iOutBufUsed == NULL)
     return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_INVALID_ARGUMENTS;
 
-  // YUV422 camera -> RGB565X (trik lcd)
-  if (        inPixelType  == trik::libimage::BaseImagePixel::PixelYUV422
-           && outPixelType == trik::libimage::BaseImagePixel::PixelRGB565X)
-  {
-    if (!resampleBufferImpl<trik::libimage::BaseImagePixel::PixelYUV422,
-                            trik::libimage::BaseImagePixel::PixelRGB565X,
-                            trik::libimage::BaseImageAlgorithm::AlgoResampleBicubic>(inBuffer,  inBufferSize,  inWidth,  inHeight,  inLineLength,
-                                                                                     outBuffer, outBufferSize, outWidth, outHeight, outLineLength))
-      return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_FAILED;
-  }
-  // YUV422 camera -> RGB888 plane
-  else if (   inPixelType  == trik::libimage::BaseImagePixel::PixelYUV422
-           && outPixelType == trik::libimage::BaseImagePixel::PixelRGB888)
-  {
-    if (!resampleBufferImpl<trik::libimage::BaseImagePixel::PixelYUV422,
-                            trik::libimage::BaseImagePixel::PixelRGB888,
-                            trik::libimage::BaseImageAlgorithm::AlgoResampleBicubic>(inBuffer,  inBufferSize,  inWidth,  inHeight,  inLineLength,
-                                                                                     outBuffer, outBufferSize, outWidth, outHeight, outLineLength))
-      return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_FAILED;
-  }
-  // RGB888 compat camera -> RGB565X (trik lcd)
-  else if (   inPixelType  == trik::libimage::BaseImagePixel::PixelRGB888
-           && outPixelType == trik::libimage::BaseImagePixel::PixelRGB565X)
-  {
-    if (!resampleBufferImpl<trik::libimage::BaseImagePixel::PixelRGB888,
-                            trik::libimage::BaseImagePixel::PixelRGB565X,
-                            trik::libimage::BaseImageAlgorithm::AlgoResampleBicubic>(inBuffer,  inBufferSize,  inWidth,  inHeight,  inLineLength,
-                                                                                     outBuffer, outBufferSize, outWidth, outHeight, outLineLength))
-      return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_FAILED;
-  }
-  // For testing purposes
-  else if (   inPixelType  == trik::libimage::BaseImagePixel::PixelRGB888
-           && outPixelType == trik::libimage::BaseImagePixel::PixelRGB888)
-  {
-    if (!resampleBufferImpl<trik::libimage::BaseImagePixel::PixelRGB888,
-                            trik::libimage::BaseImagePixel::PixelRGB888,
-                            trik::libimage::BaseImageAlgorithm::AlgoResampleBicubic>(inBuffer,  inBufferSize,  inWidth,  inHeight,  inLineLength,
-                                                                                     outBuffer, outBufferSize, outWidth, outHeight, outLineLength))
-      return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_FAILED;
-  }
-  else if (   inPixelType  == trik::libimage::BaseImagePixel::PixelRGB888
-           && outPixelType == trik::libimage::BaseImagePixel::PixelRGB565)
-  {
-    if (!resampleBufferImpl<trik::libimage::BaseImagePixel::PixelRGB888,
-                            trik::libimage::BaseImagePixel::PixelRGB565,
-                            trik::libimage::BaseImageAlgorithm::AlgoResampleBicubic>(inBuffer,  inBufferSize,  inWidth,  inHeight,  inLineLength,
-                                                                                     outBuffer, outBufferSize, outWidth, outHeight, outLineLength))
-      return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_FAILED;
-  }
-  else
-    return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_INCOMPATIBLE_FORMATS;
+
+  if (!resampleBufferAlgorithmImpl<trik::libimage::BaseImageAlgorithm::AlgoResampleBicubic>(inBuffer,  inBufferSize,  inPixelType,
+                                                                                            inWidth,  inHeight,  inLineLength,
+                                                                                            outBuffer, outBufferSize, outPixelType,
+                                                                                            outWidth, outHeight, outLineLength))
+    return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_FAILED;
 
   *_iOutBufUsed = outBufferSize;
+
   return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_OK;
 }
 
