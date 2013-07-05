@@ -25,17 +25,21 @@ class ImagePixelYUVAccessor : protected BaseImagePixelAccessor,
   public:
     bool toNormalizedRGB(float& _nr, float& _ng, float& _nb) const
     {
-      _nr = range(0.0f, ( m_y/yMax() +                     +  1.13983*m_v/vMax()), 1.0f);
-      _ng = range(0.0f, ( m_y/yMax() + -0.39465*m_u/uMax() + -0.58060*m_v/vMax()), 1.0f);
-      _nb = range(0.0f, ( m_y/yMax() +  2.03211*m_u/uMax()                      ), 1.0f);
+      const float y = m_y/yMax();
+      const float u = m_u/uMax() - 0.5;
+      const float v = m_v/uMax() - 0.5;
+
+      _nr = range(0.0f, ( y +  0        +  1.4075*v), 1.0f);
+      _ng = range(0.0f, ( y + -0.3455*u + -0.7169*v), 1.0f);
+      _nb = range(0.0f, ( y +  1.7790*u +  0       ), 1.0f);
       return true;
     }
 
     bool fromNormalizedRGB(const float& _nr, const float& _ng, const float& _nb)
     {
-      m_y = ( 0.29900*_nr +  0.58700*_ng +  0.11400*_nb) * yMax();
-      m_u = (-0.14713*_nr + -0.28886*_ng +  0.43600*_nb) * uMax();
-      m_v = ( 0.61500*_nr + -0.51499*_ng + -0.10001*_nb) * vMax();
+      m_y =  ( 0.2990*_nr +  0.5870*_ng +  0.1140*_nb) * yMax();
+      m_u = ((-0.1687*_nr + -0.3312*_ng +  0.5000*_nb) + 0.5) * uMax();
+      m_v = (( 0.5000*_nr + -0.4186*_ng + -0.0813*_nb) + 0.5) * vMax();
       return true;
     }
 
