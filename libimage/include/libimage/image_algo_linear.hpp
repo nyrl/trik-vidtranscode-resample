@@ -22,8 +22,8 @@ class AlgoInterpolationLinear : public BaseAlgoInterpolation1Dim<0, 1>
     {
       assert(_t >= 0 && _t <= 1.0);
 
-      m_t0 = _t;
-      m_t1 = 1-_t;
+      m_t0 = 1.0-_t;
+      m_t1 = _t;
     }
 
     template <typename PixelSetIn, typename PixelSetOut>
