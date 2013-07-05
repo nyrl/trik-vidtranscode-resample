@@ -248,6 +248,7 @@ XDAS_Int32 TRIK_VIDTRANSCODE_RESAMPLE_process(
 
         XDM_SETACCESSMODE_WRITE(xdmOutBuf->accessMask);
 
+        xdmOutBuf->bufSize					= outBufUsed;
         vidOutArgs->bitsGenerated[outBufIndex]			= outBufUsed * CHAR_BIT;
         vidOutArgs->encodedPictureType[outBufIndex]		= vidOutArgs->decodedPictureType;
         vidOutArgs->encodedPictureStructure[outBufIndex]	= vidOutArgs->decodedPictureStructure;
