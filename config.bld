@@ -22,6 +22,7 @@ for (x = 0; x < arguments.length; x++) {
     }
 }
 
+if (C64P_rootdir) {
 /* should test here that cgRootDir is set! */
 var targ = xdc.useModule("ti.targets.C64P");
 targ.rootDir = C64P_rootdir;
@@ -43,8 +44,9 @@ delete targ.profiles["coverage"];
 delete targ.profiles["profile"];
 delete targ.profiles["whole_program"];
 delete targ.profiles["whole_program_debug"];
+}
 
-
+if (C674_rootdir) {
 var targ = xdc.useModule("ti.targets.C674");
 targ.rootDir = C674_rootdir;
 targ.ccOpts.suffix = "-mi10 -mo ";
@@ -65,7 +67,7 @@ delete targ.profiles["coverage"];
 delete targ.profiles["profile"];
 delete targ.profiles["whole_program"];
 delete targ.profiles["whole_program_debug"];
-
+}
 
 /* Create a .zip or .tar file for redistribution. */
 Pkg.attrs.archiver = 'tar';
