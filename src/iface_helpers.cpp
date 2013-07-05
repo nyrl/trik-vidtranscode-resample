@@ -285,7 +285,7 @@ TrikVideoResampleStatus resampleBuffer(const XDAS_Int8* restrict	_iInBuf,
 
 
   trik::libimage::BaseImagePixel::PixelType outPixelType;
-  if (!convertVideoFormat(_iInFormat, outPixelType))
+  if (!convertVideoFormat(_iOutFormat, outPixelType))
     return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_UNKNOWN_OUT_FORMAT;
 
   if (_iOutBufSize < 0 || _iOutWidth < 0 || _iOutHeight < 0)
