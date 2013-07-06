@@ -13,6 +13,9 @@ Pkg.generatedFiles.$add("lib/");
 
 var publicHeader = "trik_vidtranscode_resample.h";
 
+/* Includes */
+Pkg.attrs.incs="-I./include -I./libimage/include";
+
 /* Always include the public header file in the generated release archive */
 Pkg.otherFiles.$add(publicHeader);
 
