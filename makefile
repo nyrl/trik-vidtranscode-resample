@@ -1,18 +1,19 @@
 
 # your various installation directories
-DEPOT?=/home/nyrl/trik/ti-ce3/
-XDC_INSTALL_DIR?=$(DEPOT)/xdctools_3_25_00_48
-CE_INSTALL_DIR?=$(DEPOT)/codec_engine_3_23_00_07
-XDAIS_INSTALL_DIR?=$(DEPOT)/xdais_7_23_00_06
-CODEGEN_INSTALL_DIR?=$(DEPOT)/cgt6x_7_4_2
+DEPOT_DSP?=/opt/trik-dsp
+DEPOT_TRIK?=$(PWD)/../../
 
-TRIK_LIBIMAGE?=$(PWD)/libimage
-TRIK_INCPATH=$(PWD)/include;$(TRIK_LIBIMAGE)/include
+XDC_INSTALL_DIR?=$(DEPOT_DSP)/xdctools_3_24_07_73
+CE_INSTALL_DIR?=$(DEPOT_DSP)/codec_engine_3_23_00_07
+XDAIS_INSTALL_DIR?=$(DEPOT_DSP)/xdais_7_23_00_06
+CODEGEN_INSTALL_DIR?=$(DEPOT_DSP)/cgt_c6000_7.4.2
+
+TRIK_INCPATH=$(PWD)/include;$(PWD)/libimage/include
 
 #uncomment this for verbose builds
 #XDCOPTIONS=v
 
-CGTOOLS_C64P?=$(CODEGEN_INSTALL_DIR)
+CGTOOLS_C64P?=
 CGTOOLS_C674?=$(CODEGEN_INSTALL_DIR)
 XDCARGS=CGTOOLS_C64P=\"$(CGTOOLS_C64P)\"  CGTOOLS_C674=\"$(CGTOOLS_C674)\"
 
