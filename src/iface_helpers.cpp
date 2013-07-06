@@ -371,14 +371,15 @@ TrikVideoResampleStatus resampleBuffer(const XDAS_Int8* restrict	_iInBuf,
     return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_INVALID_ARGUMENTS;
 
 
-  if (!resampleBufferAlgorithmImpl<trik::libimage::BaseImageAlgorithm::AlgoResampleBicubic>(inBuffer,  inBufferSize,  inPixelType,
-                                                                                            inWidth,  inHeight,  inLineLength,
-                                                                                            outBuffer, outBufferSize, outPixelType,
-                                                                                            outWidth, outHeight, outLineLength))
-    return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_FAILED;
+  TrikVideoResampleStatus result
+    = resampleBufferAlgorithmImpl<trik::libimage::BaseImageAlgorithm::AlgoResampleBicubic>(inBuffer,  inBufferSize,  inPixelType,
+                                                                                           inWidth,  inHeight,  inLineLength,
+                                                                                           outBuffer, outBufferSize, outPixelType,
+                                                                                           outWidth, outHeight, outLineLength);
+  if (result != TRIK_VIDTRANSCODE_RESAMPLE_STATUS_OK)
+    return result;
 
   *_iOutBufUsed = outBufferSize;
-
   return TRIK_VIDTRANSCODE_RESAMPLE_STATUS_OK;
 }
 
