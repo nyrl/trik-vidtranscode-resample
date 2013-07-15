@@ -60,6 +60,9 @@ delete targ.profiles["whole_program_debug"];
 
 var targ = xdc.useModule("ti.targets.elf.C674");
 targ.rootDir = C674_rootdir;
+targ.ccOpts.suffix = "--gcc ";
+targ.profiles["release"].compileOpts.copts += " --gen_opt_info=2 --opt_for_speed=5 --auto_inline  --advice:performance=all --optimizer_interlist --debug_software_pipeline --src_interlist "
+targ.profiles["release"].compileOpts.defs = "-DNDEBUG=1 "
 Build.targets.$add(targ);
 
 /* We remove a few profiles, just to cut down on build time */
