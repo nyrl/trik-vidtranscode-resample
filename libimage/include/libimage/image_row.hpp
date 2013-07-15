@@ -180,7 +180,7 @@ class ImageRowSet : public BaseImageRowSet,
       bool isOk = true;
 
       for (size_t index = 0; index < rowsCount(); ++index)
-        isOk &= operator[](index).readPixel(_pixelSet[index]);
+        isOk &= this->operator[](index).readPixel(_pixelSet[index]);
 
       return isOk;
     }
@@ -190,7 +190,7 @@ class ImageRowSet : public BaseImageRowSet,
       bool isOk = true;
 
       for (size_t index = 0; index < rowsCount(); ++index)
-        isOk &= operator[](index).writePixel(_pixelSet[index]);
+        isOk &= this->operator[](index).writePixel(_pixelSet[index]);
 
       return isOk;
     }
