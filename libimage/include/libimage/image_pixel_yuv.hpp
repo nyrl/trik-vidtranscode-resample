@@ -25,9 +25,9 @@ class ImagePixelYUVAccessor : protected BaseImagePixelAccessor,
   public:
     bool toNormalizedRGB(float& _nr, float& _ng, float& _nb) const
     {
-      const float y = m_y/yMax();
-      const float u = m_u/uMax() - 0.5f;
-      const float v = m_v/uMax() - 0.5f;
+      const float y = m_y * yNormDiv();
+      const float u = m_u * uNormDiv() - 0.5f;
+      const float v = m_v * vNormDiv() - 0.5f;
 
       _nr = range(0.0f, ( y +  0.0f      +  1.4075f*v), 1.0f);
       _ng = range(0.0f, ( y + -0.3455f*u + -0.7169f*v), 1.0f);
@@ -37,9 +37,9 @@ class ImagePixelYUVAccessor : protected BaseImagePixelAccessor,
 
     bool fromNormalizedRGB(const float& _nr, const float& _ng, const float& _nb)
     {
-      m_y =  ( 0.2990f*_nr +  0.5870f*_ng +  0.1140f*_nb) * yMax();
-      m_u = ((-0.1687f*_nr + -0.3312f*_ng +  0.5000f*_nb) + 0.5f) * uMax();
-      m_v = (( 0.5000f*_nr + -0.4186f*_ng + -0.0813f*_nb) + 0.5f) * vMax();
+      m_y =  ( 0.2990f*_nr +  0.5870f*_ng +  0.1140f*_nb)         * yNormMult();
+      m_u = ((-0.1687f*_nr + -0.3312f*_ng +  0.5000f*_nb) + 0.5f) * uNormMult();
+      m_v = (( 0.5000f*_nr + -0.4186f*_ng + -0.0813f*_nb) + 0.5f) * vNormMult();
       return true;
     }
 
@@ -75,17 +75,17 @@ class ImagePixelYUVAccessor : protected BaseImagePixelAccessor,
 
     unsigned storeY() const
     {
-      return roundf(range(0.0f, m_y, yMax()));
+      return /*trunc*/range(yStoreMin(), m_y+0.5f, yStoreMax());
     }
 
     unsigned storeU() const
     {
-      return roundf(range(0.0f, m_u, uMax()));
+      return /*trunc*/range(uStoreMin(), m_u+0.5f, uStoreMax());
     }
 
     unsigned storeV() const
     {
-      return roundf(range(0.0f, m_v, vMax()));
+      return /*trunc*/range(vStoreMin(), m_v+0.5f, vStoreMax());
     }
 
     void operatorMultiplyImpl(const float& _f)
@@ -117,9 +117,23 @@ class ImagePixelYUVAccessor : protected BaseImagePixelAccessor,
     float m_u;
     float m_v;
 
-    static float yMax() { return (1u<<_YBits) - 1; }
-    static float uMax() { return (1u<<_UBits) - 1; }
-    static float vMax() { return (1u<<_VBits) - 1; }
+    static const size_t s_YMaxUInt = (1u<<_YBits) - 1u;
+    static const size_t s_UMaxUInt = (1u<<_UBits) - 1u;
+    static const size_t s_VMaxUInt = (1u<<_VBits) - 1u;
+
+    static float yStoreMin() { return 0.0f; }
+    static float uStoreMin() { return 0.0f; }
+    static float vStoreMin() { return 0.0f; }
+    static float yStoreMax() { return static_cast<float>(s_YMaxUInt); }
+    static float uStoreMax() { return static_cast<float>(s_UMaxUInt); }
+    static float vStoreMax() { return static_cast<float>(s_VMaxUInt); }
+
+    static float yNormMult() { return yStoreMax(); }
+    static float uNormMult() { return uStoreMax(); }
+    static float vNormMult() { return vStoreMax(); }
+    static float yNormDiv()  { return 1.0f / yNormMult(); }
+    static float uNormDiv()  { return 1.0f / uNormMult(); }
+    static float vNormDiv()  { return 1.0f / vNormMult(); }
 };
 
 

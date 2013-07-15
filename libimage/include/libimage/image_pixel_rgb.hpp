@@ -25,17 +25,17 @@ class ImagePixelRGBAccessor : protected BaseImagePixelAccessor,
   public:
     bool toNormalizedRGB(float& _nr, float& _ng, float& _nb) const
     {
-      _nr = range(0.0f, m_r / rMax(), 1.0f);
-      _ng = range(0.0f, m_g / gMax(), 1.0f);
-      _nb = range(0.0f, m_b / bMax(), 1.0f);
+      _nr = range(0.0f, m_r * rNormDiv(), 1.0f);
+      _ng = range(0.0f, m_g * gNormDiv(), 1.0f);
+      _nb = range(0.0f, m_b * bNormDiv(), 1.0f);
       return true;
     }
 
     bool fromNormalizedRGB(const float& _nr, const float& _ng, const float& _nb)
     {
-      m_r = _nr * rMax();
-      m_g = _ng * gMax();
-      m_b = _nb * bMax();
+      m_r = _nr * rNormMult();
+      m_g = _ng * gNormMult();
+      m_b = _nb * bNormMult();
       return true;
     }
 
@@ -71,17 +71,17 @@ class ImagePixelRGBAccessor : protected BaseImagePixelAccessor,
 
     unsigned storeR() const
     {
-      return roundf(range(0.0f, m_r, rMax()));
+      return /*trunc*/range(rStoreMin(), m_r, rStoreMax());
     }
 
     unsigned storeG() const
     {
-      return roundf(range(0.0f, m_g, gMax()));
+      return /*trunc*/range(gStoreMin(), m_g, gStoreMax());
     }
 
     unsigned storeB() const
     {
-      return roundf(range(0.0f, m_b, bMax()));
+      return /*trunc*/range(bStoreMin(), m_b, bStoreMax());
     }
 
     void operatorMultiplyImpl(const float& _f)
@@ -113,9 +113,23 @@ class ImagePixelRGBAccessor : protected BaseImagePixelAccessor,
     float m_g;
     float m_b;
 
-    static float rMax() { return (1u<<_RBits) - 1; }
-    static float gMax() { return (1u<<_GBits) - 1; }
-    static float bMax() { return (1u<<_BBits) - 1; }
+    static const size_t s_RMaxUInt = (1u<<_RBits) - 1u;
+    static const size_t s_GMaxUInt = (1u<<_GBits) - 1u;
+    static const size_t s_BMaxUInt = (1u<<_BBits) - 1u;
+
+    static float rStoreMin() { return 0.0f; }
+    static float gStoreMin() { return 0.0f; }
+    static float bStoreMin() { return 0.0f; }
+    static float rStoreMax() { return static_cast<float>(s_RMaxUInt); }
+    static float gStoreMax() { return static_cast<float>(s_GMaxUInt); }
+    static float bStoreMax() { return static_cast<float>(s_BMaxUInt); }
+
+    static float rNormMult() { return rStoreMax(); }
+    static float gNormMult() { return gStoreMax(); }
+    static float bNormMult() { return bStoreMax(); }
+    static float rNormDiv()  { return 1.0f / rNormMult(); }
+    static float gNormDiv()  { return 1.0f / gNormMult(); }
+    static float bNormDiv()  { return 1.0f / bNormMult(); }
 };
 
 
