@@ -157,6 +157,12 @@ XDAS_Int32 TRIK_VIDTRANSCODE_RESAMPLE_process(
     IVIDTRANSCODE_OutArgs*	vidOutArgs)
 {
     TrikVideoResampleHandle* handle = (TrikVideoResampleHandle*)algHandle;
+    XDM1_SingleBufDesc* xdmInBuf;
+    XDAS_Int32 inBufFormat;
+    XDAS_Int32 inBufHeight;
+    XDAS_Int32 inBufWidth;
+    XDAS_Int32 inBufLineLength;
+    XDAS_Int32 outBufIndex;
 
     if (   (vidInArgs->size  != sizeof(IVIDTRANSCODE_InArgs))
         || (vidOutArgs->size != sizeof(IVIDTRANSCODE_OutArgs)))
@@ -174,8 +180,7 @@ XDAS_Int32 TRIK_VIDTRANSCODE_RESAMPLE_process(
     }
 
 
-    XDM1_SingleBufDesc* xdmInBuf = &xdmInBufs->descs[0];
-
+    xdmInBuf = &xdmInBufs->descs[0];
     if (   xdmInBuf->buf == NULL
         || vidInArgs->numBytes < 0
         || vidInArgs->numBytes > xdmInBuf->bufSize)
@@ -184,10 +189,6 @@ XDAS_Int32 TRIK_VIDTRANSCODE_RESAMPLE_process(
         return IVIDTRANSCODE_EFAIL;
     }
 
-    XDAS_Int32 inBufFormat;
-    XDAS_Int32 inBufHeight;
-    XDAS_Int32 inBufWidth;
-    XDAS_Int32 inBufLineLength;
     if (!handlePickInputParams(handle, &inBufFormat, &inBufHeight, &inBufWidth, &inBufLineLength))
     {
         XDM_SETUNSUPPORTEDPARAM(vidOutArgs->extendedError);
@@ -204,10 +205,16 @@ XDAS_Int32 TRIK_VIDTRANSCODE_RESAMPLE_process(
     vidOutArgs->decodedWidth			= handle->m_dynamicParams.inputWidth;
 
 
-    XDAS_Int32 outBufIndex;
     for (outBufIndex = 0; outBufIndex < handle->m_params.base.numOutputStreams; ++outBufIndex)
     {
         XDM1_SingleBufDesc* xdmOutBuf = &vidOutArgs->encodedBuf[outBufIndex];
+        XDAS_Int32 outBufFormat;
+        XDAS_Int32 outBufHeight;
+        XDAS_Int32 outBufWidth;
+        XDAS_Int32 outBufLineLength;
+        XDAS_Int32 outBufUsed = 0;
+        TrikVideoResampleStatus result;
+
         xdmOutBuf->buf		= xdmOutBufs->bufs[outBufIndex];
         xdmOutBuf->bufSize	= xdmOutBufs->bufSizes[outBufIndex];
         xdmOutBuf->accessMask	= 0;
@@ -219,10 +226,6 @@ XDAS_Int32 TRIK_VIDTRANSCODE_RESAMPLE_process(
             return IVIDTRANSCODE_EFAIL;
         }
 
-        XDAS_Int32 outBufFormat;
-        XDAS_Int32 outBufHeight;
-        XDAS_Int32 outBufWidth;
-        XDAS_Int32 outBufLineLength;
 
         if (!handlePickOutputParams(handle, outBufIndex, &outBufFormat, &outBufHeight, &outBufWidth, &outBufLineLength))
         {
@@ -230,11 +233,10 @@ XDAS_Int32 TRIK_VIDTRANSCODE_RESAMPLE_process(
             return IVIDTRANSCODE_EFAIL;
         }
 
-        XDAS_Int32 outBufUsed = 0;
-        TrikVideoResampleStatus result = resampleBuffer(xdmInBuf->buf, vidInArgs->numBytes,
-                                                        inBufFormat, inBufHeight, inBufWidth, inBufLineLength,
-                                                        xdmOutBuf->buf, xdmOutBuf->bufSize, &outBufUsed,
-                                                        outBufFormat, outBufHeight, outBufWidth, outBufLineLength);
+        result = resampleBuffer(xdmInBuf->buf, vidInArgs->numBytes,
+                                inBufFormat, inBufHeight, inBufWidth, inBufLineLength,
+                                xdmOutBuf->buf, xdmOutBuf->bufSize, &outBufUsed,
+                                outBufFormat, outBufHeight, outBufWidth, outBufLineLength);
         switch (result)
         {
             case TRIK_VIDTRANSCODE_RESAMPLE_STATUS_OK:
