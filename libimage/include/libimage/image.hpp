@@ -33,7 +33,7 @@ class BaseImageAccessor
     {
     }
 
-    bool rowRangeCheck(const size_t& _rowIndex, size_t& _ofs) const
+    bool rowRangeCheck(size_t _rowIndex, size_t& _ofs) const
     {
       if (   _rowIndex >= m_height
           || (_rowIndex+1)*m_lineLength > m_imageSize)
@@ -43,22 +43,22 @@ class BaseImageAccessor
       return true;
     }
 
-    const size_t& width() const
+    size_t width() const
     {
       return m_width;
     }
 
-    const size_t& height() const
+    size_t height() const
     {
       return m_height;
     }
 
-    const size_t& lineLength() const
+    size_t lineLength() const
     {
       return m_lineLength;
     }
 
-    const size_t& imageSize() const
+    size_t imageSize() const
     {
       return m_imageSize;
     }
