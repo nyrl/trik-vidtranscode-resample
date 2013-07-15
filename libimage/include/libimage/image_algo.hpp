@@ -18,6 +18,8 @@ class BaseImageAlgorithm
   public:
     enum AlgorithmType
     {
+      AlgoTestFill,
+
       AlgoResampleBicubic,
       AlgoResampleBilinear
     };
@@ -38,6 +40,7 @@ class ImageAlgorithm : public BaseImageAlgorithm,
 } /* **** **** **** **** **** * namespace trik * **** **** **** **** **** */
 
 
+#include <libimage/image_algo_test_fill.hpp>
 #include <libimage/image_algo_cubic.hpp>
 #include <libimage/image_algo_linear.hpp>
 
