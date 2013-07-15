@@ -178,16 +178,20 @@ class ImageRowSet : public BaseImageRowSet,
     bool readPixelSet(PixelSet& _pixelSet)
     {
       bool isOk = true;
-      for (size_t index = 0; index < _rowsCount; ++index)
+
+      for (size_t index = 0; index < rowsCount(); ++index)
         isOk &= operator[](index).readPixel(_pixelSet[index]);
+
       return isOk;
     }
 
     bool writePixelSet(const PixelSet& _pixelSet)
     {
       bool isOk = true;
-      for (size_t index = 0; index < _rowsCount; ++index)
+
+      for (size_t index = 0; index < rowsCount(); ++index)
         isOk &= operator[](index).writePixel(_pixelSet[index]);
+
       return isOk;
     }
 
@@ -195,7 +199,7 @@ class ImageRowSet : public BaseImageRowSet,
   protected:
     size_t rowIndex(size_t _index) const
     {
-      return (m_rowFirst + _index) % _rowsCount;
+      return (m_rowFirst + _index) % rowsCount();
     }
 
   private:
