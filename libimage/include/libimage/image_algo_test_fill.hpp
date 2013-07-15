@@ -34,6 +34,9 @@ class AlgoTestFill
     {
       RowSetOut   rowSetOut;
 
+      const float imageOutHeightDiv = 1.0f / _imageOut.height();
+      const float imageOutWidthDiv =  1.0f / _imageOut.width();
+
       for (size_t rowIdxOut = 0; rowIdxOut < _imageOut.height(); ++rowIdxOut)
       {
         if (!_imageOut.template getRowSet<0, 0>(rowSetOut, rowIdxOut))
@@ -41,9 +44,9 @@ class AlgoTestFill
 
         for (size_t colIdxOut = 0; colIdxOut < _imageOut.width(); ++colIdxOut)
         {
-          float nr = static_cast<float>(rowIdxOut) / _imageOut.height();
-          float ng = static_cast<float>(colIdxOut) / _imageOut.width();
-          float nb = 0.5;
+          float nr = rowIdxOut * imageOutHeightDiv;
+          float ng = colIdxOut * imageOutWidthDiv;
+          float nb = 0.5f;
 
           typename PixelSetOut::Pixel pt;
           pt.fromNormalizedRGB(nr, ng, nb);
