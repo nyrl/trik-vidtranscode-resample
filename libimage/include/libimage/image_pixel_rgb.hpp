@@ -41,9 +41,9 @@ class ImagePixelRGBAccessor : protected BaseImagePixelAccessor,
 
   protected:
     ImagePixelRGBAccessor()
-     :m_r(0.0),
-      m_g(0.0),
-      m_b(0.0)
+     :m_r(0.0f),
+      m_g(0.0f),
+      m_b(0.0f)
     {
     }
 
@@ -116,7 +116,6 @@ class ImagePixelRGBAccessor : protected BaseImagePixelAccessor,
     static float rMax() { return (1u<<_RBits) - 1; }
     static float gMax() { return (1u<<_GBits) - 1; }
     static float bMax() { return (1u<<_BBits) - 1; }
-    static float range(float _min, float _val, float _max) { return std::min(_max, std::max(_min, _val)); }
 };
 
 

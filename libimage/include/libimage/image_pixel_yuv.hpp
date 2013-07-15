@@ -26,28 +26,28 @@ class ImagePixelYUVAccessor : protected BaseImagePixelAccessor,
     bool toNormalizedRGB(float& _nr, float& _ng, float& _nb) const
     {
       const float y = m_y/yMax();
-      const float u = m_u/uMax() - 0.5;
-      const float v = m_v/uMax() - 0.5;
+      const float u = m_u/uMax() - 0.5f;
+      const float v = m_v/uMax() - 0.5f;
 
-      _nr = range(0.0f, ( y +  0        +  1.4075*v), 1.0f);
-      _ng = range(0.0f, ( y + -0.3455*u + -0.7169*v), 1.0f);
-      _nb = range(0.0f, ( y +  1.7790*u +  0       ), 1.0f);
+      _nr = range(0.0f, ( y +  0.0f      +  1.4075f*v), 1.0f);
+      _ng = range(0.0f, ( y + -0.3455f*u + -0.7169f*v), 1.0f);
+      _nb = range(0.0f, ( y +  1.7790f*u +  0.0f     ), 1.0f);
       return true;
     }
 
     bool fromNormalizedRGB(const float& _nr, const float& _ng, const float& _nb)
     {
-      m_y =  ( 0.2990*_nr +  0.5870*_ng +  0.1140*_nb) * yMax();
-      m_u = ((-0.1687*_nr + -0.3312*_ng +  0.5000*_nb) + 0.5) * uMax();
-      m_v = (( 0.5000*_nr + -0.4186*_ng + -0.0813*_nb) + 0.5) * vMax();
+      m_y =  ( 0.2990f*_nr +  0.5870f*_ng +  0.1140f*_nb) * yMax();
+      m_u = ((-0.1687f*_nr + -0.3312f*_ng +  0.5000f*_nb) + 0.5f) * uMax();
+      m_v = (( 0.5000f*_nr + -0.4186f*_ng + -0.0813f*_nb) + 0.5f) * vMax();
       return true;
     }
 
   protected:
     ImagePixelYUVAccessor()
-     :m_y(0.0),
-      m_u(0.0),
-      m_v(0.0)
+     :m_y(0.0f),
+      m_u(0.0f),
+      m_v(0.0f)
     {
     }
 
@@ -120,7 +120,6 @@ class ImagePixelYUVAccessor : protected BaseImagePixelAccessor,
     static float yMax() { return (1u<<_YBits) - 1; }
     static float uMax() { return (1u<<_UBits) - 1; }
     static float vMax() { return (1u<<_VBits) - 1; }
-    static float range(float _min, float _val, float _max) { return std::min(_max, std::max(_min, _val)); }
 };
 
 

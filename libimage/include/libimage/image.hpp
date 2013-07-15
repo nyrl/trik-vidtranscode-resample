@@ -13,9 +13,7 @@
 #include <libimage/image_pixel.hpp>
 
 
-#ifdef __GNUC__
 #warning TODO: add 'restrict' to UByteCVs
-#endif
 
 /* **** **** **** **** **** */ namespace trik /* **** **** **** **** **** */ {
 /* **** **** **** **** **** */ namespace libimage /* **** **** **** **** **** */ {
@@ -181,17 +179,23 @@ class Image : public BaseImage,
       assert(_rowSet.rowsCount() == _rowsBefore+1+_rowsAfter);
 
       for (size_t idx = _rowsBefore; idx > 0; --idx)
-        if (!getRow(_rowSet.prepareNewRow(),
-                    (idx >= _baseRow ? 0 : _baseRow-idx)))
+      {
+#warning TODO: minor optimization might be applied if conditional statement moved out of loop
+        const size_t ridx = (idx >= _baseRow) ? 0 : _baseRow-idx;
+        if (!getRow(_rowSet.prepareNewRow(), ridx))
           return false;
+      }
 
       if (!getRow(_rowSet.prepareNewRow(), _baseRow))
         return false;
 
       for (size_t idx = 1; idx <= _rowsAfter; ++idx)
-        if (!getRow(_rowSet.prepareNewRow(),
-                    std::min(_baseRow+idx, ImageAccessor::lastRow())))
+      {
+#warning TODO: minor optimization might be applied if conditional statement moved out of loop
+        const size_t ridx = std::min(_baseRow+idx, ImageAccessor::lastRow());
+        if (!getRow(_rowSet.prepareNewRow(), ridx))
           return false;
+      }
 
       return true;
     }
