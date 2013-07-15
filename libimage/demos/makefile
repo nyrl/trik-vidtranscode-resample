@@ -4,8 +4,9 @@ HEADERS=$(shell find $(INCDIR) -name \*.h -o -name \*.hpp)
 DEMOS_SRC=$(shell find ./ -name \*.cpp)
 DEMOS=$(addprefix demo-,$(subst .cpp,,$(notdir $(basename $(DEMOS_SRC)))))
 
-CFLAGS+=-std=c++0x -g $(addprefix -I,$(INCDIR))
-
+CFLAGS+=-std=c++0x $(addprefix -I,$(INCDIR))
+CFLAGS+=-g
+CFLAGS+=-O3 -DNDEBUG
 
 
 
