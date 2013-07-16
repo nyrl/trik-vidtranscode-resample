@@ -90,15 +90,14 @@ class ImageAccessor : protected BaseImageAccessor
     {
     }
 
-    _UByteCV* getPtr() const
+    operator bool() const
     {
-      return m_ptr;
+      return m_ptr != NULL;
     }
 
     bool getRowPtr(_UByteCV*& _rowPtr, ImageDim _rowIndex) const
     {
-      if (m_ptr == NULL)
-        return false;
+      assert(m_ptr != NULL);
 
       ImageSize ofs;
       if (!rowRangeCheck(_rowIndex, ofs))
@@ -163,7 +162,6 @@ class Image : public BaseImage,
     {
     }
 
-
     bool getRow(RowType& _row, ImageDim _rowIndex) const
     {
       _UByteCV* rowPtr;
@@ -201,11 +199,11 @@ class Image : public BaseImage,
       return true;
     }
 
+    using ImageAccessor::operator bool;
     using ImageAccessor::width;
     using ImageAccessor::height;
     using ImageAccessor::imageSize;
     using ImageAccessor::actualImageSize;
-    using ImageAccessor::getPtr;
 
   protected:
     static ImageSize fixupLineLength(ImageDim _width, ImageSize _lineLength)

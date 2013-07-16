@@ -34,6 +34,9 @@ class AlgoTestFill
     {
       RowSetOut   rowSetOut;
 
+      if (!_imageIn || !_imageOut)
+        return false;
+
       const ImageDimFactor imageOutHeightDiv = 1.0f / _imageOut.height();
       const ImageDimFactor imageOutWidthDiv =  1.0f / _imageOut.width();
 

@@ -59,7 +59,7 @@ class ImageRowAccessor : private BaseImageRowAccessor
   protected:
     ImageRowAccessor()
      :BaseImageRowAccessor(),
-      m_ptr(NULL)
+      m_ptr()
     {
     }
 
@@ -71,8 +71,7 @@ class ImageRowAccessor : private BaseImageRowAccessor
 
     bool accessPixel(_UByteCV*& _pixelPtr, ImageSize _bytes, ImageDim _pixels=1)
     {
-      if (m_ptr == NULL)
-        return false;
+      assert(m_ptr != NULL);
 
       if (!accessPixelMarkup(_bytes, _pixels))
         return false;
@@ -85,8 +84,7 @@ class ImageRowAccessor : private BaseImageRowAccessor
 
     bool accessPixelDontMove(_UByteCV*& _pixelPtr, ImageSize _bytes, ImageDim _pixels)
     {
-      if (m_ptr == NULL)
-        return false;
+      assert(m_ptr != NULL);
 
       if (!accessPixelCheck(_bytes, _pixels))
         return false;

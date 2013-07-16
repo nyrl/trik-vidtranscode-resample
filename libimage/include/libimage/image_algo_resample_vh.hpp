@@ -87,6 +87,10 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
       PixelSetInHorizontal horizontalPixelSet;
       const PixelSetIn2OutConvertion resultPixelSetConvertion;
 
+      if (!_imageIn || !_imageOut)
+        return false;
+
+
       VerticalInterpolationCache verticalInterpolationCache;
       HorizontalInterpolationCache horizontalInterpolationCache;
 
