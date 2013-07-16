@@ -147,6 +147,7 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
     bool readNextHorizontalPixel(RowSetIn& _rowSetIn, PixelSetInHorizontal& _pixelSetH,
                                  const _VerticalInterpolation& _interpolation) const
     {
+#warning Eliminate local vars?
       PixelSetInVertical pixelSetV;
 
       if (_rowSetIn.readPixelSet(pixelSetV))
@@ -160,6 +161,7 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
                                       ImageDim& _colIdxLast) const
     {
       bool isOk = true;
+#warning Eliminate local vars?
       PixelSetInVertical pixelSetV;
 
       isOk &= _rowSetIn.readPixelSet(pixelSetV);
@@ -190,6 +192,7 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
                                   const _HorizontalInterpolation& _interpolation,
                                   const PixelSetIn2OutConvertion& _convertion) const
     {
+#warning Eliminate local vars?
       PixelSetInResult  resIn;
       PixelSetOutResult resOut;
 
