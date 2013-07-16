@@ -36,7 +36,7 @@ class assert_inst // kind of static_assert for TI compiler
 
 
 template <typename _T>
-_T range(const _T& _min, const _T& _val, const _T& _max)
+inline _T range(_T _min, _T _val, _T _max)
 {
   if (_val < _min) return _min;
   else if (_val > _max) return _max;
