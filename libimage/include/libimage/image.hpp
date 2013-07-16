@@ -67,6 +67,11 @@ class BaseImageAccessor
       return m_height * m_lineLength;
     }
 
+    ImageDim firstRow() const
+    {
+      return 0;
+    }
+
     ImageDim lastRow() const
     {
       return m_height == 0 ? 0 : m_height-1;
@@ -169,6 +174,7 @@ class Image : public BaseImage,
         return false;
 
       _row = RowType(rowPtr, ImageAccessor::lineLength(), width());
+
       return true;
     }
 

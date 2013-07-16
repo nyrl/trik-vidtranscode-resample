@@ -143,13 +143,6 @@ class ImageRowSet : public BaseImageRowSet,
     {
     }
 
-    void reset()
-    {
-      m_rowFirst = 0;
-      for (ImageDim row = 0; row < rowsCount(); ++row)
-        m_rows[row] = Row();
-    }
-
     ImageDim rowsCount() const
     {
       return _rowsCount;

@@ -106,15 +106,8 @@ class ImagePixelSet : public BaseImagePixelSet,
     ImagePixelSet()
      :BaseImagePixelSet(),
       m_pixels(),
-      m_pixelFirst(0)
+      m_pixelFirst()
     {
-    }
-
-    void reset()
-    {
-      m_pixelFirst = 0;
-      for (ImageDim pix = 0; pix < pixelsCount(); ++pix)
-        m_pixels[pix] = Pixel();
     }
 
     ImageDim pixelsCount() const
