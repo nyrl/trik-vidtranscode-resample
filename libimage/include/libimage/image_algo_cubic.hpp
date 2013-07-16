@@ -31,15 +31,14 @@ class AlgoInterpolationCubic : public BaseAlgoInterpolation1Dim<1, 2>
     {
       assert(_t >= 0.0f && _t <= 1.0f);
 
-      const ImageDimFract t0 = 1;
       const ImageDimFract t1 = _t;
       const ImageDimFract t2 = t1*t1;
       const ImageDimFract t3 = t2*t1;
 
-      m_weight0 = 0.5f * ( 0.0f*t0 + -1.0f*t1 +  2.0f*t2 + -1.0f*t3 );
-      m_weight1 = 0.5f * ( 2.0f*t0 +  0.0f*t1 + -5.0f*t2 +  3.0f*t3 );
-      m_weight2 = 0.5f * ( 0.0f*t0 +  1.0f*t1 +  4.0f*t2 + -3.0f*t3 );
-      m_weight3 = 0.5f * ( 0.0f*t0 +  0.0f*t1 + -1.0f*t2 +  1.0f*t3 );
+      m_weight0 = 0.5f * (           -1.0f*t1 +  2.0f*t2 + -1.0f*t3 );
+      m_weight1 = 0.5f * ( 2.0f               + -5.0f*t2 +  3.0f*t3 );
+      m_weight2 = 0.5f * (            1.0f*t1 +  4.0f*t2 + -3.0f*t3 );
+      m_weight3 = 0.5f * (                      -1.0f*t2 +  1.0f*t3 );
     }
 
     template <typename PixelSetIn, typename PixelSetOut>

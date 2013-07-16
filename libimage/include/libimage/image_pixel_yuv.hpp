@@ -29,9 +29,9 @@ class ImagePixelYUVAccessor : protected BaseImagePixelAccessor,
       const float u = m_u * uNormDiv() - 0.5f;
       const float v = m_v * vNormDiv() - 0.5f;
 
-      _nr = range(0.0f, ( y +  0.0f      +  1.4075f*v), 1.0f);
+      _nr = range(0.0f, ( y              +  1.4075f*v), 1.0f);
       _ng = range(0.0f, ( y + -0.3455f*u + -0.7169f*v), 1.0f);
-      _nb = range(0.0f, ( y +  1.7790f*u +  0.0f     ), 1.0f);
+      _nb = range(0.0f, ( y +  1.7790f*u             ), 1.0f);
 
       return true;
     }
