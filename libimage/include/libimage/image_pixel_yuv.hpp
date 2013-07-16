@@ -176,7 +176,7 @@ class ImagePixel<BaseImagePixel::PixelYUV444> : public BaseImagePixel,
       return true;
     }
 
-    ImagePixel operator*(const float& _f) const
+    ImagePixel operator*(float _f) const
     {
       ImagePixel p(*this);
       p.operatorMultiplyImpl(_f);
@@ -207,35 +207,35 @@ class ImagePixel<BaseImagePixel::PixelYUV422> : public BaseImagePixel,
   public:
     ImagePixel() {}
 
-    template <typename UByte>
-    bool unpack(const UByte& _b1, const UByte& _b2, const UByte& _b3)
+    template <typename _UByte>
+    bool unpack(const _UByte& _b1, const _UByte& _b2, const _UByte& _b3)
     {
-      loadY(utypeGet<UByte, true>(_b1, 8, 0));
-      loadU(utypeGet<UByte, true>(_b2, 8, 0));
-      loadV(utypeGet<UByte, true>(_b3, 8, 0));
+      loadY(utypeGet<_UByte, true>(_b1, 8, 0));
+      loadU(utypeGet<_UByte, true>(_b2, 8, 0));
+      loadV(utypeGet<_UByte, true>(_b3, 8, 0));
 
       return true;
     }
 
-    template <typename UByte>
-    bool pack(UByte& _b1, UByte& _b2, UByte& _b3, bool _inc) const
+    template <typename _UByte>
+    bool pack(_UByte& _b1, _UByte& _b2, _UByte& _b3, bool _inc) const
     {
-      _b1 = utypeValue<UByte, true>(storeY(), 8, 0);
+      _b1 = utypeValue<_UByte, true>(storeY(), 8, 0);
       if (_inc)
       {
-        _b2 += utypeValue<UByte, true>(storeU(), 8, 0) / 2;
-        _b3 += utypeValue<UByte, true>(storeV(), 8, 0) / 2;
+        _b2 += utypeValue<_UByte, true>(storeU(), 8, 0) / 2;
+        _b3 += utypeValue<_UByte, true>(storeV(), 8, 0) / 2;
       }
       else
       {
-        _b2 = utypeValue<UByte, true>(storeU(), 8, 0) / 2;
-        _b3 = utypeValue<UByte, true>(storeV(), 8, 0) / 2;
+        _b2 = utypeValue<_UByte, true>(storeU(), 8, 0) / 2;
+        _b3 = utypeValue<_UByte, true>(storeV(), 8, 0) / 2;
       }
 
       return true;
     }
 
-    ImagePixel operator*(const float& _f) const
+    ImagePixel operator*(float _f) const
     {
       ImagePixel p(*this);
       p.operatorMultiplyImpl(_f);

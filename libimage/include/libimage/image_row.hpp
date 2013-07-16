@@ -19,8 +19,8 @@ class BaseImageRowAccessor
 {
   protected:
     BaseImageRowAccessor()
-     :m_remainSize(0),
-      m_remainWidth(0)
+     :m_remainSize(),
+      m_remainWidth()
     {
     }
 
@@ -139,7 +139,7 @@ class ImageRowSet : public BaseImageRowSet,
     ImageRowSet()
      :BaseImageRowSet(),
       m_rows(),
-      m_rowFirst(0)
+      m_rowFirst()
     {
     }
 

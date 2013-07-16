@@ -168,7 +168,7 @@ class ImagePixel<BaseImagePixel::PixelRGB565> : public BaseImagePixel,
       return true;
     }
 
-    ImagePixel operator*(const float& _f) const
+    ImagePixel operator*(float _f) const
     {
       ImagePixel p(*this);
       p.operatorMultiplyImpl(_f);
@@ -219,7 +219,7 @@ class ImagePixel<BaseImagePixel::PixelRGB565X> : public BaseImagePixel,
       return true;
     }
 
-    ImagePixel operator*(const float& _f) const
+    ImagePixel operator*(float _f) const
     {
       ImagePixel p(*this);
       p.operatorMultiplyImpl(_f);
@@ -268,7 +268,7 @@ class ImagePixel<BaseImagePixel::PixelRGB888> : public BaseImagePixel,
       return true;
     }
 
-    ImagePixel operator*(const float& _f) const
+    ImagePixel operator*(float _f) const
     {
       ImagePixel p(*this);
       p.operatorMultiplyImpl(_f);
