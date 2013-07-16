@@ -6,8 +6,7 @@
 #endif
 
 
-#include <map>
-#include <utility>
+#include <vector>
 
 #include <libimage/stdcpp.hpp>
 #include <libimage/image_algo.hpp>
@@ -58,13 +57,24 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
 
     typedef ImagePixelSetConvertion<PixelSetInResult, PixelSetOutResult> PixelSetIn2OutConvertion;
 
-    typedef std::map<ImageDimFract, _VerticalInterpolation>   VerticalInterpolationCache;
-    typedef std::map<ImageDimFract, _HorizontalInterpolation> HorizontalInterpolationCache;
+
+    template <typename _Interpolation>
+    struct InterpolationCache
+    {
+      typedef _Interpolation Interpolation;
+      InterpolationCache() : m_interpolation(0), m_matchingIndex(0) {}
+
+      Interpolation  m_interpolation;
+      ImageDim       m_matchingIndex;
+    };
+
+    typedef std::vector<InterpolationCache<_VerticalInterpolation> >   VerticalInterpolationCache;
+    typedef std::vector<InterpolationCache<_HorizontalInterpolation> > HorizontalInterpolationCache;
 
   public:
     AlgoResampleVH()
     {
-      // TODO build interpolation algorithms cache now?
+#warning Build cache now; requires image dimensions to be known at this moment
     }
 
 
@@ -80,21 +90,21 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
       VerticalInterpolationCache verticalInterpolationCache;
       HorizontalInterpolationCache horizontalInterpolationCache;
 
-      const ImageDimFactor in2outCFactor = static_cast<ImageDimFactor>(_imageIn.width())  / static_cast<ImageDimFactor>(_imageOut.width() );
-      const ImageDimFactor in2outRFactor = static_cast<ImageDimFactor>(_imageIn.height()) / static_cast<ImageDimFactor>(_imageOut.height());
+      if (   !buildInterpolationCache(verticalInterpolationCache,   _imageIn.height(), _imageOut.height())
+          || !buildInterpolationCache(horizontalInterpolationCache, _imageIn.width(),  _imageOut.width()))
+        return false;
+
 
       for (ImageDim rowIdxOut = 0; rowIdxOut < _imageOut.height(); ++rowIdxOut)
       {
-        ImageDim rowIdxIn;
-        ImageDimFract rowIdxInFract;
-        if (!convertCoord(rowIdxOut, in2outRFactor, rowIdxIn, rowIdxInFract))
-          return false;
+        assert(rowIdxOut >= 0 && rowIdxOut < verticalInterpolationCache.size());
+        const ImageDim rowIdxIn = verticalInterpolationCache[rowIdxOut].m_matchingIndex;
+        assert(rowIdxIn >= 0 && rowIdxIn < _imageIn.height());
 
         if (!prepareRowSet(_imageIn, rowSetIn, rowIdxIn, _imageOut, rowSetOut, rowIdxOut))
           return false;
 
-        const _VerticalInterpolation& verticalInterpolation = getInterpolationCache(verticalInterpolationCache,
-                                                                                    rowIdxInFract);
+        const _VerticalInterpolation& verticalInterpolation = verticalInterpolationCache[rowIdxOut].m_interpolation;
 
         ImageDim colIdxInLast;
         if (!initializeHorizontalPixelSet(rowSetIn, horizontalPixelSet, verticalInterpolation, colIdxInLast))
@@ -102,16 +112,14 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
 
         for (ImageDim colIdxOut = 0; colIdxOut < _imageOut.width(); ++colIdxOut)
         {
-          ImageDim colIdxIn;
-          ImageDimFract colIdxInFract;
-          if (!convertCoord(colIdxOut, in2outCFactor, colIdxIn, colIdxInFract))
-            return false;
+          assert(colIdxOut >= 0 && colIdxOut < horizontalInterpolationCache.size());
+          const ImageDim colIdxIn = horizontalInterpolationCache[colIdxOut].m_matchingIndex;
+          assert(colIdxIn >= 0 && colIdxIn < _imageIn.width());
 
           if (!updateHorizontalPixelSet(rowSetIn, horizontalPixelSet, verticalInterpolation, colIdxInLast, colIdxIn))
             return false;
 
-          const _HorizontalInterpolation& horizontalInterpolation = getInterpolationCache(horizontalInterpolationCache,
-                                                                                          colIdxInFract);
+          const _HorizontalInterpolation& horizontalInterpolation = horizontalInterpolationCache[colIdxOut].m_interpolation;
 
           if (!outputHorizontalPixelSet(horizontalPixelSet, rowSetOut, horizontalInterpolation, resultPixelSetConvertion))
             return false;
@@ -122,14 +130,29 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
     }
 
   private:
-    static bool convertCoord(ImageDim _idx1, ImageDimFactor _factor, ImageDim& _idx2, ImageDimFract& _fract)
+
+    template <typename _InterpolationCache>
+    bool buildInterpolationCache(_InterpolationCache& _cache, ImageDim _inDim, ImageDim _outDim) const
     {
-      const ImageDimFactor idx2f = _idx1 * _factor;
-      _idx2 = /*trunc*/idx2f;
-      _fract = idx2f - _idx2;
+      _cache.resize(_outDim);
+
+      ImageDimFactor inIdxFull = 0;
+      const ImageDimFactor in2outFactor = static_cast<ImageDimFactor>(_inDim) / static_cast<ImageDimFactor>(_outDim);
+
+      for (ImageDim outIdx = 0; outIdx < _outDim; ++outIdx)
+      {
+        inIdxFull += in2outFactor; // same as inIdxFull = outIdx*in2outFactor
+
+        ImageDim inIdx = /*trunc*/inIdxFull;
+        ImageDimFract inIdxFract = inIdxFull - inIdx;
+
+        _cache[outIdx].m_matchingIndex = inIdx;
+        _cache[outIdx].m_interpolation = typename _InterpolationCache::value_type::Interpolation(inIdxFract);
+      }
 
       return true;
     }
+
 
     bool prepareRowSet(const _ImageIn& _imageIn,  RowSetIn&  _rowSetIn,  ImageDim _rowIdxIn,
                        _ImageOut&      _imageOut, RowSetOut& _rowSetOut, ImageDim _rowIdxOut) const
@@ -206,17 +229,6 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
         return false;
 
       return true;
-    }
-
-    template <typename _InterpolationCache>
-    const typename _InterpolationCache::mapped_type& getInterpolationCache(_InterpolationCache& _cache,
-                                                                           ImageDimFract _fract) const
-    {
-      const typename _InterpolationCache::const_iterator it(_cache.find(_fract));
-      if (it != _cache.end())
-        return it->second;
-
-      return _cache.insert(std::make_pair(_fract, typename _InterpolationCache::mapped_type(_fract))).first->second;
     }
 
 };
