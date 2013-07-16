@@ -183,26 +183,23 @@ class Image : public BaseImage,
     {
       assert(_rowSet.rowsCount() == _rowsBefore+1+_rowsAfter);
 
+      bool isOk = true;
+
       for (ImageDim idx = _rowsBefore; idx > 0; --idx)
       {
-#warning TODO: minor optimization might be applied if conditional statement moved out of loop
-        const ImageDim ridx = (idx >= _baseRow) ? 0 : _baseRow-idx;
-        if (!getRow(_rowSet.prepareNewRow(), ridx))
-          return false;
+        const ImageDim ridx = (idx >= _baseRow) ? ImageAccessor::firstRow() : _baseRow-idx;
+        isOk &= getRow(_rowSet.prepareNewRow(), ridx);
       }
 
-      if (!getRow(_rowSet.prepareNewRow(), _baseRow))
-        return false;
+      isOk &= getRow(_rowSet.prepareNewRow(), _baseRow);
 
       for (ImageDim idx = 1; idx <= _rowsAfter; ++idx)
       {
-#warning TODO: minor optimization might be applied if conditional statement moved out of loop
         const ImageDim ridx = std::min(_baseRow+idx, ImageAccessor::lastRow());
-        if (!getRow(_rowSet.prepareNewRow(), ridx))
-          return false;
+        isOk &= getRow(_rowSet.prepareNewRow(), ridx);
       }
 
-      return true;
+      return isOk;
     }
 
     using ImageAccessor::operator bool;
