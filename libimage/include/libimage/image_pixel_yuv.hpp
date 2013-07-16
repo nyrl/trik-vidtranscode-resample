@@ -18,7 +18,7 @@
 /* **** **** **** **** **** */ namespace internal /* **** **** **** **** **** */ {
 
 
-template <size_t _YBits, size_t _UBits, size_t _VBits>
+template <typename _CType, size_t _YBits, size_t _UBits, size_t _VBits>
 class ImagePixelYUVAccessor : protected BaseImagePixelAccessor,
                               private assert_inst<(_YBits>=1 && _UBits>=1 && _VBits>=1)>
 {
@@ -32,22 +32,24 @@ class ImagePixelYUVAccessor : protected BaseImagePixelAccessor,
       _nr = range(0.0f, ( y +  0.0f      +  1.4075f*v), 1.0f);
       _ng = range(0.0f, ( y + -0.3455f*u + -0.7169f*v), 1.0f);
       _nb = range(0.0f, ( y +  1.7790f*u +  0.0f     ), 1.0f);
+
       return true;
     }
 
-    bool fromNormalizedRGB(const float& _nr, const float& _ng, const float& _nb)
+    bool fromNormalizedRGB(float _nr, float _ng, float _nb)
     {
       m_y =  ( 0.2990f*_nr +  0.5870f*_ng +  0.1140f*_nb)         * yNormMult();
       m_u = ((-0.1687f*_nr + -0.3312f*_ng +  0.5000f*_nb) + 0.5f) * uNormMult();
       m_v = (( 0.5000f*_nr + -0.4186f*_ng + -0.0813f*_nb) + 0.5f) * vNormMult();
+
       return true;
     }
 
   protected:
     ImagePixelYUVAccessor()
-     :m_y(0.0f),
-      m_u(0.0f),
-      m_v(0.0f)
+     :m_y(),
+      m_u(),
+      m_v()
     {
     }
 
@@ -58,37 +60,37 @@ class ImagePixelYUVAccessor : protected BaseImagePixelAccessor,
     {
     }
 
-    void loadY(unsigned _y)
+    void loadY(_CType _y)
     {
       m_y = _y;
     }
 
-    void loadU(unsigned _u)
+    void loadU(_CType _u)
     {
       m_u = _u;
     }
 
-    void loadV(unsigned _v)
+    void loadV(_CType _v)
     {
       m_v = _v;
     }
 
-    unsigned storeY() const
+    _CType storeY() const
     {
       return /*trunc*/range(yStoreMin(), m_y+0.5f, yStoreMax());
     }
 
-    unsigned storeU() const
+    _CType storeU() const
     {
       return /*trunc*/range(uStoreMin(), m_u+0.5f, uStoreMax());
     }
 
-    unsigned storeV() const
+    _CType storeV() const
     {
       return /*trunc*/range(vStoreMin(), m_v+0.5f, vStoreMax());
     }
 
-    void operatorMultiplyImpl(const float& _f)
+    void operatorMultiplyImpl(float _f)
     {
       m_y *= _f;
       m_u *= _f;
@@ -117,16 +119,16 @@ class ImagePixelYUVAccessor : protected BaseImagePixelAccessor,
     float m_u;
     float m_v;
 
-    static const size_t s_YMaxUInt = (1u<<_YBits) - 1u;
-    static const size_t s_UMaxUInt = (1u<<_UBits) - 1u;
-    static const size_t s_VMaxUInt = (1u<<_VBits) - 1u;
+    static const _CType s_YMaxCType = (static_cast<_CType>(1)<<_YBits) - static_cast<_CType>(1);
+    static const _CType s_UMaxCType = (static_cast<_CType>(1)<<_UBits) - static_cast<_CType>(1);
+    static const _CType s_VMaxCType = (static_cast<_CType>(1)<<_VBits) - static_cast<_CType>(1);
 
     static float yStoreMin() { return 0.0f; }
     static float uStoreMin() { return 0.0f; }
     static float vStoreMin() { return 0.0f; }
-    static float yStoreMax() { return static_cast<float>(s_YMaxUInt); }
-    static float uStoreMax() { return static_cast<float>(s_UMaxUInt); }
-    static float vStoreMax() { return static_cast<float>(s_VMaxUInt); }
+    static float yStoreMax() { return static_cast<float>(s_YMaxCType); }
+    static float uStoreMax() { return static_cast<float>(s_UMaxCType); }
+    static float vStoreMax() { return static_cast<float>(s_VMaxCType); }
 
     static float yNormMult() { return yStoreMax(); }
     static float uNormMult() { return uStoreMax(); }
@@ -144,7 +146,7 @@ class ImagePixelYUVAccessor : protected BaseImagePixelAccessor,
 
 template <>
 class ImagePixel<BaseImagePixel::PixelYUV444> : public BaseImagePixel,
-                                                public internal::ImagePixelYUVAccessor<8, 8, 8>
+                                                public internal::ImagePixelYUVAccessor<int16_t, 8, 8, 8>
 {
   public:
     ImagePixel() {}
@@ -197,7 +199,7 @@ class ImagePixel<BaseImagePixel::PixelYUV444> : public BaseImagePixel,
 
 template <>
 class ImagePixel<BaseImagePixel::PixelYUV422> : public BaseImagePixel,
-                                                public internal::ImagePixelYUVAccessor<8, 8, 8>
+                                                public internal::ImagePixelYUVAccessor<int16_t, 8, 8, 8>
 {
   public:
     ImagePixel() {}

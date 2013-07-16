@@ -44,8 +44,6 @@ _T range(const _T& _min, const _T& _val, const _T& _max)
 }
 
 
-
-
 } /* **** **** **** **** **** * namespace trik * **** **** **** **** **** */
 
 

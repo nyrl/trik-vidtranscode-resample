@@ -26,7 +26,7 @@ class BaseImagePixelAccessor
     static _UType utypeBitmask(size_t _size)
     {
       assert(_size <= sizeof(_UType) * CHAR_BIT);
-      return (static_cast<_UType>(1u) << _size) - 1;
+      return (static_cast<_UType>(1) << _size) - static_cast<_UType>(1);
     }
 
     template <typename _UType, bool _ofsPositive>

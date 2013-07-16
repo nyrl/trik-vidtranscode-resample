@@ -18,7 +18,7 @@
 /* **** **** **** **** **** */ namespace internal /* **** **** **** **** **** */ {
 
 
-template <size_t _RBits, size_t _GBits, size_t _BBits>
+template <typename _CType, size_t _RBits, size_t _GBits, size_t _BBits>
 class ImagePixelRGBAccessor : protected BaseImagePixelAccessor,
                               private assert_inst<(_RBits>=1 && _GBits>=1 && _BBits>=1)>
 {
@@ -31,7 +31,7 @@ class ImagePixelRGBAccessor : protected BaseImagePixelAccessor,
       return true;
     }
 
-    bool fromNormalizedRGB(const float& _nr, const float& _ng, const float& _nb)
+    bool fromNormalizedRGB(float _nr, float _ng, float _nb)
     {
       m_r = _nr * rNormMult();
       m_g = _ng * gNormMult();
@@ -41,9 +41,9 @@ class ImagePixelRGBAccessor : protected BaseImagePixelAccessor,
 
   protected:
     ImagePixelRGBAccessor()
-     :m_r(0.0f),
-      m_g(0.0f),
-      m_b(0.0f)
+     :m_r(),
+      m_g(),
+      m_b()
     {
     }
 
@@ -54,37 +54,37 @@ class ImagePixelRGBAccessor : protected BaseImagePixelAccessor,
     {
     }
 
-    void loadR(unsigned _r)
+    void loadR(_CType _r)
     {
       m_r = _r;
     }
 
-    void loadG(unsigned _g)
+    void loadG(_CType _g)
     {
       m_g = _g;
     }
 
-    void loadB(unsigned _b)
+    void loadB(_CType _b)
     {
       m_b = _b;
     }
 
-    unsigned storeR() const
+    _CType storeR() const
     {
-      return /*trunc*/range(rStoreMin(), m_r, rStoreMax());
+      return /*trunc*/range(rStoreMin(), m_r+0.5f, rStoreMax());
     }
 
-    unsigned storeG() const
+    _CType storeG() const
     {
-      return /*trunc*/range(gStoreMin(), m_g, gStoreMax());
+      return /*trunc*/range(gStoreMin(), m_g+0.5f, gStoreMax());
     }
 
-    unsigned storeB() const
+    _CType storeB() const
     {
-      return /*trunc*/range(bStoreMin(), m_b, bStoreMax());
+      return /*trunc*/range(bStoreMin(), m_b+0.5f, bStoreMax());
     }
 
-    void operatorMultiplyImpl(const float& _f)
+    void operatorMultiplyImpl(float _f)
     {
       m_r *= _f;
       m_g *= _f;
@@ -113,16 +113,16 @@ class ImagePixelRGBAccessor : protected BaseImagePixelAccessor,
     float m_g;
     float m_b;
 
-    static const size_t s_RMaxUInt = (1u<<_RBits) - 1u;
-    static const size_t s_GMaxUInt = (1u<<_GBits) - 1u;
-    static const size_t s_BMaxUInt = (1u<<_BBits) - 1u;
+    static const _CType s_RMaxCType = (static_cast<_CType>(1)<<_RBits) - static_cast<_CType>(1);
+    static const _CType s_GMaxCType = (static_cast<_CType>(1)<<_GBits) - static_cast<_CType>(1);
+    static const _CType s_BMaxCType = (static_cast<_CType>(1)<<_BBits) - static_cast<_CType>(1);
 
     static float rStoreMin() { return 0.0f; }
     static float gStoreMin() { return 0.0f; }
     static float bStoreMin() { return 0.0f; }
-    static float rStoreMax() { return static_cast<float>(s_RMaxUInt); }
-    static float gStoreMax() { return static_cast<float>(s_GMaxUInt); }
-    static float bStoreMax() { return static_cast<float>(s_BMaxUInt); }
+    static float rStoreMax() { return static_cast<float>(s_RMaxCType); }
+    static float gStoreMax() { return static_cast<float>(s_GMaxCType); }
+    static float bStoreMax() { return static_cast<float>(s_BMaxCType); }
 
     static float rNormMult() { return rStoreMax(); }
     static float gNormMult() { return gStoreMax(); }
@@ -138,9 +138,10 @@ class ImagePixelRGBAccessor : protected BaseImagePixelAccessor,
 
 
 
+#warning int16_t hardcoded here and in yuv
 template <>
 class ImagePixel<BaseImagePixel::PixelRGB565> : public BaseImagePixel,
-                                                public internal::ImagePixelRGBAccessor<5, 6, 5>
+                                                public internal::ImagePixelRGBAccessor<int16_t, 5, 6, 5>
 {
   public:
     ImagePixel() {}
@@ -191,7 +192,7 @@ class ImagePixel<BaseImagePixel::PixelRGB565> : public BaseImagePixel,
 
 template <>
 class ImagePixel<BaseImagePixel::PixelRGB565X> : public BaseImagePixel,
-                                                 public internal::ImagePixelRGBAccessor<5, 6, 5>
+                                                 public internal::ImagePixelRGBAccessor<int16_t, 5, 6, 5>
 {
   public:
     ImagePixel() {}
@@ -240,7 +241,7 @@ class ImagePixel<BaseImagePixel::PixelRGB565X> : public BaseImagePixel,
 
 template <>
 class ImagePixel<BaseImagePixel::PixelRGB888> : public BaseImagePixel,
-                                                public internal::ImagePixelRGBAccessor<8, 8, 8>
+                                                public internal::ImagePixelRGBAccessor<int16_t, 8, 8, 8>
 {
   public:
     ImagePixel() {}
