@@ -62,7 +62,6 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
     struct InterpolationCache
     {
       typedef _Interpolation Interpolation;
-      InterpolationCache() : m_interpolation(0), m_matchingIndex(0) {}
 
       Interpolation  m_interpolation;
       ImageDim       m_matchingIndex;

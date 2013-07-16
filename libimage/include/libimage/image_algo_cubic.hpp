@@ -21,19 +21,19 @@ class AlgoInterpolationCubic : public BaseAlgoInterpolation1Dim<1, 2>
   public:
     typedef int_fast8_t InterpolationMatrixDim;
 
-    AlgoInterpolationCubic(ImageDimFract _t)
+    AlgoInterpolationCubic(ImageDimFract _t = 0.0f)
     {
-      assert(_t >= 0 && _t <= 1.0);
+      assert(_t >= 0.0f && _t <= 1.0f);
 
       const ImageDimFract t0 = 1;
       const ImageDimFract t1 = _t;
       const ImageDimFract t2 = t1*t1;
       const ImageDimFract t3 = t2*t1;
 
-      m_weight[0] = 0.5 * ( 0*t0 + -1*t1 +  2*t2 + -1*t3 );
-      m_weight[1] = 0.5 * ( 2*t0 +  0*t1 + -5*t2 +  3*t3 );
-      m_weight[2] = 0.5 * ( 0*t0 +  1*t1 +  4*t2 + -3*t3 );
-      m_weight[3] = 0.5 * ( 0*t0 +  0*t1 + -1*t2 +  1*t3 );
+      m_weight[0] = 0.5f * ( 0.0f*t0 + -1.0f*t1 +  2.0f*t2 + -1.0f*t3 );
+      m_weight[1] = 0.5f * ( 2.0f*t0 +  0.0f*t1 + -5.0f*t2 +  3.0f*t3 );
+      m_weight[2] = 0.5f * ( 0.0f*t0 +  1.0f*t1 +  4.0f*t2 + -3.0f*t3 );
+      m_weight[3] = 0.5f * ( 0.0f*t0 +  0.0f*t1 + -1.0f*t2 +  1.0f*t3 );
     }
 
     template <typename PixelSetIn, typename PixelSetOut>

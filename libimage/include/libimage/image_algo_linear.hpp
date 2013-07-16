@@ -18,11 +18,11 @@
 class AlgoInterpolationLinear : public BaseAlgoInterpolation1Dim<0, 1>
 {
   public:
-    AlgoInterpolationLinear(ImageDimFract _t)
+    AlgoInterpolationLinear(ImageDimFract _t = 0.0f)
     {
-      assert(_t >= 0 && _t <= 1.0);
+      assert(_t >= 0.0f && _t <= 1.0f);
 
-      m_t0 = 1.0-_t;
+      m_t0 = 1.0f-_t;
       m_t1 = _t;
     }
 
