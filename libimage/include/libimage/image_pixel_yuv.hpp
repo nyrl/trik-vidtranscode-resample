@@ -154,24 +154,24 @@ class ImagePixel<BaseImagePixel::PixelYUV444> : public BaseImagePixel,
   public:
     ImagePixel() {}
 
-    template <typename UByte>
-    bool unpack(const UByte& _b1, const UByte& _b2, const UByte& _b3, const UByte& _b4)
+    template <typename _UByte>
+    bool unpack(_UByte _b1, _UByte _b2, _UByte _b3, _UByte _b4)
     {
       (void)_b1;
-      loadY(utypeGet<UByte, true>(_b2, 8, 0));
-      loadU(utypeGet<UByte, true>(_b3, 8, 0));
-      loadV(utypeGet<UByte, true>(_b4, 8, 0));
+      loadY(utypeGet<_UByte, true>(_b2, 8, 0));
+      loadU(utypeGet<_UByte, true>(_b3, 8, 0));
+      loadV(utypeGet<_UByte, true>(_b4, 8, 0));
 
       return true;
     }
 
-    template <typename UByte>
-    bool pack(UByte& _b1, UByte& _b2, UByte& _b3, UByte& _b4) const
+    template <typename _UByte>
+    bool pack(_UByte& _b1, _UByte& _b2, _UByte& _b3, _UByte& _b4) const
     {
       _b1 = 0;
-      _b2 = utypeValue<UByte, true>(storeY(), 8, 0);
-      _b3 = utypeValue<UByte, true>(storeU(), 8, 0);
-      _b4 = utypeValue<UByte, true>(storeV(), 8, 0);
+      _b2 = utypeValue<_UByte, true>(storeY(), 8, 0);
+      _b3 = utypeValue<_UByte, true>(storeU(), 8, 0);
+      _b4 = utypeValue<_UByte, true>(storeV(), 8, 0);
 
       return true;
     }
@@ -208,7 +208,7 @@ class ImagePixel<BaseImagePixel::PixelYUV422> : public BaseImagePixel,
     ImagePixel() {}
 
     template <typename _UByte>
-    bool unpack(const _UByte& _b1, const _UByte& _b2, const _UByte& _b3)
+    bool unpack(_UByte _b1, _UByte _b2, _UByte _b3)
     {
       loadY(utypeGet<_UByte, true>(_b1, 8, 0));
       loadU(utypeGet<_UByte, true>(_b2, 8, 0));
