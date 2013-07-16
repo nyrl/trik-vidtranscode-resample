@@ -18,21 +18,24 @@
 class AlgoInterpolationLinear : public BaseAlgoInterpolation1Dim<0, 1>
 {
   public:
-    AlgoInterpolationLinear(ImageDimFract _t = 0.0f)
+    AlgoInterpolationLinear()
+     :m_t0(),
+      m_t1()
+    {
+    }
+
+    explicit AlgoInterpolationLinear(ImageDimFract _t)
+     :m_t0(1.0f-_t),
+      m_t1(_t)
     {
       assert(_t >= 0.0f && _t <= 1.0f);
-
-      m_t0 = 1.0f-_t;
-      m_t1 = _t;
     }
 
     template <typename PixelSetIn, typename PixelSetOut>
     bool operator()(const PixelSetIn& _pixelsIn,
                     PixelSetOut& _pixelsOut) const
     {
-      typename PixelSetOut::Pixel result;
-
-      result += _pixelsIn[0] * m_t0;
+      typename PixelSetOut::Pixel result = _pixelsIn[0] * m_t0;
       result += _pixelsIn[1] * m_t1;
 
       _pixelsOut.insertNewPixel() = result;
