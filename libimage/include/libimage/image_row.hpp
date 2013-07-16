@@ -24,19 +24,19 @@ class BaseImageRowAccessor
     {
     }
 
-    BaseImageRowAccessor(size_t _lineLength, size_t _width)
+    BaseImageRowAccessor(ImageSize _lineLength, ImageDim _width)
      :m_remainSize(_lineLength),
       m_remainWidth(_width)
     {
     }
 
-    bool accessPixelCheck(size_t _bytes, size_t _pixels)
+    bool accessPixelCheck(ImageSize _bytes, ImageDim _pixels)
     {
       return m_remainWidth >= _pixels
           && m_remainSize >= _bytes;
     }
 
-    bool accessPixelMarkup(size_t _bytes, size_t _pixels)
+    bool accessPixelMarkup(ImageSize _bytes, ImageDim _pixels)
     {
       if (!accessPixelCheck(_bytes, _pixels))
         return false;
@@ -48,8 +48,8 @@ class BaseImageRowAccessor
     }
 
   private:
-    size_t   m_remainSize;
-    size_t   m_remainWidth;
+    ImageSize  m_remainSize;
+    ImageDim   m_remainWidth;
 };
 
 
@@ -63,13 +63,13 @@ class ImageRowAccessor : private BaseImageRowAccessor
     {
     }
 
-    ImageRowAccessor(_UByteCV* _rowPtr, size_t _lineLength, size_t _width)
+    ImageRowAccessor(_UByteCV* _rowPtr, ImageSize _lineLength, ImageDim _width)
      :BaseImageRowAccessor(_lineLength, _width),
       m_ptr(_rowPtr)
     {
     }
 
-    bool accessPixel(_UByteCV*& _pixelPtr, size_t _bytes, size_t _pixels=1)
+    bool accessPixel(_UByteCV*& _pixelPtr, ImageSize _bytes, ImageDim _pixels=1)
     {
       if (m_ptr == NULL)
         return false;
@@ -83,7 +83,7 @@ class ImageRowAccessor : private BaseImageRowAccessor
       return true;
     }
 
-    bool accessPixelDontMove(_UByteCV*& _pixelPtr, size_t _bytes, size_t _pixels)
+    bool accessPixelDontMove(_UByteCV*& _pixelPtr, ImageSize _bytes, ImageDim _pixels)
     {
       if (m_ptr == NULL)
         return false;
@@ -130,7 +130,7 @@ class BaseImageRowSet
 };
 
 
-template <BaseImagePixel::PixelType _PT, typename _UByteCV, size_t _rowsCount>
+template <BaseImagePixel::PixelType _PT, typename _UByteCV, ImageDim _rowsCount>
 class ImageRowSet : public BaseImageRowSet,
                     private assert_inst<(_rowsCount > 0)> // sanity check
 {
@@ -148,30 +148,30 @@ class ImageRowSet : public BaseImageRowSet,
     void reset()
     {
       m_rowFirst = 0;
-      for (size_t row = 0; row < rowsCount(); ++row)
+      for (ImageDim row = 0; row < rowsCount(); ++row)
         m_rows[row] = Row();
     }
 
-    size_t rowsCount() const
+    ImageDim rowsCount() const
     {
       return _rowsCount;
     }
 
     Row& prepareNewRow()
     {
-      const size_t currentRow = m_rowFirst;
+      const ImageDim currentRow = m_rowFirst;
       m_rowFirst = rowIndex(1);
       return m_rows[currentRow];
     }
 
-    Row& operator[](size_t _index)
+    Row& operator[](ImageDim _rowIndex)
     {
-      return m_rows[rowIndex(_index)];
+      return m_rows[rowIndex(_rowIndex)];
     }
 
-    const Row& operator[](size_t _index) const
+    const Row& operator[](ImageDim _rowIndex) const
     {
-      return m_rows[rowIndex(_index)];
+      return m_rows[rowIndex(_rowIndex)];
     }
 
 
@@ -179,8 +179,8 @@ class ImageRowSet : public BaseImageRowSet,
     {
       bool isOk = true;
 
-      for (size_t index = 0; index < rowsCount(); ++index)
-        isOk &= this->operator[](index).readPixel(_pixelSet[index]);
+      for (ImageDim rowIndex = 0; rowIndex < rowsCount(); ++rowIndex)
+        isOk &= this->operator[](rowIndex).readPixel(_pixelSet[rowIndex]);
 
       return isOk;
     }
@@ -189,22 +189,22 @@ class ImageRowSet : public BaseImageRowSet,
     {
       bool isOk = true;
 
-      for (size_t index = 0; index < rowsCount(); ++index)
-        isOk &= this->operator[](index).writePixel(_pixelSet[index]);
+      for (ImageDim rowIndex = 0; rowIndex < rowsCount(); ++rowIndex)
+        isOk &= this->operator[](rowIndex).writePixel(_pixelSet[rowIndex]);
 
       return isOk;
     }
 
 
   protected:
-    size_t rowIndex(size_t _index) const
+    ImageDim rowIndex(ImageDim _index) const
     {
       return (m_rowFirst + _index) % rowsCount();
     }
 
   private:
-    Row    m_rows[_rowsCount];
-    size_t m_rowFirst;
+    Row      m_rows[_rowsCount];
+    ImageDim m_rowFirst;
 };
 
 

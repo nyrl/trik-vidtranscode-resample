@@ -96,7 +96,7 @@ class BaseImagePixelSet
 
 
 
-template <BaseImagePixel::PixelType _PT, size_t _pixelsCount>
+template <BaseImagePixel::PixelType _PT, ImageDim _pixelsCount>
 class ImagePixelSet : public BaseImagePixelSet,
                       private assert_inst<(_pixelsCount > 0)> // sanity check
 {
@@ -113,18 +113,18 @@ class ImagePixelSet : public BaseImagePixelSet,
     void reset()
     {
       m_pixelFirst = 0;
-      for (size_t pix = 0; pix < pixelsCount(); ++pix)
+      for (ImageDim pix = 0; pix < pixelsCount(); ++pix)
         m_pixels[pix] = Pixel();
     }
 
-    size_t pixelsCount() const
+    ImageDim pixelsCount() const
     {
       return _pixelsCount;
     }
 
     Pixel& insertNewPixel()
     {
-      const size_t currentPixel = m_pixelFirst;
+      const ImageDim currentPixel = m_pixelFirst;
       m_pixelFirst = pixelIndex(1);
       return m_pixels[currentPixel];
     }
@@ -137,30 +137,30 @@ class ImagePixelSet : public BaseImagePixelSet,
       return true;
     }
 
-    Pixel& operator[](size_t _index)
+    Pixel& operator[](ImageDim _index)
     {
       return m_pixels[pixelIndex(_index)];
     }
 
-    const Pixel& operator[](size_t _index) const
+    const Pixel& operator[](ImageDim _index) const
     {
       return m_pixels[pixelIndex(_index)];
     }
 
   protected:
-    size_t pixelIndex(size_t _index) const
+    ImageDim pixelIndex(ImageDim _index) const
     {
       return (m_pixelFirst + _index) % _pixelsCount;
     }
 
   private:
-    Pixel  m_pixels[_pixelsCount];
-    size_t m_pixelFirst;
+    Pixel    m_pixels[_pixelsCount];
+    ImageDim m_pixelFirst;
 
     friend std::ostream& operator<<(std::ostream& _os, const ImagePixelSet& _s)
     {
       _os << "[" << _s.pixelsCount() << ":";
-      for (size_t i = 0; i < _s.pixelsCount(); ++i)
+      for (ImageDim i = 0; i < _s.pixelsCount(); ++i)
         _os << " " << _s[i];
       _os << "]";
       return _os;

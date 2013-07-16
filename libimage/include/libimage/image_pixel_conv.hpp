@@ -62,8 +62,8 @@ class ImagePixelSetConvertion
     {
       bool isOk = true;
 
-      for (size_t i = 0; i < _s1.pixelsCount(); ++i)
-        isOk &= m_convertion(_s1[i], _s2[i]);
+      for (ImageDim pixIdx = 0; pixIdx < _s1.pixelsCount(); ++pixIdx)
+        isOk &= m_convertion(_s1[pixIdx], _s2[pixIdx]);
 
       return isOk;
     }

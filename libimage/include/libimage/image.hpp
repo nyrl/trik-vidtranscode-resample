@@ -9,6 +9,7 @@
 #include <algorithm>
 
 #include <libimage/stdcpp.hpp>
+#include <libimage/image_defs.hpp>
 #include <libimage/image_row.hpp>
 #include <libimage/image_pixel.hpp>
 
@@ -23,7 +24,7 @@
 class BaseImageAccessor
 {
   protected:
-    BaseImageAccessor(size_t _imageSize, size_t _width, size_t _height, size_t _lineLength)
+    BaseImageAccessor(ImageSize _imageSize, ImageDim _width, ImageDim _height, ImageSize _lineLength)
      :m_imageSize(_imageSize),
       m_width(_width),
       m_height(_height),
@@ -31,7 +32,7 @@ class BaseImageAccessor
     {
     }
 
-    bool rowRangeCheck(size_t _rowIndex, size_t& _ofs) const
+    bool rowRangeCheck(ImageDim _rowIndex, ImageSize& _ofs) const
     {
       if (   _rowIndex >= m_height
           || (_rowIndex+1)*m_lineLength > m_imageSize)
@@ -41,41 +42,41 @@ class BaseImageAccessor
       return true;
     }
 
-    size_t width() const
+    ImageDim width() const
     {
       return m_width;
     }
 
-    size_t height() const
+    ImageDim height() const
     {
       return m_height;
     }
 
-    size_t lineLength() const
+    ImageSize lineLength() const
     {
       return m_lineLength;
     }
 
-    size_t imageSize() const
+    ImageSize imageSize() const
     {
       return m_imageSize;
     }
 
-    size_t actualImageSize() const
+    ImageSize actualImageSize() const
     {
       return m_height * m_lineLength;
     }
 
-    size_t lastRow() const
+    ImageDim lastRow() const
     {
       return m_height == 0 ? 0 : m_height-1;
     }
 
   private:
-    size_t   m_imageSize;
-    size_t   m_width;
-    size_t   m_height;
-    size_t   m_lineLength;
+    ImageSize m_imageSize;
+    ImageDim  m_width;
+    ImageDim  m_height;
+    ImageSize m_lineLength;
 };
 
 
@@ -83,7 +84,7 @@ template <typename _UByteCV>
 class ImageAccessor : protected BaseImageAccessor
 {
   protected:
-    ImageAccessor(_UByteCV* _imagePtr, size_t _imageSize, size_t _width, size_t _height, size_t _lineLength)
+    ImageAccessor(_UByteCV* _imagePtr, ImageSize _imageSize, ImageDim _width, ImageDim _height, ImageSize _lineLength)
      :BaseImageAccessor(_imageSize, _width, _height, _lineLength),
       m_ptr(_imagePtr)
     {
@@ -94,12 +95,12 @@ class ImageAccessor : protected BaseImageAccessor
       return m_ptr;
     }
 
-    bool getRowPtr(_UByteCV*& _rowPtr, size_t _rowIndex) const
+    bool getRowPtr(_UByteCV*& _rowPtr, ImageDim _rowIndex) const
     {
       if (m_ptr == NULL)
         return false;
 
-      size_t ofs;
+      ImageSize ofs;
       if (!rowRangeCheck(_rowIndex, ofs))
         return false;
 
@@ -141,29 +142,29 @@ class Image : public BaseImage,
 
     Image()
      :BaseImage(),
-      ImageAccessor(NULL, 0, 0, 0, 0)
+      ImageAccessor(NULL, ImageSize(), ImageDim(), ImageDim(), ImageSize())
     {
     }
 
-    Image(size_t	_width,
-          size_t	_height)
+    Image(ImageDim	_width,
+          ImageDim	_height)
      :BaseImage(),
-      ImageAccessor(NULL, 0, _width, _height, fixupLineLength(_width, 0))
+      ImageAccessor(NULL, ImageSize(), _width, _height, fixupLineLength(_width, ImageSize()))
     {
     }
 
     Image(_UByteCV*	_imagePtr,
-          size_t	_imageSize,
-          size_t	_width,
-          size_t	_height,
-          size_t	_lineLength)
+          ImageSize	_imageSize,
+          ImageDim	_width,
+          ImageDim	_height,
+          ImageSize	_lineLength)
      :BaseImage(),
       ImageAccessor(_imagePtr, _imageSize, _width, _height, fixupLineLength(_width, _lineLength))
     {
     }
 
 
-    bool getRow(RowType& _row, size_t _rowIndex) const
+    bool getRow(RowType& _row, ImageDim _rowIndex) const
     {
       _UByteCV* rowPtr;
       if (!ImageAccessor::getRowPtr(rowPtr, _rowIndex))
@@ -173,15 +174,15 @@ class Image : public BaseImage,
       return true;
     }
 
-    template <size_t _rowsBefore, size_t _rowsAfter>
-    bool getRowSet(ImageRowSet<_PT, _UByteCV, _rowsBefore+1+_rowsAfter>& _rowSet, size_t _baseRow) const
+    template <ImageDim _rowsBefore, ImageDim _rowsAfter>
+    bool getRowSet(ImageRowSet<_PT, _UByteCV, _rowsBefore+1+_rowsAfter>& _rowSet, ImageDim _baseRow) const
     {
       assert(_rowSet.rowsCount() == _rowsBefore+1+_rowsAfter);
 
-      for (size_t idx = _rowsBefore; idx > 0; --idx)
+      for (ImageDim idx = _rowsBefore; idx > 0; --idx)
       {
 #warning TODO: minor optimization might be applied if conditional statement moved out of loop
-        const size_t ridx = (idx >= _baseRow) ? 0 : _baseRow-idx;
+        const ImageDim ridx = (idx >= _baseRow) ? 0 : _baseRow-idx;
         if (!getRow(_rowSet.prepareNewRow(), ridx))
           return false;
       }
@@ -189,10 +190,10 @@ class Image : public BaseImage,
       if (!getRow(_rowSet.prepareNewRow(), _baseRow))
         return false;
 
-      for (size_t idx = 1; idx <= _rowsAfter; ++idx)
+      for (ImageDim idx = 1; idx <= _rowsAfter; ++idx)
       {
 #warning TODO: minor optimization might be applied if conditional statement moved out of loop
-        const size_t ridx = std::min(_baseRow+idx, ImageAccessor::lastRow());
+        const ImageDim ridx = std::min(_baseRow+idx, ImageAccessor::lastRow());
         if (!getRow(_rowSet.prepareNewRow(), ridx))
           return false;
       }
@@ -207,7 +208,7 @@ class Image : public BaseImage,
     using ImageAccessor::getPtr;
 
   protected:
-    static size_t fixupLineLength(size_t _width, size_t _lineLength)
+    static ImageSize fixupLineLength(ImageDim _width, ImageSize _lineLength)
     {
       return _lineLength==0 ? RowType::calcLineLength(_width) : _lineLength;
     }

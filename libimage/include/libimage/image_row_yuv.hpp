@@ -26,7 +26,7 @@ class ImageRow<BaseImagePixel::PixelYUV444, _UByteCV> : public BaseImageRow,
     {
     }
 
-    ImageRow(_UByteCV* _ptr, size_t _lineLength, size_t _width)
+    ImageRow(_UByteCV* _ptr, ImageSize _lineLength, ImageDim _width)
      :BaseImageRow(),
       ImageRowAccessor(_ptr, _lineLength, _width)
     {
@@ -50,7 +50,7 @@ class ImageRow<BaseImagePixel::PixelYUV444, _UByteCV> : public BaseImageRow,
       return _pixel.pack(ptr[0], ptr[1], ptr[2], ptr[3]);
     }
 
-    static size_t calcLineLength(size_t _width)
+    static ImageSize calcLineLength(ImageDim _width)
     {
       return _width * 4;
     }
@@ -77,7 +77,7 @@ class ImageRow<BaseImagePixel::PixelYUV422, _UByteCV> : public BaseImageRow,
     {
     }
 
-    ImageRow(_UByteCV* _ptr, size_t _lineLength, size_t _width)
+    ImageRow(_UByteCV* _ptr, ImageSize _lineLength, ImageDim _width)
      :BaseImageRow(),
       ImageRowAccessor(_ptr, _lineLength, _width),
       m_readParity(false),
@@ -127,7 +127,7 @@ class ImageRow<BaseImagePixel::PixelYUV422, _UByteCV> : public BaseImageRow,
       }
     }
 
-    static size_t calcLineLength(size_t _width)
+    static ImageSize calcLineLength(ImageDim _width)
     {
       if (_width%2 != 0)
         return 0;

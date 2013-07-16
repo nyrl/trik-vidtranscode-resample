@@ -34,15 +34,15 @@ class AlgoTestFill
     {
       RowSetOut   rowSetOut;
 
-      const float imageOutHeightDiv = 1.0f / _imageOut.height();
-      const float imageOutWidthDiv =  1.0f / _imageOut.width();
+      const ImageDimFactor imageOutHeightDiv = 1.0f / _imageOut.height();
+      const ImageDimFactor imageOutWidthDiv =  1.0f / _imageOut.width();
 
-      for (size_t rowIdxOut = 0; rowIdxOut < _imageOut.height(); ++rowIdxOut)
+      for (ImageDim rowIdxOut = 0; rowIdxOut < _imageOut.height(); ++rowIdxOut)
       {
         if (!_imageOut.template getRowSet<0, 0>(rowSetOut, rowIdxOut))
           return false;
 
-        for (size_t colIdxOut = 0; colIdxOut < _imageOut.width(); ++colIdxOut)
+        for (ImageDim colIdxOut = 0; colIdxOut < _imageOut.width(); ++colIdxOut)
         {
           float nr = rowIdxOut * imageOutHeightDiv;
           float ng = colIdxOut * imageOutWidthDiv;

@@ -18,7 +18,7 @@
 class AlgoInterpolationLinear : public BaseAlgoInterpolation1Dim<0, 1>
 {
   public:
-    AlgoInterpolationLinear(const float& _t)
+    AlgoInterpolationLinear(ImageDimFract _t)
     {
       assert(_t >= 0 && _t <= 1.0);
 

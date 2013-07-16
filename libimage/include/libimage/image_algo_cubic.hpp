@@ -7,6 +7,7 @@
 
 
 #include <libimage/stdcpp.hpp>
+#include <libimage/image_defs.hpp>
 #include <libimage/image_algo_resample_vh.hpp>
 
 
@@ -18,14 +19,16 @@
 class AlgoInterpolationCubic : public BaseAlgoInterpolation1Dim<1, 2>
 {
   public:
-    AlgoInterpolationCubic(const float& _t)
+    typedef int_fast8_t InterpolationMatrixDim;
+
+    AlgoInterpolationCubic(ImageDimFract _t)
     {
       assert(_t >= 0 && _t <= 1.0);
 
-      const float t0 = 1;
-      const float t1 = _t;
-      const float t2 = _t*_t;
-      const float t3 = _t*_t*_t;
+      const ImageDimFract t0 = 1;
+      const ImageDimFract t1 = _t;
+      const ImageDimFract t2 = t1*t1;
+      const ImageDimFract t3 = t2*t1;
 
       m_weight[0] = 0.5 * ( 0*t0 + -1*t1 +  2*t2 + -1*t3 );
       m_weight[1] = 0.5 * ( 2*t0 +  0*t1 + -5*t2 +  3*t3 );
@@ -39,7 +42,7 @@ class AlgoInterpolationCubic : public BaseAlgoInterpolation1Dim<1, 2>
     {
       typename PixelSetOut::Pixel result;
 
-      for (size_t idx = 0; idx < s_weightDimension; ++idx)
+      for (InterpolationMatrixDim idx = 0; idx < s_weightDimension; ++idx)
         result += _pixelsIn[idx] * m_weight[idx];
 
       _pixelsOut.insertNewPixel() = result;
@@ -48,7 +51,7 @@ class AlgoInterpolationCubic : public BaseAlgoInterpolation1Dim<1, 2>
     }
 
   private:
-    static const size_t s_weightDimension = 4;
+    static const InterpolationMatrixDim s_weightDimension = 4;
 
     /*
      * Cached data is:

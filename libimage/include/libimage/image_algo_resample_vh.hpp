@@ -18,16 +18,16 @@
 /* **** **** **** **** **** */ namespace internal /* **** **** **** **** **** */ {
 
 
-template <size_t _windowBefore, size_t _windowAfter>
+template <ImageDim _windowBefore, ImageDim _windowAfter>
 class BaseAlgoInterpolation1Dim
 {
   public:
-    static const size_t s_isAlgorithmInterpolation1Dim = true;
+    static const bool s_isAlgorithmInterpolation1Dim = true;
 
   protected:
-    static const size_t s_windowBefore = _windowBefore;
-    static const size_t s_windowAfter  = _windowAfter;
-    static const size_t s_windowSize   = _windowBefore+1+_windowAfter;
+    static const ImageDim s_windowBefore = _windowBefore;
+    static const ImageDim s_windowAfter  = _windowAfter;
+    static const ImageDim s_windowSize   = _windowBefore+1+_windowAfter;
 
     template <typename _VertialInterpolation, typename _HorizontalInterpolation,
               typename _ImageIn, typename _ImageOut>
@@ -58,8 +58,8 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
 
     typedef ImagePixelSetConvertion<PixelSetInResult, PixelSetOutResult> PixelSetIn2OutConvertion;
 
-    typedef std::map<float, _VerticalInterpolation>   VerticalInterpolationCache;
-    typedef std::map<float, _HorizontalInterpolation> HorizontalInterpolationCache;
+    typedef std::map<ImageDimFract, _VerticalInterpolation>   VerticalInterpolationCache;
+    typedef std::map<ImageDimFract, _HorizontalInterpolation> HorizontalInterpolationCache;
 
   public:
     AlgoResampleVH()
@@ -80,13 +80,13 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
       VerticalInterpolationCache verticalInterpolationCache;
       HorizontalInterpolationCache horizontalInterpolationCache;
 
-      const float in2outCFactor = static_cast<float>(_imageIn.width())  / static_cast<float>(_imageOut.width() );
-      const float in2outRFactor = static_cast<float>(_imageIn.height()) / static_cast<float>(_imageOut.height());
+      const ImageDimFactor in2outCFactor = static_cast<ImageDimFactor>(_imageIn.width())  / static_cast<ImageDimFactor>(_imageOut.width() );
+      const ImageDimFactor in2outRFactor = static_cast<ImageDimFactor>(_imageIn.height()) / static_cast<ImageDimFactor>(_imageOut.height());
 
-      for (size_t rowIdxOut = 0; rowIdxOut < _imageOut.height(); ++rowIdxOut)
+      for (ImageDim rowIdxOut = 0; rowIdxOut < _imageOut.height(); ++rowIdxOut)
       {
-        size_t rowIdxIn;
-        float rowIdxInFract;
+        ImageDim rowIdxIn;
+        ImageDimFract rowIdxInFract;
         if (!convertCoord(rowIdxOut, in2outRFactor, rowIdxIn, rowIdxInFract))
           return false;
 
@@ -96,14 +96,14 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
         const _VerticalInterpolation& verticalInterpolation = getInterpolationCache(verticalInterpolationCache,
                                                                                     rowIdxInFract);
 
-        size_t colIdxInLast;
+        ImageDim colIdxInLast;
         if (!initializeHorizontalPixelSet(rowSetIn, horizontalPixelSet, verticalInterpolation, colIdxInLast))
           return false;
 
-        for (size_t colIdxOut = 0; colIdxOut < _imageOut.width(); ++colIdxOut)
+        for (ImageDim colIdxOut = 0; colIdxOut < _imageOut.width(); ++colIdxOut)
         {
-          size_t colIdxIn;
-          float colIdxInFract;
+          ImageDim colIdxIn;
+          ImageDimFract colIdxInFract;
           if (!convertCoord(colIdxOut, in2outCFactor, colIdxIn, colIdxInFract))
             return false;
 
@@ -122,16 +122,17 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
     }
 
   private:
-    static bool convertCoord(size_t _idx1, float _factor, size_t& _idx2, float& _fract)
+    static bool convertCoord(ImageDim _idx1, ImageDimFactor _factor, ImageDim& _idx2, ImageDimFract& _fract)
     {
-      const float idx2f = _idx1 * _factor;
+      const ImageDimFactor idx2f = _idx1 * _factor;
       _idx2 = /*trunc*/idx2f;
       _fract = idx2f - _idx2;
+
       return true;
     }
 
-    bool prepareRowSet(const _ImageIn& _imageIn,  RowSetIn&  _rowSetIn,  size_t _rowIdxIn,
-                       _ImageOut&      _imageOut, RowSetOut& _rowSetOut, size_t _rowIdxOut) const
+    bool prepareRowSet(const _ImageIn& _imageIn,  RowSetIn&  _rowSetIn,  ImageDim _rowIdxIn,
+                       _ImageOut&      _imageOut, RowSetOut& _rowSetOut, ImageDim _rowIdxOut) const
     {
       if (!_imageIn.template getRowSet<_VerticalInterpolation::s_windowBefore,
                                        _VerticalInterpolation::s_windowAfter>(_rowSetIn, _rowIdxIn))
@@ -156,7 +157,7 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
 
     bool initializeHorizontalPixelSet(RowSetIn& _rowSetIn, PixelSetInHorizontal& _pixelSetH,
                                       const _VerticalInterpolation& _interpolation,
-                                      size_t& _colIdxLast) const
+                                      ImageDim& _colIdxLast) const
     {
       bool isOk = true;
       PixelSetInVertical pixelSetV;
@@ -164,10 +165,10 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
       isOk &= _rowSetIn.readPixelSet(pixelSetV);
       isOk &= _interpolation(pixelSetV, _pixelSetH);
 
-      for (size_t idx = 0; idx < _VerticalInterpolation::s_windowBefore; ++idx)
+      for (ImageDim idx = 0; idx < _VerticalInterpolation::s_windowBefore; ++idx)
         isOk &= _pixelSetH.insertLastPixelCopy();
 
-      for (size_t idx = 0; idx < _VerticalInterpolation::s_windowAfter; ++idx)
+      for (ImageDim idx = 0; idx < _VerticalInterpolation::s_windowAfter; ++idx)
         isOk &= readNextHorizontalPixel(_rowSetIn, _pixelSetH, _interpolation);
 
       _colIdxLast = 0;
@@ -176,7 +177,7 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
 
     bool updateHorizontalPixelSet(RowSetIn& _rowSetIn, PixelSetInHorizontal& _pixelSetH,
                                   const _VerticalInterpolation& _interpolation,
-                                  size_t& _colIdxLast, size_t _colIdxDesired) const
+                                  ImageDim& _colIdxLast, ImageDim _colIdxDesired) const
     {
       bool isOk = true;
       for (/*_colIdxLast*/; _colIdxLast < _colIdxDesired; ++_colIdxLast)
@@ -206,7 +207,7 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
 
     template <typename _InterpolationCache>
     const typename _InterpolationCache::mapped_type& getInterpolationCache(_InterpolationCache& _cache,
-                                                                           float _fract) const
+                                                                           ImageDimFract _fract) const
     {
       const typename _InterpolationCache::const_iterator it(_cache.find(_fract));
       if (it != _cache.end())
