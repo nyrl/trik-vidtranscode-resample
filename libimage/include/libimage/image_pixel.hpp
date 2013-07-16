@@ -132,7 +132,7 @@ class ImagePixelSet : public BaseImagePixelSet,
     bool insertLastPixelCopy()
     {
       const Pixel cp = operator[](pixelsCount()-1);
-      // must copy a pixel to be safe
+      // should copy a pixel to be safe
       insertNewPixel() = cp;
       return true;
     }
