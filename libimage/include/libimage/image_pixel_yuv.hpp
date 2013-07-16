@@ -18,7 +18,7 @@
 /* **** **** **** **** **** */ namespace internal /* **** **** **** **** **** */ {
 
 
-template <typename _CType, size_t _YBits, size_t _UBits, size_t _VBits>
+template <size_t _YBits, size_t _UBits, size_t _VBits>
 class ImagePixelYUVAccessor : protected BaseImagePixelAccessor,
                               private assert_inst<(_YBits>=1 && _UBits>=1 && _VBits>=1)>
 {
@@ -60,32 +60,32 @@ class ImagePixelYUVAccessor : protected BaseImagePixelAccessor,
     {
     }
 
-    void loadY(_CType _y)
+    void loadY(ImageColorComponentIntegral _y)
     {
       m_y = _y;
     }
 
-    void loadU(_CType _u)
+    void loadU(ImageColorComponentIntegral _u)
     {
       m_u = _u;
     }
 
-    void loadV(_CType _v)
+    void loadV(ImageColorComponentIntegral _v)
     {
       m_v = _v;
     }
 
-    _CType storeY() const
+    ImageColorComponentIntegral storeY() const
     {
       return /*trunc*/range(yStoreMin(), m_y+0.5f, yStoreMax());
     }
 
-    _CType storeU() const
+    ImageColorComponentIntegral storeU() const
     {
       return /*trunc*/range(uStoreMin(), m_u+0.5f, uStoreMax());
     }
 
-    _CType storeV() const
+    ImageColorComponentIntegral storeV() const
     {
       return /*trunc*/range(vStoreMin(), m_v+0.5f, vStoreMax());
     }
@@ -119,16 +119,19 @@ class ImagePixelYUVAccessor : protected BaseImagePixelAccessor,
     float m_u;
     float m_v;
 
-    static const _CType s_YMaxCType = (static_cast<_CType>(1)<<_YBits) - static_cast<_CType>(1);
-    static const _CType s_UMaxCType = (static_cast<_CType>(1)<<_UBits) - static_cast<_CType>(1);
-    static const _CType s_VMaxCType = (static_cast<_CType>(1)<<_VBits) - static_cast<_CType>(1);
+    static const ImageColorComponentIntegral s_YMaxIntegral = (static_cast<ImageColorComponentIntegral>(1)<<_YBits)
+                                                             - static_cast<ImageColorComponentIntegral>(1);
+    static const ImageColorComponentIntegral s_UMaxIntegral = (static_cast<ImageColorComponentIntegral>(1)<<_UBits)
+                                                             - static_cast<ImageColorComponentIntegral>(1);
+    static const ImageColorComponentIntegral s_VMaxIntegral = (static_cast<ImageColorComponentIntegral>(1)<<_VBits)
+                                                             - static_cast<ImageColorComponentIntegral>(1);
 
     static float yStoreMin() { return 0.0f; }
     static float uStoreMin() { return 0.0f; }
     static float vStoreMin() { return 0.0f; }
-    static float yStoreMax() { return static_cast<float>(s_YMaxCType); }
-    static float uStoreMax() { return static_cast<float>(s_UMaxCType); }
-    static float vStoreMax() { return static_cast<float>(s_VMaxCType); }
+    static float yStoreMax() { return static_cast<float>(s_YMaxIntegral); }
+    static float uStoreMax() { return static_cast<float>(s_UMaxIntegral); }
+    static float vStoreMax() { return static_cast<float>(s_VMaxIntegral); }
 
     static float yNormMult() { return yStoreMax(); }
     static float uNormMult() { return uStoreMax(); }
@@ -146,7 +149,7 @@ class ImagePixelYUVAccessor : protected BaseImagePixelAccessor,
 
 template <>
 class ImagePixel<BaseImagePixel::PixelYUV444> : public BaseImagePixel,
-                                                public internal::ImagePixelYUVAccessor<int16_t, 8, 8, 8>
+                                                public internal::ImagePixelYUVAccessor<8, 8, 8>
 {
   public:
     ImagePixel() {}
@@ -199,7 +202,7 @@ class ImagePixel<BaseImagePixel::PixelYUV444> : public BaseImagePixel,
 
 template <>
 class ImagePixel<BaseImagePixel::PixelYUV422> : public BaseImagePixel,
-                                                public internal::ImagePixelYUVAccessor<int16_t, 8, 8, 8>
+                                                public internal::ImagePixelYUVAccessor<8, 8, 8>
 {
   public:
     ImagePixel() {}

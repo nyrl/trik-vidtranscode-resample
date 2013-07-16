@@ -19,6 +19,8 @@ typedef int_fast32_t ImageSize; // image size, offset, line length
 typedef float  ImageDimFactor; // height/width or dimension/dimension factor
 typedef float  ImageDimFract;  // fractional part 0..1
 
+typedef int_fast16_t ImageColorComponentIntegral; // single color component integral type
+
 
 } /* **** **** **** **** **** * namespace libimage * **** **** **** **** **** */
 } /* **** **** **** **** **** * namespace trik * **** **** **** **** **** */

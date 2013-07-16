@@ -18,7 +18,7 @@
 /* **** **** **** **** **** */ namespace internal /* **** **** **** **** **** */ {
 
 
-template <typename _CType, size_t _RBits, size_t _GBits, size_t _BBits>
+template <size_t _RBits, size_t _GBits, size_t _BBits>
 class ImagePixelRGBAccessor : protected BaseImagePixelAccessor,
                               private assert_inst<(_RBits>=1 && _GBits>=1 && _BBits>=1)>
 {
@@ -54,32 +54,32 @@ class ImagePixelRGBAccessor : protected BaseImagePixelAccessor,
     {
     }
 
-    void loadR(_CType _r)
+    void loadR(ImageColorComponentIntegral _r)
     {
       m_r = _r;
     }
 
-    void loadG(_CType _g)
+    void loadG(ImageColorComponentIntegral _g)
     {
       m_g = _g;
     }
 
-    void loadB(_CType _b)
+    void loadB(ImageColorComponentIntegral _b)
     {
       m_b = _b;
     }
 
-    _CType storeR() const
+    ImageColorComponentIntegral storeR() const
     {
       return /*trunc*/range(rStoreMin(), m_r+0.5f, rStoreMax());
     }
 
-    _CType storeG() const
+    ImageColorComponentIntegral storeG() const
     {
       return /*trunc*/range(gStoreMin(), m_g+0.5f, gStoreMax());
     }
 
-    _CType storeB() const
+    ImageColorComponentIntegral storeB() const
     {
       return /*trunc*/range(bStoreMin(), m_b+0.5f, bStoreMax());
     }
@@ -113,16 +113,19 @@ class ImagePixelRGBAccessor : protected BaseImagePixelAccessor,
     float m_g;
     float m_b;
 
-    static const _CType s_RMaxCType = (static_cast<_CType>(1)<<_RBits) - static_cast<_CType>(1);
-    static const _CType s_GMaxCType = (static_cast<_CType>(1)<<_GBits) - static_cast<_CType>(1);
-    static const _CType s_BMaxCType = (static_cast<_CType>(1)<<_BBits) - static_cast<_CType>(1);
+    static const ImageColorComponentIntegral s_RMaxIntegral = (static_cast<ImageColorComponentIntegral>(1)<<_RBits)
+                                                             - static_cast<ImageColorComponentIntegral>(1);
+    static const ImageColorComponentIntegral s_GMaxIntegral = (static_cast<ImageColorComponentIntegral>(1)<<_GBits)
+                                                             - static_cast<ImageColorComponentIntegral>(1);
+    static const ImageColorComponentIntegral s_BMaxIntegral = (static_cast<ImageColorComponentIntegral>(1)<<_BBits)
+                                                             - static_cast<ImageColorComponentIntegral>(1);
 
     static float rStoreMin() { return 0.0f; }
     static float gStoreMin() { return 0.0f; }
     static float bStoreMin() { return 0.0f; }
-    static float rStoreMax() { return static_cast<float>(s_RMaxCType); }
-    static float gStoreMax() { return static_cast<float>(s_GMaxCType); }
-    static float bStoreMax() { return static_cast<float>(s_BMaxCType); }
+    static float rStoreMax() { return static_cast<float>(s_RMaxIntegral); }
+    static float gStoreMax() { return static_cast<float>(s_GMaxIntegral); }
+    static float bStoreMax() { return static_cast<float>(s_BMaxIntegral); }
 
     static float rNormMult() { return rStoreMax(); }
     static float gNormMult() { return gStoreMax(); }
@@ -138,10 +141,9 @@ class ImagePixelRGBAccessor : protected BaseImagePixelAccessor,
 
 
 
-#warning int16_t hardcoded here and in yuv
 template <>
 class ImagePixel<BaseImagePixel::PixelRGB565> : public BaseImagePixel,
-                                                public internal::ImagePixelRGBAccessor<int16_t, 5, 6, 5>
+                                                public internal::ImagePixelRGBAccessor<5, 6, 5>
 {
   public:
     ImagePixel() {}
@@ -192,7 +194,7 @@ class ImagePixel<BaseImagePixel::PixelRGB565> : public BaseImagePixel,
 
 template <>
 class ImagePixel<BaseImagePixel::PixelRGB565X> : public BaseImagePixel,
-                                                 public internal::ImagePixelRGBAccessor<int16_t, 5, 6, 5>
+                                                 public internal::ImagePixelRGBAccessor<5, 6, 5>
 {
   public:
     ImagePixel() {}
@@ -241,7 +243,7 @@ class ImagePixel<BaseImagePixel::PixelRGB565X> : public BaseImagePixel,
 
 template <>
 class ImagePixel<BaseImagePixel::PixelRGB888> : public BaseImagePixel,
-                                                public internal::ImagePixelRGBAccessor<int16_t, 8, 8, 8>
+                                                public internal::ImagePixelRGBAccessor<8, 8, 8>
 {
   public:
     ImagePixel() {}
