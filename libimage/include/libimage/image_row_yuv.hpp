@@ -22,6 +22,8 @@ class ImageRow<BaseImagePixel::PixelYUV444,
   public:
     typedef ImagePixel<BaseImagePixel::PixelYUV444> PixelType;
 
+    static const ImageSize s_unifiedPixelAccess = 4;
+
     ImageRow()
      :BaseImageRow(),
       ImageRowAccessor()
@@ -37,7 +39,7 @@ class ImageRow<BaseImagePixel::PixelYUV444,
     bool readPixel(PixelType& _pixel)
     {
       _UByteCV* ptr;
-      if (!ImageRowAccessor::accessPixel(ptr, 4))
+      if (!ImageRowAccessor::accessPixel(ptr, s_unifiedPixelAccess))
         return false;
 
       return _pixel.unpack(ptr[0], ptr[1], ptr[2], ptr[3]);
@@ -46,7 +48,7 @@ class ImageRow<BaseImagePixel::PixelYUV444,
     bool writePixel(const PixelType& _pixel)
     {
       _UByteCV* ptr;
-      if (!ImageRowAccessor::accessPixel(ptr, 4))
+      if (!ImageRowAccessor::accessPixel(ptr, s_unifiedPixelAccess))
         return false;
 
       return _pixel.pack(ptr[0], ptr[1], ptr[2], ptr[3]);
@@ -54,7 +56,7 @@ class ImageRow<BaseImagePixel::PixelYUV444,
 
     static ImageSize calcLineLength(ImageDim _width)
     {
-      return _width * 4;
+      return _width * s_unifiedPixelAccess;
     }
 
   protected:
@@ -73,31 +75,28 @@ class ImageRow<BaseImagePixel::PixelYUV422,
   public:
     typedef ImagePixel<BaseImagePixel::PixelYUV422> PixelType;
 
+    static const ImageSize s_unifiedPixelAccess = 0;
+
     ImageRow()
      :BaseImageRow(),
-      ImageRowAccessor(),
-      m_readParity(false),
-      m_writeParity(false)
+      ImageRowAccessor()
     {
     }
 
     ImageRow(_UByteCV* _ptr, ImageSize _lineLength, ImageDim _width)
      :BaseImageRow(),
-      ImageRowAccessor(_ptr, _lineLength, _width),
-      m_readParity(false),
-      m_writeParity(false)
+      ImageRowAccessor(_ptr, _lineLength, _width)
     {
     }
 
-    bool readPixel(PixelType& _pixel)
+    bool readPixel(PixelType& _pixel, bool _parity)
     {
       _UByteCV* ptr;
-      if (m_readParity)
+      if (_parity)
       {
         if (!ImageRowAccessor::accessPixel(ptr, 4, 2)) // 4 bytes, 2 pixels
           return false;
 
-        m_readParity = false;
         return _pixel.unpack(ptr[2], ptr[1], ptr[3]);
       }
       else
@@ -105,20 +104,18 @@ class ImageRow<BaseImagePixel::PixelYUV422,
         if (!ImageRowAccessor::accessPixelDontMove(ptr, 4, 2)) // 4 bytes, 2 pixels
           return false;
 
-        m_readParity = true;
         return _pixel.unpack(ptr[0], ptr[1], ptr[3]);
       }
     }
 
-    bool writePixel(const PixelType& _pixel)
+    bool writePixel(const PixelType& _pixel, bool _parity)
     {
       _UByteCV* ptr;
-      if (m_writeParity)
+      if (_parity)
       {
         if (!ImageRowAccessor::accessPixel(ptr, 4, 2)) // 4 bytes, 2 pixels
           return false;
 
-        m_writeParity = false;
         return _pixel.pack(ptr[2], ptr[1], ptr[3], true);
       }
       else
@@ -126,7 +123,6 @@ class ImageRow<BaseImagePixel::PixelYUV422,
         if (!ImageRowAccessor::accessPixelDontMove(ptr, 4, 2)) // 4 bytes, 2 pixels
           return false;
 
-        m_writeParity = true;
         return _pixel.pack(ptr[0], ptr[1], ptr[3], false);
       }
     }
@@ -141,11 +137,6 @@ class ImageRow<BaseImagePixel::PixelYUV422,
 
   protected:
     typedef internal::ImageRowAccessor<_UByteCV, _extraChecks> ImageRowAccessor;
-
-  private:
-    PixelType m_readCachedPixel;
-    bool      m_readParity;
-    bool      m_writeParity;
 };
 
 

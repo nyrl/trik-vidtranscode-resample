@@ -15,29 +15,23 @@
 /* **** **** **** **** **** */ namespace internal /* **** **** **** **** **** */ {
 
 
-} /* **** **** **** **** **** * namespace internal * **** **** **** **** **** */
-
-
-
-
-class BaseImageRowSet
+class BaseImageRowSetAccessor
 {
   public:
-    BaseImageRowSet() {}
+    BaseImageRowSetAccessor() {}
 };
 
 
-#warning TODO !_extraCheck not implemented
 template <BaseImagePixel::PixelType _PT, typename _UByteCV, ImageDim _rowsCount, bool _extraChecks>
-class ImageRowSet : public BaseImageRowSet,
-                    private assert_inst<(_rowsCount > 0)> // sanity check
+class ImageRowSetAccessor : public BaseImageRowSetAccessor,
+                            private assert_inst<(_rowsCount > 0)> // sanity check
 {
   public:
-    typedef ImageRow<_PT, _UByteCV, _extraChecks>  Row;
+    typedef ImageRow<_PT, _UByteCV, _extraChecks>  RowType;
     typedef ImagePixelSet<_PT, _rowsCount>         PixelSet;
 
-    ImageRowSet()
-     :BaseImageRowSet(),
+    ImageRowSetAccessor()
+     :BaseImageRowSetAccessor(),
       m_rows(),
       m_remainLineLength(),
       m_remainWidth()
@@ -56,44 +50,95 @@ class ImageRowSet : public BaseImageRowSet,
       return _rowsCount;
     }
 
-    Row& operator[](ImageDim _rowIndex)
+    RowType& operator[](ImageDim _rowIndex)
     {
       assert(_rowIndex < rowsCount());
       return m_rows[_rowIndex];
     }
 
-    const Row& operator[](ImageDim _rowIndex) const
+    const RowType& operator[](ImageDim _rowIndex) const
     {
       assert(_rowIndex < rowsCount());
       return m_rows[_rowIndex];
     }
 
+    bool accessPixel(ImageSize _bytes, ImageDim _pixels=1)
+    {
+      if (   m_remainWidth      < _pixels
+          || m_remainLineLength < _bytes)
+        return false;
+
+      m_remainLineLength -= _bytes;
+      m_remainWidth      -= _pixels;
+
+      return true;
+    }
+
+    bool accessPixelDontMove(ImageSize _bytes, ImageDim _pixels) const
+    {
+      if (   m_remainWidth      < _pixels
+          || m_remainLineLength < _bytes)
+        return false;
+
+      return true;
+    }
+
+  private:
+    RowType    m_rows[_rowsCount];
+    ImageSize  m_remainLineLength;
+    ImageDim   m_remainWidth;
+};
+
+
+} /* **** **** **** **** **** * namespace internal * **** **** **** **** **** */
+
+
+
+
+class BaseImageRowSet
+{
+  public:
+    BaseImageRowSet() {}
+};
+
+
+template <BaseImagePixel::PixelType _PT, typename _UByteCV, ImageDim _rowsCount, bool _extraChecks>
+class ImageRowSet : public BaseImageRowSet,
+                    public internal::ImageRowSetAccessor<_PT, _UByteCV, _rowsCount, _extraChecks>,
+                    private assert_inst<(ImageRow<_PT, _UByteCV, _extraChecks>::s_unifiedPixelAccess > 0)>
+{
+  public:
+    ImageRowSet()
+     :ImageRowSetAccessor()
+    {
+    }
 
     bool readPixelSet(PixelSet& _pixelSet)
     {
-      bool isOk = true;
+      if (!accessPixel(RowType::s_unifiedPixelAccess))
+        return false;
 
       for (ImageDim rowIndex = 0; rowIndex < rowsCount(); ++rowIndex)
-        isOk &= this->operator[](rowIndex).readPixel(_pixelSet[rowIndex]);
+        if (!this->operator[](rowIndex).readPixel(_pixelSet[rowIndex]))
+          return false;
 
-      return isOk;
+      return true;
     }
 
     bool writePixelSet(const PixelSet& _pixelSet)
     {
-      bool isOk = true;
+      if (!accessPixel(RowType::s_unifiedPixelAccess))
+        return false;
 
       for (ImageDim rowIndex = 0; rowIndex < rowsCount(); ++rowIndex)
-        isOk &= this->operator[](rowIndex).writePixel(_pixelSet[rowIndex]);
+        if (!this->operator[](rowIndex).writePixel(_pixelSet[rowIndex]))
+          return false;
 
-      return isOk;
+      return true;
     }
 
-
-  private:
-    Row        m_rows[_rowsCount];
-    ImageSize  m_remainLineLength;
-    ImageDim   m_remainWidth;
+  protected:
+    typedef internal::ImageRowSetAccessor<_PT, _UByteCV, _rowsCount, _extraChecks> ImageRowSetAccessor;
 };
 
 
@@ -101,8 +146,8 @@ class ImageRowSet : public BaseImageRowSet,
 } /* **** **** **** **** **** * namespace trik * **** **** **** **** **** */
 
 
-//#include <libimage/image_rowset_rgb.hpp>
-//#include <libimage/image_rowset_yuv.hpp>
+#include <libimage/image_rowset_rgb.hpp>
+#include <libimage/image_rowset_yuv.hpp>
 
 
 #endif // !TRIK_LIBIMAGE_IMAGE_ROWSET_HPP_
