@@ -164,7 +164,7 @@ class Image : public BaseImage,
       if (!ImageAccessor::getRowPtr(rowPtr, _rowIndex))
         return false;
 
-      _row = RowType(rowPtr, ImageAccessor::lineLength(), width());
+      _row.reset(rowPtr, ImageAccessor::lineLength(), width());
 
       return true;
     }
@@ -174,20 +174,26 @@ class Image : public BaseImage,
     {
       assert(_rowSet.rowsCount() == _rowsBefore+1+_rowsAfter);
 
+      if (!_rowSet.reset())
+        return false;
+
+      ImageDim rowIdx = 0;
+
+#warning TODO &= or if! return ?
       bool isOk = true;
 
       for (ImageDim idx = _rowsBefore; idx > 0; --idx)
       {
         const ImageDim ridx = (idx >= _baseRow) ? ImageAccessor::firstRow() : _baseRow-idx;
-        isOk &= getRow(_rowSet.prepareNewRow(), ridx);
+        isOk &= getRow(_rowSet[rowIdx++], ridx);
       }
 
-      isOk &= getRow(_rowSet.prepareNewRow(), _baseRow);
+      isOk &= getRow(_rowSet[rowIdx++], _baseRow);
 
       for (ImageDim idx = 1; idx <= _rowsAfter; ++idx)
       {
         const ImageDim ridx = std::min(_baseRow+idx, ImageAccessor::lastRow());
-        isOk &= getRow(_rowSet.prepareNewRow(), ridx);
+        isOk &= getRow(_rowSet[rowIdx++], ridx);
       }
 
       return isOk;

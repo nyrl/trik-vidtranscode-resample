@@ -15,7 +15,7 @@
 
 template <typename _UByteCV>
 class ImageRow<BaseImagePixel::PixelYUV444, _UByteCV> : public BaseImageRow,
-                                                        private internal::ImageRowAccessor<_UByteCV>
+                                                        public internal::ImageRowAccessor<_UByteCV>
 {
   public:
     typedef ImagePixel<BaseImagePixel::PixelYUV444> PixelType;
@@ -26,16 +26,10 @@ class ImageRow<BaseImagePixel::PixelYUV444, _UByteCV> : public BaseImageRow,
     {
     }
 
-    ImageRow(_UByteCV* _ptr, ImageSize _lineLength, ImageDim _width)
-     :BaseImageRow(),
-      ImageRowAccessor(_ptr, _lineLength, _width)
-    {
-    }
-
     bool readPixel(PixelType& _pixel)
     {
       _UByteCV* ptr;
-      if (!ImageRowAccessor::accessPixel(ptr, 4))
+      if (!ImageRowAccessor::accessPixel(ptr, s_accessBytes))
         return false;
 
       return _pixel.unpack(ptr[0], ptr[1], ptr[2], ptr[3]);
@@ -44,7 +38,7 @@ class ImageRow<BaseImagePixel::PixelYUV444, _UByteCV> : public BaseImageRow,
     bool writePixel(const PixelType& _pixel)
     {
       _UByteCV* ptr;
-      if (!ImageRowAccessor::accessPixel(ptr, 4))
+      if (!ImageRowAccessor::accessPixel(ptr, s_accessBytes))
         return false;
 
       return _pixel.pack(ptr[0], ptr[1], ptr[2], ptr[3]);
@@ -52,11 +46,14 @@ class ImageRow<BaseImagePixel::PixelYUV444, _UByteCV> : public BaseImageRow,
 
     static ImageSize calcLineLength(ImageDim _width)
     {
-      return _width * 4;
+      return _width * s_accessBytes;
     }
 
   protected:
     typedef internal::ImageRowAccessor<_UByteCV> ImageRowAccessor;
+
+  private:
+    static const ImageSize s_accessBytes = 4;
 };
 
 
@@ -64,7 +61,7 @@ class ImageRow<BaseImagePixel::PixelYUV444, _UByteCV> : public BaseImageRow,
 
 template <typename _UByteCV>
 class ImageRow<BaseImagePixel::PixelYUV422, _UByteCV> : public BaseImageRow,
-                                                        private internal::ImageRowAccessor<_UByteCV>
+                                                        public internal::ImageRowAccessor<_UByteCV>
 {
   public:
     typedef ImagePixel<BaseImagePixel::PixelYUV422> PixelType;
@@ -77,12 +74,11 @@ class ImageRow<BaseImagePixel::PixelYUV422, _UByteCV> : public BaseImageRow,
     {
     }
 
-    ImageRow(_UByteCV* _ptr, ImageSize _lineLength, ImageDim _width)
-     :BaseImageRow(),
-      ImageRowAccessor(_ptr, _lineLength, _width),
-      m_readParity(false),
-      m_writeParity(false)
+    bool reset(_UByteCV* _rowPtr, ImageSize _lineLength, ImageDim _width)
     {
+      m_readParity  = false;
+      m_writeParity = false;
+      return ImageRowAccessor::reset(_rowPtr, _lineLength, _width);
     }
 
     bool readPixel(PixelType& _pixel)
