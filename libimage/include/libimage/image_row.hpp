@@ -65,7 +65,7 @@ class ImageRowAccessor<_UByteCV, true> : private BaseImageRowAccessor
       return true;
     }
 
-    bool accessPixelDontMove(_UByteCV*& _pixelPtr, ImageSize _bytes, ImageDim _pixels)
+    bool accessPixelDontMove(_UByteCV*& _pixelPtr, ImageSize _bytes, ImageDim _pixels) const
     {
       if (   m_ptr == NULL
           || m_remainWidth      < _pixels
@@ -112,7 +112,7 @@ class ImageRowAccessor<_UByteCV, false> : private BaseImageRowAccessor
       return true;
     }
 
-    bool accessPixelDontMove(_UByteCV*& _pixelPtr, ImageSize _bytes, ImageDim _pixels)
+    bool accessPixelDontMove(_UByteCV*& _pixelPtr, ImageSize _bytes, ImageDim _pixels) const
     {
       assert(m_ptr != NULL);
 
