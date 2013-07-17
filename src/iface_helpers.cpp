@@ -238,8 +238,15 @@ static bool resampleBufferImpl(const XDAS_UInt8* restrict _inBuffer,
                                const size_t&              _outHeight,
                                const size_t&              _outLineLength)
 {
-  typedef trik::libimage::Image<_PixelTypeSrc, const XDAS_UInt8> ImageSrc;
-  typedef trik::libimage::Image<_PixelTypeDst, XDAS_UInt8>       ImageDst;
+#ifdef NDEBUG
+  static const bool s_imageExtraChecks = true;
+#else
+  static const bool s_imageExtraChecks = true;
+#warning TODO
+  //  static const bool s_imageExtraChecks = false;
+#endif
+  typedef trik::libimage::Image<_PixelTypeSrc, const XDAS_UInt8, s_imageExtraChecks> ImageSrc;
+  typedef trik::libimage::Image<_PixelTypeDst, XDAS_UInt8, s_imageExtraChecks>       ImageDst;
   typedef trik::libimage::ImageAlgorithm<_Algorithm, ImageSrc, ImageDst> Algorithm;
 
   ImageSrc imageSrc(_inBuffer,  _inBufferSize,  _inWidth,  _inHeight,  _inLineLength);

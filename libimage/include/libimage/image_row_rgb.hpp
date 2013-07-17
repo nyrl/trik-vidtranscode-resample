@@ -13,9 +13,11 @@
 /* **** **** **** **** **** */ namespace libimage /* **** **** **** **** **** */ {
 
 
-template <typename _UByteCV>
-class ImageRow<BaseImagePixel::PixelRGB565, _UByteCV> : public BaseImageRow,
-                                                        private internal::ImageRowAccessor<_UByteCV>
+template <typename _UByteCV, bool _extraChecks>
+class ImageRow<BaseImagePixel::PixelRGB565,
+               _UByteCV,
+               _extraChecks> : public BaseImageRow,
+                               private internal::ImageRowAccessor<_UByteCV, _extraChecks>
 {
   public:
     typedef ImagePixel<BaseImagePixel::PixelRGB565> PixelType;
@@ -56,15 +58,17 @@ class ImageRow<BaseImagePixel::PixelRGB565, _UByteCV> : public BaseImageRow,
     }
 
   protected:
-    typedef internal::ImageRowAccessor<_UByteCV> ImageRowAccessor;
+    typedef internal::ImageRowAccessor<_UByteCV, _extraChecks> ImageRowAccessor;
 };
 
 
 
 
-template <typename _UByteCV>
-class ImageRow<BaseImagePixel::PixelRGB565X, _UByteCV> : public BaseImageRow,
-                                                         private internal::ImageRowAccessor<_UByteCV>
+template <typename _UByteCV, bool _extraChecks>
+class ImageRow<BaseImagePixel::PixelRGB565X,
+               _UByteCV,
+               _extraChecks> : public BaseImageRow,
+                               private internal::ImageRowAccessor<_UByteCV, _extraChecks>
 {
   public:
     typedef ImagePixel<BaseImagePixel::PixelRGB565X> PixelType;
@@ -105,15 +109,17 @@ class ImageRow<BaseImagePixel::PixelRGB565X, _UByteCV> : public BaseImageRow,
     }
 
   protected:
-    typedef internal::ImageRowAccessor<_UByteCV> ImageRowAccessor;
+    typedef internal::ImageRowAccessor<_UByteCV, _extraChecks> ImageRowAccessor;
 };
 
 
 
 
-template <typename _UByteCV>
-class ImageRow<BaseImagePixel::PixelRGB888, _UByteCV> : public BaseImageRow,
-                                                        private internal::ImageRowAccessor<_UByteCV>
+template <typename _UByteCV, bool _extraChecks>
+class ImageRow<BaseImagePixel::PixelRGB888,
+               _UByteCV,
+               _extraChecks> : public BaseImageRow,
+                               private internal::ImageRowAccessor<_UByteCV, _extraChecks>
 {
   public:
     typedef ImagePixel<BaseImagePixel::PixelRGB888> PixelType;
@@ -154,7 +160,7 @@ class ImageRow<BaseImagePixel::PixelRGB888, _UByteCV> : public BaseImageRow,
     }
 
   protected:
-    typedef internal::ImageRowAccessor<_UByteCV> ImageRowAccessor;
+    typedef internal::ImageRowAccessor<_UByteCV, _extraChecks> ImageRowAccessor;
 };
 
 

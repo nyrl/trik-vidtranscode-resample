@@ -18,43 +18,74 @@
 class BaseImageRowAccessor
 {
   protected:
-    BaseImageRowAccessor()
-     :m_remainSize(),
+    BaseImageRowAccessor() {}
+};
+
+
+template <typename _UByteCV, bool _extraChecks>
+class ImageRowAccessor : private BaseImageRowAccessor,
+                         private assert_inst<false> // Generic instance, non-functional
+{
+};
+
+
+template <typename _UByteCV>
+class ImageRowAccessor<_UByteCV, true> : private BaseImageRowAccessor
+{
+  protected:
+    ImageRowAccessor()
+     :BaseImageRowAccessor(),
+      m_ptr(),
+      m_remainSize(),
       m_remainWidth()
     {
     }
 
-    BaseImageRowAccessor(ImageSize _lineLength, ImageDim _width)
-     :m_remainSize(_lineLength),
+    ImageRowAccessor(_UByteCV* _rowPtr, ImageSize _lineLength, ImageDim _width)
+     :BaseImageRowAccessor(),
+      m_ptr(_rowPtr),
+      m_remainSize(_lineLength),
       m_remainWidth(_width)
     {
     }
 
-    bool accessPixelCheck(ImageSize _bytes, ImageDim _pixels)
+    bool accessPixel(_UByteCV*& _pixelPtr, ImageSize _bytes, ImageDim _pixels=1)
     {
-      return m_remainWidth >= _pixels
-          && m_remainSize >= _bytes;
-    }
-
-    bool accessPixelMarkup(ImageSize _bytes, ImageDim _pixels)
-    {
-      if (!accessPixelCheck(_bytes, _pixels))
+      if (   m_ptr == NULL
+          || m_remainWidth < _pixels
+          || m_remainSize  < _bytes)
         return false;
 
+      _pixelPtr = m_ptr;
+
+      m_ptr         += _bytes;
+      m_remainSize  -= _bytes;
       m_remainWidth -= _pixels;
-      m_remainSize -= _bytes;
+
+      return true;
+    }
+
+    bool accessPixelDontMove(_UByteCV*& _pixelPtr, ImageSize _bytes, ImageDim _pixels)
+    {
+      if (   m_ptr == NULL
+          || m_remainWidth < _pixels
+          || m_remainSize  < _bytes)
+        return false;
+
+      _pixelPtr = m_ptr;
 
       return true;
     }
 
   private:
+    _UByteCV*  m_ptr;
     ImageSize  m_remainSize;
     ImageDim   m_remainWidth;
 };
 
 
 template <typename _UByteCV>
-class ImageRowAccessor : private BaseImageRowAccessor
+class ImageRowAccessor<_UByteCV, false> : private BaseImageRowAccessor
 {
   protected:
     ImageRowAccessor()
@@ -64,17 +95,16 @@ class ImageRowAccessor : private BaseImageRowAccessor
     }
 
     ImageRowAccessor(_UByteCV* _rowPtr, ImageSize _lineLength, ImageDim _width)
-     :BaseImageRowAccessor(_lineLength, _width),
+     :BaseImageRowAccessor(),
       m_ptr(_rowPtr)
     {
+      (void)_lineLength;
+      (void)_width;
     }
 
     bool accessPixel(_UByteCV*& _pixelPtr, ImageSize _bytes, ImageDim _pixels=1)
     {
       assert(m_ptr != NULL);
-
-      if (!accessPixelMarkup(_bytes, _pixels))
-        return false;
 
       _pixelPtr = m_ptr;
       m_ptr += _bytes;
@@ -86,17 +116,16 @@ class ImageRowAccessor : private BaseImageRowAccessor
     {
       assert(m_ptr != NULL);
 
-      if (!accessPixelCheck(_bytes, _pixels))
-        return false;
-
       _pixelPtr = m_ptr;
 
       return true;
     }
 
   private:
-    _UByteCV* m_ptr;
+    _UByteCV*  m_ptr;
 };
+
+
 
 
 } /* **** **** **** **** **** * namespace internal * **** **** **** **** **** */
@@ -111,9 +140,9 @@ class BaseImageRow
 };
 
 
-template <BaseImagePixel::PixelType _PT, typename _UByteCV>
+template <BaseImagePixel::PixelType _PT, typename _UByteCV, bool _extraChecks>
 class ImageRow : public BaseImageRow,
-                 private internal::ImageRowAccessor<_UByteCV>,
+                 private internal::ImageRowAccessor<_UByteCV, _extraChecks>,
                  private assert_inst<false> // Generic instance, non-functional
 {
 };
@@ -133,7 +162,8 @@ class ImageRowSet : public BaseImageRowSet,
                     private assert_inst<(_rowsCount > 0)> // sanity check
 {
   public:
-    typedef ImageRow<_PT, _UByteCV>        Row;
+#warning Temporary 'true'
+    typedef ImageRow<_PT, _UByteCV, true>  Row;
     typedef ImagePixelSet<_PT, _rowsCount> PixelSet;
 
     ImageRowSet()

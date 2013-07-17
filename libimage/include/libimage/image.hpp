@@ -122,7 +122,7 @@ class BaseImage
 
 
 
-template <BaseImagePixel::PixelType _PT, typename _UByteCV>
+template <BaseImagePixel::PixelType _PT, typename _UByteCV, bool _extraChecks>
 class Image : public BaseImage,
               private internal::ImageAccessor<_UByteCV>
 {
@@ -131,8 +131,8 @@ class Image : public BaseImage,
 
   public:
     static const BaseImagePixel::PixelType PT = _PT;
-    typedef _UByteCV                UByteCV;
-    typedef ImageRow<_PT, _UByteCV> RowType;
+    typedef _UByteCV                              UByteCV;
+    typedef ImageRow<_PT, _UByteCV, _extraChecks> RowType;
 
 
     Image()
