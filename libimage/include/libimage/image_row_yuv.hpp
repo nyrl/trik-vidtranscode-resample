@@ -69,27 +69,25 @@ class ImageRow<BaseImagePixel::PixelYUV422, _UByteCV> : public BaseImageRow,
     ImageRow()
      :BaseImageRow(),
       ImageRowAccessor(),
-      m_readParity(false),
-      m_writeParity(false)
+      m_parity(false)
     {
     }
 
     bool reset(_UByteCV* _rowPtr, ImageSize _lineLength, ImageDim _width)
     {
-      m_readParity  = false;
-      m_writeParity = false;
+      m_parity = false;
       return ImageRowAccessor::reset(_rowPtr, _lineLength, _width);
     }
 
     bool readPixel(PixelType& _pixel)
     {
       _UByteCV* ptr;
-      if (m_readParity)
+      if (m_parity)
       {
         if (!ImageRowAccessor::accessPixel(ptr, 4, 2)) // 4 bytes, 2 pixels
           return false;
 
-        m_readParity = false;
+        m_parity = false;
         return _pixel.unpack(ptr[2], ptr[1], ptr[3]);
       }
       else
@@ -97,7 +95,7 @@ class ImageRow<BaseImagePixel::PixelYUV422, _UByteCV> : public BaseImageRow,
         if (!ImageRowAccessor::accessPixelDontMove(ptr, 4, 2)) // 4 bytes, 2 pixels
           return false;
 
-        m_readParity = true;
+        m_parity = true;
         return _pixel.unpack(ptr[0], ptr[1], ptr[3]);
       }
     }
@@ -105,12 +103,12 @@ class ImageRow<BaseImagePixel::PixelYUV422, _UByteCV> : public BaseImageRow,
     bool writePixel(const PixelType& _pixel)
     {
       _UByteCV* ptr;
-      if (m_writeParity)
+      if (m_parity)
       {
         if (!ImageRowAccessor::accessPixel(ptr, 4, 2)) // 4 bytes, 2 pixels
           return false;
 
-        m_writeParity = false;
+        m_parity = false;
         return _pixel.pack(ptr[2], ptr[1], ptr[3], true);
       }
       else
@@ -118,7 +116,7 @@ class ImageRow<BaseImagePixel::PixelYUV422, _UByteCV> : public BaseImageRow,
         if (!ImageRowAccessor::accessPixelDontMove(ptr, 4, 2)) // 4 bytes, 2 pixels
           return false;
 
-        m_writeParity = true;
+        m_parity = true;
         return _pixel.pack(ptr[0], ptr[1], ptr[3], false);
       }
     }
@@ -136,8 +134,7 @@ class ImageRow<BaseImagePixel::PixelYUV422, _UByteCV> : public BaseImageRow,
 
   private:
     PixelType m_readCachedPixel;
-    bool      m_readParity;
-    bool      m_writeParity;
+    bool      m_parity;
 };
 
 
