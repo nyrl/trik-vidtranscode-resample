@@ -175,10 +175,12 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
                                                           _imageOut.width(), _imageOut.height()))
         return false;
 
+      assert(m_verticalInterpolationCache.size()   == m_verticalOutput2InputCache.size());
+      assert(m_horizontalInterpolationCache.size() == m_horizontalOutput2InputCache.size());
 
       for (ImageDim rowIdxOut = 0; rowIdxOut < _imageOut.height(); ++rowIdxOut)
       {
-        assert(rowIdxOut >= 0 && rowIdxOut < verticalInterpolationCache.size());
+        assert(rowIdxOut >= 0 && rowIdxOut < m_verticalInterpolationCache.size());
         const ImageDim rowIdxIn = m_verticalOutput2InputCache[rowIdxOut];
         assert(rowIdxIn >= 0 && rowIdxIn < _imageIn.height());
 
@@ -192,7 +194,7 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
 
         for (ImageDim colIdxOut = 0; colIdxOut < _imageOut.width(); ++colIdxOut)
         {
-          assert(colIdxOut >= 0 && colIdxOut < horizontalInterpolationCache.size());
+          assert(colIdxOut >= 0 && colIdxOut < m_horizontalInterpolationCache.size());
           const ImageDim colIdxIn = m_horizontalOutput2InputCache[colIdxOut];
           assert(colIdxIn >= 0 && colIdxIn < _imageIn.width());
 
