@@ -44,7 +44,7 @@ class BaseAlgoInterpolation1Dim
 template <typename _VerticalInterpolation, typename _HorizontalInterpolation,
           typename _ImageIn, typename _ImageOut>
 class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgorithmInterpolation1Dim
-                                            || _HorizontalInterpolation::s_isAlgorithmInterpolation1Dim)> // algorithm kind sanity check
+                                            && _HorizontalInterpolation::s_isAlgorithmInterpolation1Dim)> // algorithm kind sanity check
 {
   private:
     typedef ImageRowSet<_ImageIn::PT,  typename _ImageIn::UByteCV,  _VerticalInterpolation::s_windowSize> RowSetIn;
