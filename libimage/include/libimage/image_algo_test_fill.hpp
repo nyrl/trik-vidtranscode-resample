@@ -20,8 +20,8 @@ template <typename _ImageIn, typename _ImageOut>
 class AlgoTestFill
 {
   private:
-    typedef ImageRowSet<_ImageOut::PT, typename _ImageOut::UByteCV, 1> RowSetOut;
-    typedef ImagePixelSet<_ImageOut::PT, 1>                            PixelSetOut;
+    typedef ImageRowSet<_ImageOut::s_PT, typename _ImageOut::UByteCV, 1> RowSetOut;
+    typedef ImagePixelSet<_ImageOut::s_PT, 1>                            PixelSetOut;
 
   public:
     AlgoTestFill()

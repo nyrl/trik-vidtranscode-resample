@@ -130,9 +130,9 @@ class Image : public BaseImage,
     typedef internal::ImageAccessor<_UByteCV> ImageAccessor;
 
   public:
-    static const BaseImagePixel::PixelType PT = _PT;
-    typedef _UByteCV                UByteCV;
-    typedef ImageRow<_PT, _UByteCV> RowType;
+    static const BaseImagePixel::PixelType s_PT = _PT;
+    typedef _UByteCV                       UByteCV;
+    typedef ImageRow<_PT, _UByteCV>        RowType;
 
 
     Image()
