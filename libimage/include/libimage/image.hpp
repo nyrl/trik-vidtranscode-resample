@@ -130,7 +130,8 @@ class Image : public BaseImage,
     typedef internal::ImageAccessor<_UByteCV> ImageAccessor;
 
   public:
-    static const BaseImagePixel::PixelType PT = _PT;
+    static const BaseImagePixel::PixelType s_PT = _PT;
+    static const bool             s_extraChecks = _extraChecks;
     typedef _UByteCV                              UByteCV;
     typedef ImageRow<_PT, _UByteCV, _extraChecks> RowType;
 
@@ -170,7 +171,7 @@ class Image : public BaseImage,
     }
 
     template <ImageDim _rowsBefore, ImageDim _rowsAfter>
-    bool getRowSet(ImageRowSet<_PT, _UByteCV, _rowsBefore+1+_rowsAfter>& _rowSet, ImageDim _baseRow) const
+    bool getRowSet(ImageRowSet<_PT, _UByteCV, _rowsBefore+1+_rowsAfter, _extraChecks>& _rowSet, ImageDim _baseRow) const
     {
       assert(_rowSet.rowsCount() == _rowsBefore+1+_rowsAfter);
 

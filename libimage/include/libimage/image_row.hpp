@@ -157,14 +157,13 @@ class BaseImageRowSet
 };
 
 
-template <BaseImagePixel::PixelType _PT, typename _UByteCV, ImageDim _rowsCount>
+template <BaseImagePixel::PixelType _PT, typename _UByteCV, ImageDim _rowsCount, bool _extraChecks>
 class ImageRowSet : public BaseImageRowSet,
                     private assert_inst<(_rowsCount > 0)> // sanity check
 {
   public:
-#warning Temporary 'true'
-    typedef ImageRow<_PT, _UByteCV, true>  Row;
-    typedef ImagePixelSet<_PT, _rowsCount> PixelSet;
+    typedef ImageRow<_PT, _UByteCV, _extraChecks>  Row;
+    typedef ImagePixelSet<_PT, _rowsCount>         PixelSet;
 
     ImageRowSet()
      :BaseImageRowSet(),
