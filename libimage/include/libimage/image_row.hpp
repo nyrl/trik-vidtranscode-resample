@@ -36,7 +36,7 @@ class ImageRowAccessor<_UByteCV, true> : private BaseImageRowAccessor
     ImageRowAccessor()
      :BaseImageRowAccessor(),
       m_ptr(),
-      m_remainSize(),
+      m_remainLineLength(),
       m_remainWidth()
     {
     }
@@ -44,7 +44,7 @@ class ImageRowAccessor<_UByteCV, true> : private BaseImageRowAccessor
     ImageRowAccessor(_UByteCV* _rowPtr, ImageSize _lineLength, ImageDim _width)
      :BaseImageRowAccessor(),
       m_ptr(_rowPtr),
-      m_remainSize(_lineLength),
+      m_remainLineLength(_lineLength),
       m_remainWidth(_width)
     {
     }
@@ -52,15 +52,15 @@ class ImageRowAccessor<_UByteCV, true> : private BaseImageRowAccessor
     bool accessPixel(_UByteCV*& _pixelPtr, ImageSize _bytes, ImageDim _pixels=1)
     {
       if (   m_ptr == NULL
-          || m_remainWidth < _pixels
-          || m_remainSize  < _bytes)
+          || m_remainWidth      < _pixels
+          || m_remainLineLength < _bytes)
         return false;
 
       _pixelPtr = m_ptr;
 
-      m_ptr         += _bytes;
-      m_remainSize  -= _bytes;
-      m_remainWidth -= _pixels;
+      m_ptr              += _bytes;
+      m_remainLineLength -= _bytes;
+      m_remainWidth      -= _pixels;
 
       return true;
     }
@@ -68,8 +68,8 @@ class ImageRowAccessor<_UByteCV, true> : private BaseImageRowAccessor
     bool accessPixelDontMove(_UByteCV*& _pixelPtr, ImageSize _bytes, ImageDim _pixels)
     {
       if (   m_ptr == NULL
-          || m_remainWidth < _pixels
-          || m_remainSize  < _bytes)
+          || m_remainWidth      < _pixels
+          || m_remainLineLength < _bytes)
         return false;
 
       _pixelPtr = m_ptr;
@@ -79,7 +79,7 @@ class ImageRowAccessor<_UByteCV, true> : private BaseImageRowAccessor
 
   private:
     _UByteCV*  m_ptr;
-    ImageSize  m_remainSize;
+    ImageSize  m_remainLineLength;
     ImageDim   m_remainWidth;
 };
 
@@ -157,6 +157,7 @@ class BaseImageRowSet
 };
 
 
+#warning TODO !_extraCheck not implemented
 template <BaseImagePixel::PixelType _PT, typename _UByteCV, ImageDim _rowsCount, bool _extraChecks>
 class ImageRowSet : public BaseImageRowSet,
                     private assert_inst<(_rowsCount > 0)> // sanity check
@@ -168,8 +169,16 @@ class ImageRowSet : public BaseImageRowSet,
     ImageRowSet()
      :BaseImageRowSet(),
       m_rows(),
-      m_rowFirst()
+      m_remainLineLength(),
+      m_remainWidth()
     {
+    }
+
+    bool resetRowSet(ImageSize _lineLength, ImageDim _width)
+    {
+      m_remainLineLength = _lineLength;
+      m_remainWidth = _width;
+      return true;
     }
 
     ImageDim rowsCount() const
@@ -177,21 +186,16 @@ class ImageRowSet : public BaseImageRowSet,
       return _rowsCount;
     }
 
-    Row& prepareNewRow()
-    {
-      const ImageDim currentRow = m_rowFirst;
-      m_rowFirst = rowIndex(1);
-      return m_rows[currentRow];
-    }
-
     Row& operator[](ImageDim _rowIndex)
     {
-      return m_rows[rowIndex(_rowIndex)];
+      assert(_rowIndex < rowsCount());
+      return m_rows[_rowIndex];
     }
 
     const Row& operator[](ImageDim _rowIndex) const
     {
-      return m_rows[rowIndex(_rowIndex)];
+      assert(_rowIndex < rowsCount());
+      return m_rows[_rowIndex];
     }
 
 
@@ -216,15 +220,10 @@ class ImageRowSet : public BaseImageRowSet,
     }
 
 
-  protected:
-    ImageDim rowIndex(ImageDim _index) const
-    {
-      return (m_rowFirst + _index) % rowsCount();
-    }
-
   private:
-    Row      m_rows[_rowsCount];
-    ImageDim m_rowFirst;
+    Row        m_rows[_rowsCount];
+    ImageSize  m_remainLineLength;
+    ImageDim   m_remainWidth;
 };
 
 
