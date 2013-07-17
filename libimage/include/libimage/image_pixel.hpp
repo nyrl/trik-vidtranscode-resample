@@ -30,7 +30,7 @@ class BaseImagePixelAccessor
     }
 
     template <typename _UType, bool _ofsPositive>
-    static _UType utypeGet(const _UType& _value, size_t _size, size_t _ofs)
+    static _UType utypeGet(_UType _value, size_t _size, size_t _ofs)
     {
       assert(_size <= sizeof(_UType) * CHAR_BIT);
       assert(_ofs  <= sizeof(_UType) * CHAR_BIT);
@@ -42,7 +42,7 @@ class BaseImagePixelAccessor
     }
 
     template <typename _UType, bool _ofsPositive>
-    static _UType utypeValue(const _UType& _value, size_t _size, size_t _ofs)
+    static _UType utypeValue(_UType _value, size_t _size, size_t _ofs)
     {
       assert(_size <= sizeof(_UType) * CHAR_BIT);
       assert(_ofs  <= sizeof(_UType) * CHAR_BIT);
