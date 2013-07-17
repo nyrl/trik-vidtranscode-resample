@@ -17,7 +17,7 @@ template <typename _UByteCV, bool _extraChecks>
 class ImageRow<BaseImagePixel::PixelYUV444,
                _UByteCV,
                _extraChecks> : public BaseImageRow,
-                               private internal::ImageRowAccessor<_UByteCV, _extraChecks>
+                               public internal::ImageRowAccessor<_UByteCV, _extraChecks>
 {
   public:
     typedef ImagePixel<BaseImagePixel::PixelYUV444> PixelType;
@@ -27,12 +27,6 @@ class ImageRow<BaseImagePixel::PixelYUV444,
     ImageRow()
      :BaseImageRow(),
       ImageRowAccessor()
-    {
-    }
-
-    ImageRow(_UByteCV* _ptr, ImageSize _lineLength, ImageDim _width)
-     :BaseImageRow(),
-      ImageRowAccessor(_ptr, _lineLength, _width)
     {
     }
 
@@ -70,7 +64,7 @@ template <typename _UByteCV, bool _extraChecks>
 class ImageRow<BaseImagePixel::PixelYUV422,
                _UByteCV,
                _extraChecks> : public BaseImageRow,
-                               private internal::ImageRowAccessor<_UByteCV, _extraChecks>
+                               public internal::ImageRowAccessor<_UByteCV, _extraChecks>
 {
   public:
     typedef ImagePixel<BaseImagePixel::PixelYUV422> PixelType;
@@ -80,12 +74,6 @@ class ImageRow<BaseImagePixel::PixelYUV422,
     ImageRow()
      :BaseImageRow(),
       ImageRowAccessor()
-    {
-    }
-
-    ImageRow(_UByteCV* _ptr, ImageSize _lineLength, ImageDim _width)
-     :BaseImageRow(),
-      ImageRowAccessor(_ptr, _lineLength, _width)
     {
     }
 

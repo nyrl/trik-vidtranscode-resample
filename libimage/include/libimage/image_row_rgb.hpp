@@ -17,7 +17,7 @@ template <typename _UByteCV, bool _extraChecks>
 class ImageRow<BaseImagePixel::PixelRGB565,
                _UByteCV,
                _extraChecks> : public BaseImageRow,
-                               private internal::ImageRowAccessor<_UByteCV, _extraChecks>
+                               public internal::ImageRowAccessor<_UByteCV, _extraChecks>
 {
   public:
     typedef ImagePixel<BaseImagePixel::PixelRGB565> PixelType;
@@ -27,12 +27,6 @@ class ImageRow<BaseImagePixel::PixelRGB565,
     ImageRow()
      :BaseImageRow(),
       ImageRowAccessor()
-    {
-    }
-
-    ImageRow(_UByteCV* _ptr, ImageSize _lineLength, ImageDim _width)
-     :BaseImageRow(),
-      ImageRowAccessor(_ptr, _lineLength, _width)
     {
     }
 
@@ -70,7 +64,7 @@ template <typename _UByteCV, bool _extraChecks>
 class ImageRow<BaseImagePixel::PixelRGB565X,
                _UByteCV,
                _extraChecks> : public BaseImageRow,
-                               private internal::ImageRowAccessor<_UByteCV, _extraChecks>
+                               public internal::ImageRowAccessor<_UByteCV, _extraChecks>
 {
   public:
     typedef ImagePixel<BaseImagePixel::PixelRGB565X> PixelType;
@@ -80,12 +74,6 @@ class ImageRow<BaseImagePixel::PixelRGB565X,
     ImageRow()
      :BaseImageRow(),
       ImageRowAccessor()
-    {
-    }
-
-    ImageRow(_UByteCV* _ptr, ImageSize _lineLength, ImageDim _width)
-     :BaseImageRow(),
-      ImageRowAccessor(_ptr, _lineLength, _width)
     {
     }
 
@@ -123,7 +111,7 @@ template <typename _UByteCV, bool _extraChecks>
 class ImageRow<BaseImagePixel::PixelRGB888,
                _UByteCV,
                _extraChecks> : public BaseImageRow,
-                               private internal::ImageRowAccessor<_UByteCV, _extraChecks>
+                               public internal::ImageRowAccessor<_UByteCV, _extraChecks>
 {
   public:
     typedef ImagePixel<BaseImagePixel::PixelRGB888> PixelType;
@@ -133,12 +121,6 @@ class ImageRow<BaseImagePixel::PixelRGB888,
     ImageRow()
      :BaseImageRow(),
       ImageRowAccessor()
-    {
-    }
-
-    ImageRow(_UByteCV* _ptr, ImageSize _lineLength, ImageDim _width)
-     :BaseImageRow(),
-      ImageRowAccessor(_ptr, _lineLength, _width)
     {
     }
 
