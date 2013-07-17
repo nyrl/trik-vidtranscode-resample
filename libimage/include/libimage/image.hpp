@@ -11,6 +11,7 @@
 #include <libimage/stdcpp.hpp>
 #include <libimage/image_defs.hpp>
 #include <libimage/image_row.hpp>
+#include <libimage/image_rowset.hpp>
 #include <libimage/image_pixel.hpp>
 
 
