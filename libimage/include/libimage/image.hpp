@@ -21,25 +21,15 @@
 /* **** **** **** **** **** */ namespace internal /* **** **** **** **** **** */ {
 
 
-class BaseImageAccessor
+class BaseImageDimension
 {
   protected:
-    BaseImageAccessor(ImageSize _imageSize, ImageDim _width, ImageDim _height, ImageSize _lineLength)
+    BaseImageDimension(ImageSize _imageSize, ImageDim _width, ImageDim _height, ImageSize _lineLength)
      :m_imageSize(_imageSize),
       m_width(_width),
       m_height(_height),
       m_lineLength(_lineLength)
     {
-    }
-
-    bool rowRangeCheck(ImageDim _rowIndex, ImageSize& _ofs) const
-    {
-      if (   _rowIndex >= m_height
-          || (_rowIndex+1)*m_lineLength > m_imageSize)
-        return false;
-
-      _ofs = _rowIndex*m_lineLength;
-      return true;
     }
 
     ImageDim width() const
@@ -85,13 +75,16 @@ class BaseImageAccessor
 };
 
 
+
+
 template <typename _UByteCV>
-class ImageAccessor : protected BaseImageAccessor
+class ImageAccessor : protected BaseImageDimension
 {
   protected:
     ImageAccessor(_UByteCV* _imagePtr, ImageSize _imageSize, ImageDim _width, ImageDim _height, ImageSize _lineLength)
-     :BaseImageAccessor(_imageSize, _width, _height, _lineLength),
-      m_ptr(_imagePtr)
+     :BaseImageDimension(_imageSize, _width, _height, _lineLength),
+      m_ptr(_imagePtr),
+      m_accessableRows(std::min(_height, _imageSize/_lineLength))
     {
     }
 
@@ -104,16 +97,14 @@ class ImageAccessor : protected BaseImageAccessor
     {
       assert(m_ptr != NULL);
 
-      ImageSize ofs;
-      if (!rowRangeCheck(_rowIndex, ofs))
-        return false;
-
-      _rowPtr = m_ptr + ofs;
-      return true;
+      // always return _rowPtr as it is likely to be correct and simplifies branch
+      _rowPtr = m_ptr + _rowIndex*lineLength();
+      return _rowIndex < m_accessableRows;
     }
 
   private:
-    _UByteCV* m_ptr;
+    _UByteCV*          m_ptr;
+    ImageDim           m_accessableRows;
 };
 
 
