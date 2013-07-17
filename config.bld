@@ -49,7 +49,7 @@ delete targ.profiles["whole_program_debug"];
 if (C674_rootdir) {
 var targ = xdc.useModule("ti.targets.C674");
 targ.rootDir = C674_rootdir;
-targ.ccOpts.suffix = "-mi10 -mo ";
+targ.ccOpts.suffix = "--gcc -pden --gen_func_subsections --interrupt_threshold=10 ";
 Build.targets.$add(targ);
 
 /* We remove a few profiles, just to cut down on build time */
@@ -60,10 +60,12 @@ delete targ.profiles["whole_program_debug"];
 
 var targ = xdc.useModule("ti.targets.elf.C674");
 targ.rootDir = C674_rootdir;
-targ.ccOpts.suffix  = "--gcc -pden --gen_func_subsections --debug_software_pipeline --src_interlist --c_src_interlist --gen_opt_info=2 ";
+targ.ccOpts.suffix  = "--gcc -pden --gen_func_subsections --interrupt_threshold=50 ";
 targ.ccOpts.suffix += "--no_bad_aliases --no_reload_errors ";
-targ.profiles["release"].compileOpts.copts = "--opt_level=3 --opt_for_speed=5 --call_assumptions=3 --auto_inline  --advice:performance=all --optimizer_interlist "
-targ.profiles["release"].compileOpts.defs = "-DNDEBUG=1 "
+targ.profiles["release"].compileOpts.copts  = "--opt_level=3 --opt_for_speed=5 --call_assumptions=3 --auto_inline ";
+targ.profiles["release"].compileOpts.copts += "--debug_software_pipeline --optimizer_interlist --c_src_interlist ";
+targ.profiles["release"].compileOpts.copts += "--gen_opt_info=2 --advice:performance=all ";
+targ.profiles["release"].compileOpts.defs = "-DNDEBUG=1 ";
 Build.targets.$add(targ);
 
 /* We remove a few profiles, just to cut down on build time */
