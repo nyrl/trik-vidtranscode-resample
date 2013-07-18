@@ -57,15 +57,6 @@ class BaseImageDimension
       return m_height * m_lineLength;
     }
 
-    ImageDim firstRow() const
-    {
-      return 0;
-    }
-
-    ImageDim lastRow() const
-    {
-      return m_height == 0 ? 0 : m_height-1;
-    }
 
   private:
     ImageSize m_imageSize;
@@ -93,14 +84,28 @@ class ImageAccessor : protected BaseImageDimension
       return m_ptr != NULL;
     }
 
-    bool getRowPtr(_UByteCV*& _rowPtr, ImageDim _rowIndex) const
+    bool getRowPtr(_UByteCV*& _rowPtr, ImageDim _rowIndex, bool _checkRange) const
     {
       assert(m_ptr != NULL);
 
-      // always return _rowPtr as it is likely to be correct and simplifies branch
+      if (_checkRange && _rowIndex >= m_accessableRows)
+        return false;
+
       _rowPtr = m_ptr + _rowIndex*lineLength();
-      return _rowIndex < m_accessableRows;
+
+      return true;
     }
+
+    ImageDim firstRow() const
+    {
+      return 0;
+    }
+
+    ImageDim lastRow() const
+    {
+      return m_accessableRows-1;
+    }
+
 
   private:
     _UByteCV*          m_ptr;
@@ -158,15 +163,14 @@ class Image : public BaseImage,
     {
     }
 
-    bool getRow(RowType& _row, ImageDim _rowIndex) const
+    bool getRow(RowType& _row, ImageDim _rowIndex, bool _checkRange) const
     {
       _UByteCV* rowPtr;
-      if (!ImageAccessor::getRowPtr(rowPtr, _rowIndex))
+
+      if (!ImageAccessor::getRowPtr(rowPtr, _rowIndex, _checkRange))
         return false;
 
-      _row.reset(rowPtr);
-
-      return true;
+      return _row.reset(rowPtr);
     }
 
     template <ImageDim _rowsBefore, ImageDim _rowsAfter>
@@ -179,24 +183,25 @@ class Image : public BaseImage,
 
       ImageDim rowIdx = 0;
 
-      bool isOk = true; // always pick full row set, even with errors
-
       for (ImageDim idx = _rowsBefore; idx > 0; --idx)
       {
         const ImageDim ridx = (idx >= _baseRow) ? ImageAccessor::firstRow() : _baseRow-idx;
-        isOk &= getRow(_rowSet[rowIdx++], ridx);
+        if (!getRow(_rowSet[rowIdx++], ridx, false))
+          return false;
       }
 
-      isOk &= getRow(_rowSet[rowIdx++], _baseRow);
+      if (!getRow(_rowSet[rowIdx++], _baseRow, false))
+        return false;
 
       ++_baseRow; // optimizing loop range by adding +1 outside of loop (and keeping simple loop condition)
       for (ImageDim idx = 0; idx < _rowsAfter; ++idx)
       {
         const ImageDim ridx = std::min(_baseRow+idx, ImageAccessor::lastRow());
-        isOk &= getRow(_rowSet[rowIdx++], ridx);
+        if (!getRow(_rowSet[rowIdx++], ridx, false))
+          return false;
       }
 
-      return isOk;
+      return true;
     }
 
     using ImageAccessor::operator bool;
