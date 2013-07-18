@@ -71,7 +71,8 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
          :m_rowSetIn(),
           m_rowSetOut(),
           m_pixelSetInH(),
-          m_columnIn(),
+          m_columnInCurrent(),
+          m_columnInNextAccessed(),
           m_pixelSetInV_tmp(),
           m_pixelSetInR_tmp(),
           m_pixelSetOutR_tmp()
@@ -90,12 +91,11 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
           return isOk;
         }
 
-        bool initializeHorizontalPixelSet(const _VerticalInterpolation& _interpolation)
+        bool initializeHorizontalPixelSet(const _VerticalInterpolation& _interpolation, ImageDim _width)
         {
-          if (!m_rowSetIn.readPixelSet(m_pixelSetInV_tmp))
-            return false;
+          m_columnInNextAccessed = 0;
 
-          if (!_interpolation(m_pixelSetInV_tmp, m_pixelSetInH))
+          if (!readNextHorizontalPixel(_interpolation, _width, false))
             return false;
 
           for (ImageDim idx = 0; idx < _VerticalInterpolation::s_windowBefore; ++idx)
@@ -103,26 +103,27 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
               return false;
 
           for (ImageDim idx = 0; idx < _VerticalInterpolation::s_windowAfter; ++idx)
-            if (!readNextHorizontalPixel(_interpolation))
+            if (!readNextHorizontalPixel(_interpolation, _width, true))
               return false;
 
-          m_columnIn = 0;
+          m_columnInCurrent = 0;
 
           return true;
         }
 
         bool updateHorizontalPixelSet(const _VerticalInterpolation& _interpolation,
-                                      ImageDim _columnInDesired)
+                                      ImageDim _columnInDesired, ImageDim _width)
         {
-          for (/*m_columnIn*/; m_columnIn < _columnInDesired; ++m_columnIn)
-            if (!readNextHorizontalPixel(_interpolation))
+          for (/*m_columnInCurrent*/; m_columnInCurrent < _columnInDesired; ++m_columnInCurrent)
+            if (!readNextHorizontalPixel(_interpolation, _width, true))
               return false;
 
           return true;
         }
 
         bool outputHorizontalPixelSet(const _HorizontalInterpolation& _interpolation,
-                                      const PixelSetIn2OutConvertion& _convertion)
+                                      const PixelSetIn2OutConvertion& _convertion,
+                                      ImageDim _width)
         {
           if (!_interpolation(m_pixelSetInH, m_pixelSetInR_tmp))
             return false;
@@ -141,18 +142,29 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
         RowSetOut m_rowSetOut;
 
         PixelSetInHorizontal m_pixelSetInH;
-        ImageDim m_columnIn;
+        ImageDim m_columnInCurrent;
+        ImageDim m_columnInNextAccessed;
 
         PixelSetInVertical   m_pixelSetInV_tmp;
         PixelSetInResult     m_pixelSetInR_tmp;
         PixelSetOutResult    m_pixelSetOutR_tmp;
 
-        bool readNextHorizontalPixel(const _VerticalInterpolation& _interpolation)
+        bool readNextHorizontalPixel(const _VerticalInterpolation& _interpolation, ImageDim _width, bool _allowCopyLast)
         {
-          if (m_rowSetIn.readPixelSet(m_pixelSetInV_tmp))
-            return _interpolation(m_pixelSetInV_tmp, m_pixelSetInH);
+          if (m_columnInNextAccessed >= _width)
+          {
+            if (_allowCopyLast)
+              return m_pixelSetInH.insertLastPixelCopy();
+            else
+              return false;
+          }
           else
-            return m_pixelSetInH.insertLastPixelCopy();
+          {
+            ++m_columnInNextAccessed;
+
+            return m_rowSetIn.readPixelSet(m_pixelSetInV_tmp)
+                && _interpolation(m_pixelSetInV_tmp, m_pixelSetInH);
+          }
         }
     };
 
@@ -172,7 +184,6 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
 
       ExecutionInstance execution;
 
-
 #warning Temporary - build caches here instead of constructor
       if (!const_cast<AlgoResampleVH*>(this)->buildCaches(_imageIn.width(),  _imageIn.height(),
                                                           _imageOut.width(), _imageOut.height()))
@@ -181,32 +192,45 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
       assert(m_verticalInterpolationCache.size()   == m_verticalOutput2InputCache.size());
       assert(m_horizontalInterpolationCache.size() == m_horizontalOutput2InputCache.size());
 
-      for (ImageDim rowIdxOut = 0; rowIdxOut < _imageOut.height(); ++rowIdxOut)
+      const ImageDim imageOutWidth  = _imageOut.width();
+      const ImageDim imageOutHeight = _imageOut.height();
+      const ImageDim imageInWidth   = _imageIn.width();
+      const ImageDim imageInHeight  = _imageIn.height();
+
+#ifdef __TI_COMPILER_VERSION__
+      if (imageOutWidth % 8 != 0 && imageOutWidth < 8*4)
+        return false;
+#endif
+
+      for (ImageDim rowIdxOut = 0; rowIdxOut < imageOutHeight; ++rowIdxOut)
       {
         assert(rowIdxOut >= 0 && rowIdxOut < m_verticalInterpolationCache.size());
         const ImageDim rowIdxIn = m_verticalOutput2InputCache[rowIdxOut];
-        assert(rowIdxIn >= 0 && rowIdxIn < _imageIn.height());
+        assert(rowIdxIn >= 0 && rowIdxIn < imageInHeight);
 
         if (!execution.prepareRowSets(_imageIn, rowIdxIn, _imageOut, rowIdxOut))
           return false;
 
         const _VerticalInterpolation& verticalInterpolation = m_verticalInterpolationCache[rowIdxOut];
 
-        if (!execution.initializeHorizontalPixelSet(verticalInterpolation))
+        if (!execution.initializeHorizontalPixelSet(verticalInterpolation, imageInWidth))
           return false;
 
-        for (ImageDim colIdxOut = 0; colIdxOut < _imageOut.width(); ++colIdxOut)
+#ifdef __TI_COMPILER_VERSION__
+#pragma MUST_ITERATE(8*4, ,8)
+#endif
+        for (ImageDim colIdxOut = 0; colIdxOut < imageOutWidth; ++colIdxOut)
         {
           assert(colIdxOut >= 0 && colIdxOut < m_horizontalInterpolationCache.size());
           const ImageDim colIdxIn = m_horizontalOutput2InputCache[colIdxOut];
-          assert(colIdxIn >= 0 && colIdxIn < _imageIn.width());
+          assert(colIdxIn >= 0 && colIdxIn < imageInWidth);
 
-          if (!execution.updateHorizontalPixelSet(verticalInterpolation, colIdxIn))
+          if (!execution.updateHorizontalPixelSet(verticalInterpolation, colIdxIn, imageInWidth))
             return false;
 
           const _HorizontalInterpolation& horizontalInterpolation = m_horizontalInterpolationCache[colIdxOut];
 
-          if (!execution.outputHorizontalPixelSet(horizontalInterpolation, m_pixelSetConvertion))
+          if (!execution.outputHorizontalPixelSet(horizontalInterpolation, m_pixelSetConvertion, imageOutWidth))
             return false;
         }
       }

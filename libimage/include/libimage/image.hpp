@@ -164,7 +164,7 @@ class Image : public BaseImage,
       if (!ImageAccessor::getRowPtr(rowPtr, _rowIndex))
         return false;
 
-      _row.reset(rowPtr, ImageAccessor::lineLength(), width());
+      _row.reset(rowPtr);
 
       return true;
     }

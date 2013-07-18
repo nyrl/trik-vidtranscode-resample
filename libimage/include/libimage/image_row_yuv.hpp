@@ -73,10 +73,10 @@ class ImageRow<BaseImagePixel::PixelYUV422, _UByteCV> : public BaseImageRow,
     {
     }
 
-    bool reset(_UByteCV* _rowPtr, ImageSize _lineLength, ImageDim _width)
+    bool reset(_UByteCV* _rowPtr)
     {
       m_parity = false;
-      return ImageRowAccessor::reset(_rowPtr, _lineLength, _width);
+      return ImageRowAccessor::reset(_rowPtr);
     }
 
     bool readPixel(PixelType& _pixel)
@@ -84,7 +84,7 @@ class ImageRow<BaseImagePixel::PixelYUV422, _UByteCV> : public BaseImageRow,
       _UByteCV* ptr;
       if (m_parity)
       {
-        if (!ImageRowAccessor::accessPixel(ptr, 4, 2)) // 4 bytes, 2 pixels
+        if (!ImageRowAccessor::accessPixel(ptr, 4)) // 4 bytes, 2 pixels
           return false;
 
         m_parity = false;
@@ -92,7 +92,7 @@ class ImageRow<BaseImagePixel::PixelYUV422, _UByteCV> : public BaseImageRow,
       }
       else
       {
-        if (!ImageRowAccessor::accessPixelDontMove(ptr, 4, 2)) // 4 bytes, 2 pixels
+        if (!ImageRowAccessor::accessPixelDontMove(ptr, 4)) // 4 bytes, 2 pixels
           return false;
 
         m_parity = true;
@@ -105,7 +105,7 @@ class ImageRow<BaseImagePixel::PixelYUV422, _UByteCV> : public BaseImageRow,
       _UByteCV* ptr;
       if (m_parity)
       {
-        if (!ImageRowAccessor::accessPixel(ptr, 4, 2)) // 4 bytes, 2 pixels
+        if (!ImageRowAccessor::accessPixel(ptr, 4)) // 4 bytes, 2 pixels
           return false;
 
         m_parity = false;
@@ -113,7 +113,7 @@ class ImageRow<BaseImagePixel::PixelYUV422, _UByteCV> : public BaseImageRow,
       }
       else
       {
-        if (!ImageRowAccessor::accessPixelDontMove(ptr, 4, 2)) // 4 bytes, 2 pixels
+        if (!ImageRowAccessor::accessPixelDontMove(ptr, 4)) // 4 bytes, 2 pixels
           return false;
 
         m_parity = true;

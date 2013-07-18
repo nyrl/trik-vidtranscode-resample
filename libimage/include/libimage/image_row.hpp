@@ -26,47 +26,31 @@ template <typename _UByteCV>
 class ImageRowAccessor : private BaseImageRowAccessor
 {
   public:
-    bool reset(_UByteCV* _rowPtr, ImageSize _lineLength, ImageDim _width)
+    bool reset(_UByteCV* _rowPtr)
     {
       m_ptr              = _rowPtr;
-      m_remainLineLength = _lineLength;
-      m_remainWidth      = _width;
       return true;
     }
 
   protected:
     ImageRowAccessor()
      :BaseImageRowAccessor(),
-      m_ptr(),
-      m_remainLineLength(),
-      m_remainWidth()
+      m_ptr()
     {
     }
 
-    bool accessPixel(_UByteCV*& _pixelPtr, ImageSize _bytes, ImageDim _pixels=1)
+    bool accessPixel(_UByteCV*& _pixelPtr, ImageSize _bytes)
     {
       assert(m_ptr != NULL);
-
-      if (   m_remainLineLength < _bytes
-          || m_remainWidth      < _pixels)
-        return false;
-
       _pixelPtr = m_ptr;
-      m_ptr              += _bytes;
-      m_remainLineLength -= _bytes;
-      m_remainWidth      -= _pixels;
+      m_ptr += _bytes;
 
       return true;
     }
 
-    bool accessPixelDontMove(_UByteCV*& _pixelPtr, ImageSize _bytes, ImageDim _pixels) const
+    bool accessPixelDontMove(_UByteCV*& _pixelPtr, ImageSize _bytes) const
     {
       assert(m_ptr != NULL);
-
-      if (   m_remainLineLength < _bytes
-          || m_remainWidth      < _pixels)
-        return false;
-
       _pixelPtr = m_ptr;
 
       return true;
@@ -74,8 +58,6 @@ class ImageRowAccessor : private BaseImageRowAccessor
 
   private:
     _UByteCV*  m_ptr;
-    ImageSize  m_remainLineLength;
-    ImageDim   m_remainWidth;
 };
 
 
