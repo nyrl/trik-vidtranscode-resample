@@ -130,7 +130,8 @@ class ImageRowSet : public BaseImageRowSet,
       bool isOk = true; // always complete all reads, then indicate failure (if any)
 
       for (ImageDim rowIndex = 0; rowIndex < rowsCount(); ++rowIndex)
-        isOk &= this->operator[](rowIndex).readPixel(_pixelSet[rowIndex], _column);
+        if (!this->operator[](rowIndex).readPixel(_pixelSet[rowIndex], _column))
+          isOk = false;
 
       return isOk;
     }
@@ -140,7 +141,8 @@ class ImageRowSet : public BaseImageRowSet,
       bool isOk = true; // always complete all reads, then indicate failure (if any)
 
       for (ImageDim rowIndex = 0; rowIndex < rowsCount(); ++rowIndex)
-        isOk &= this->operator[](rowIndex).writePixel(_pixelSet[rowIndex], _column);
+        if (!this->operator[](rowIndex).writePixel(_pixelSet[rowIndex], _column))
+          isOk = false;
 
       return isOk;
     }
