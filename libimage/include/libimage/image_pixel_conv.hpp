@@ -26,12 +26,14 @@ class ImagePixelConvertion
       float nr;
       float ng;
       float nb;
-      bool isOk = true;
 
-      isOk &= _p1.toNormalizedRGB(nr, ng, nb);
-      isOk &= _p2.fromNormalizedRGB(nr, ng, nb);
+      if (!_p1.toNormalizedRGB(nr, ng, nb))
+        return false;
 
-      return isOk;
+      if (!_p2.fromNormalizedRGB(nr, ng, nb))
+        return false;
+
+      return true;
     }
 };
 

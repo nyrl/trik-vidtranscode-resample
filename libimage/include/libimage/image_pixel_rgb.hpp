@@ -25,9 +25,9 @@ class ImagePixelRGBAccessor : protected BaseImagePixelAccessor,
   public:
     bool toNormalizedRGB(float& _nr, float& _ng, float& _nb) const
     {
-      _nr = range(0.0f, m_r * rNormDiv(), 1.0f);
-      _ng = range(0.0f, m_g * gNormDiv(), 1.0f);
-      _nb = range(0.0f, m_b * bNormDiv(), 1.0f);
+      _nr = m_r * rNormDiv();
+      _ng = m_g * gNormDiv();
+      _nb = m_b * bNormDiv();
       return true;
     }
 
