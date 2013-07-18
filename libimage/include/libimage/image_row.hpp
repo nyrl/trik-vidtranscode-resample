@@ -96,7 +96,6 @@ class ImageRowSet : public BaseImageRowSet,
 {
   public:
     typedef ImageRow<_PT, _UByteCV>        Row;
-    typedef ImagePixelSet<_PT, _rowsCount> PixelSet;
 
     ImageRowSet()
      :BaseImageRowSet(),
@@ -125,7 +124,8 @@ class ImageRowSet : public BaseImageRowSet,
     }
 
 
-    bool readPixelSet(PixelSet& _pixelSet, ImageDim _column)
+    template <typename _PixelSet>
+    bool readPixelSet(_PixelSet& _pixelSet, ImageDim _column)
     {
       bool isOk = true; // always complete all reads, then indicate failure (if any)
 
@@ -136,7 +136,8 @@ class ImageRowSet : public BaseImageRowSet,
       return isOk;
     }
 
-    bool writePixelSet(const PixelSet& _pixelSet, ImageDim _column)
+    template <typename _PixelSet>
+    bool writePixelSet(const _PixelSet& _pixelSet, ImageDim _column)
     {
       bool isOk = true; // always complete all reads, then indicate failure (if any)
 
