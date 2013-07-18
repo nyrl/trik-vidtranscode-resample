@@ -96,9 +96,16 @@ class BaseImagePixelSet
 
 
 
-template <BaseImagePixel::PixelType _PT, ImageDim _pixelsCount>
+template <BaseImagePixel::PixelType _PT, ImageDim _pixelsCount, bool _circular>
 class ImagePixelSet : public BaseImagePixelSet,
-                      private assert_inst<(_pixelsCount > 0)> // sanity check
+                      private assert_inst<false> // Generic instance, non-functional
+{
+};
+
+
+template <BaseImagePixel::PixelType _PT, ImageDim _pixelsCount>
+class ImagePixelSet<_PT, _pixelsCount, true> : public BaseImagePixelSet,
+                                               private assert_inst<(_pixelsCount > 0)> // sanity check
 {
   public:
     typedef ImagePixel<_PT> Pixel;
@@ -149,6 +156,48 @@ class ImagePixelSet : public BaseImagePixelSet,
   private:
     Pixel    m_pixels[_pixelsCount];
     ImageDim m_pixelFirst;
+
+    friend std::ostream& operator<<(std::ostream& _os, const ImagePixelSet& _s)
+    {
+      _os << "[" << _s.pixelsCount() << ":";
+      for (ImageDim i = 0; i < _s.pixelsCount(); ++i)
+        _os << " " << _s[i];
+      _os << "]";
+      return _os;
+    }
+};
+
+
+template <BaseImagePixel::PixelType _PT, ImageDim _pixelsCount>
+class ImagePixelSet<_PT, _pixelsCount, false> : public BaseImagePixelSet,
+                                               private assert_inst<(_pixelsCount > 0)> // sanity check
+{
+  public:
+    typedef ImagePixel<_PT> Pixel;
+
+    ImagePixelSet()
+     :BaseImagePixelSet(),
+      m_pixels()
+    {
+    }
+
+    ImageDim pixelsCount() const
+    {
+      return _pixelsCount;
+    }
+
+    Pixel& operator[](ImageDim _index)
+    {
+      return m_pixels[_index];
+    }
+
+    const Pixel& operator[](ImageDim _index) const
+    {
+      return m_pixels[_index];
+    }
+
+  private:
+    Pixel    m_pixels[_pixelsCount];
 
     friend std::ostream& operator<<(std::ostream& _os, const ImagePixelSet& _s)
     {

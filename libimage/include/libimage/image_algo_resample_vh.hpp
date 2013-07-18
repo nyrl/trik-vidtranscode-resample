@@ -53,10 +53,10 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
     typedef ImageRowSet<_ImageIn::s_PT,  typename _ImageIn::UByteCV,  _VerticalInterpolation::s_windowSize> RowSetIn;
     typedef ImageRowSet<_ImageOut::s_PT, typename _ImageOut::UByteCV, s_outputRows>                         RowSetOut;
 
-    typedef ImagePixelSet<_ImageIn::s_PT,  _VerticalInterpolation::s_windowSize>   PixelSetInVertical;
-    typedef ImagePixelSet<_ImageIn::s_PT,  _HorizontalInterpolation::s_windowSize> PixelSetInHorizontal;
-    typedef ImagePixelSet<_ImageIn::s_PT,  s_outputCols>                           PixelSetInResult;
-    typedef ImagePixelSet<_ImageOut::s_PT, s_outputCols>                           PixelSetOutResult;
+    typedef ImagePixelSet<_ImageIn::s_PT,  _VerticalInterpolation::s_windowSize, false>  PixelSetInVertical;
+    typedef ImagePixelSet<_ImageIn::s_PT,  _HorizontalInterpolation::s_windowSize, true> PixelSetInHorizontal;
+    typedef ImagePixelSet<_ImageIn::s_PT,  s_outputCols, true>                           PixelSetInResult;
+    typedef ImagePixelSet<_ImageOut::s_PT, s_outputCols, false>                          PixelSetOutResult;
 
     typedef ImagePixelSetConvertion<PixelSetInResult, PixelSetOutResult> PixelSetIn2OutConvertion;
 

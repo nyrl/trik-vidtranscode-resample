@@ -21,7 +21,7 @@ class AlgoTestFill
 {
   private:
     typedef ImageRowSet<_ImageOut::s_PT, typename _ImageOut::UByteCV, 1> RowSetOut;
-    typedef ImagePixelSet<_ImageOut::s_PT, 1>                            PixelSetOut;
+    typedef ImagePixelSet<_ImageOut::s_PT, 1, false>                     PixelSetOut;
 
   public:
     AlgoTestFill()
@@ -55,7 +55,7 @@ class AlgoTestFill
           pt.fromNormalizedRGB(nr, ng, nb);
 
           PixelSetOut pixelSetOut;
-          pixelSetOut.insertNewPixel() = pt;
+          pixelSetOut[0] = pt;
 
           rowSetOut.writePixelSet(pixelSetOut);
         }
