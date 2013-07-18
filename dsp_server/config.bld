@@ -63,7 +63,7 @@ Build.platformTable["ti.platforms.evmOMAPL138"] = {
     externalMemoryMap: mem_ext,
     l1DMode:"32k",
     l1PMode:"32k",
-    l2Mode:"64k",
+    l2Mode:"128k",
     codeMemory: "DDR2",
     dataMemory: "DDR2",
     stackMemory: "DDR2"
