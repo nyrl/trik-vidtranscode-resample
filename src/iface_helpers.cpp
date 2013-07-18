@@ -126,7 +126,9 @@ void handleBuildDynamicParams(TrikVideoResampleHandle* _handle)
   _handle->m_dynamicParams.inputWidth  = _handle->m_params.base.maxWidthInput;
   _handle->m_dynamicParams.inputLineLength = -1;
 
-  for (XDAS_Int32 outIndex = 0; outIndex < _handle->m_params.base.numOutputStreams; ++outIndex)
+  for (XDAS_Int32 outIndex = 0;
+       outIndex < sizeof(_handle->m_dynamicParams.outputLineLength)/sizeof(*_handle->m_dynamicParams.outputLineLength);
+       ++outIndex)
     _handle->m_dynamicParams.outputLineLength[outIndex] = -1;
 }
 
