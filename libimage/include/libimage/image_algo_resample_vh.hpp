@@ -123,7 +123,7 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
 
         bool outputHorizontalPixelSet(const _HorizontalInterpolation& _interpolation,
                                       const PixelSetIn2OutConvertion& _convertion,
-                                      ImageDim _width)
+                                      ImageDim _column)
         {
           if (!_interpolation(m_pixelSetInH, m_pixelSetInR_tmp))
             return false;
@@ -131,7 +131,7 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
           if (!_convertion(m_pixelSetInR_tmp, m_pixelSetOutR_tmp))
             return false;
 
-          if (!m_rowSetOut.writePixelSet(m_pixelSetOutR_tmp))
+          if (!m_rowSetOut.writePixelSet(m_pixelSetOutR_tmp, _column))
             return false;
 
           return true;
@@ -160,10 +160,10 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
           }
           else
           {
-            ++m_columnInNextAccessed;
+            if (!m_rowSetIn.readPixelSet(m_pixelSetInV_tmp, m_columnInNextAccessed++))
+              return false;
 
-            return m_rowSetIn.readPixelSet(m_pixelSetInV_tmp)
-                && _interpolation(m_pixelSetInV_tmp, m_pixelSetInH);
+            return _interpolation(m_pixelSetInV_tmp, m_pixelSetInH);
           }
         }
     };
@@ -230,7 +230,7 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
 
           const _HorizontalInterpolation& horizontalInterpolation = m_horizontalInterpolationCache[colIdxOut];
 
-          if (!execution.outputHorizontalPixelSet(horizontalInterpolation, m_pixelSetConvertion, imageOutWidth))
+          if (!execution.outputHorizontalPixelSet(horizontalInterpolation, m_pixelSetConvertion, colIdxOut))
             return false;
         }
       }

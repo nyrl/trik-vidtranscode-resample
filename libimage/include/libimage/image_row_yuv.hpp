@@ -26,7 +26,7 @@ class ImageRow<BaseImagePixel::PixelYUV444, _UByteCV> : public BaseImageRow,
     {
     }
 
-    bool readPixel(PixelType& _pixel)
+    bool readPixel(PixelType& _pixel, ImageDim _column)
     {
       _UByteCV* ptr;
       if (!ImageRowAccessor::accessPixel(ptr, s_accessBytes))
@@ -35,7 +35,7 @@ class ImageRow<BaseImagePixel::PixelYUV444, _UByteCV> : public BaseImageRow,
       return _pixel.unpack(ptr[0], ptr[1], ptr[2], ptr[3]);
     }
 
-    bool writePixel(const PixelType& _pixel)
+    bool writePixel(const PixelType& _pixel, ImageDim _column)
     {
       _UByteCV* ptr;
       if (!ImageRowAccessor::accessPixel(ptr, s_accessBytes))
@@ -68,56 +68,45 @@ class ImageRow<BaseImagePixel::PixelYUV422, _UByteCV> : public BaseImageRow,
 
     ImageRow()
      :BaseImageRow(),
-      ImageRowAccessor(),
-      m_parity(false)
+      ImageRowAccessor()
     {
     }
 
-    bool reset(_UByteCV* _rowPtr)
-    {
-      m_parity = false;
-      return ImageRowAccessor::reset(_rowPtr);
-    }
-
-    bool readPixel(PixelType& _pixel)
+    bool readPixel(PixelType& _pixel, ImageDim _column)
     {
       _UByteCV* ptr;
-      if (m_parity)
-      {
-        if (!ImageRowAccessor::accessPixel(ptr, 4)) // 4 bytes, 2 pixels
-          return false;
-
-        m_parity = false;
-        return _pixel.unpack(ptr[2], ptr[1], ptr[3]);
-      }
-      else
+      if (_column % 2 == 0)
       {
         if (!ImageRowAccessor::accessPixelDontMove(ptr, 4)) // 4 bytes, 2 pixels
           return false;
 
-        m_parity = true;
         return _pixel.unpack(ptr[0], ptr[1], ptr[3]);
       }
-    }
-
-    bool writePixel(const PixelType& _pixel)
-    {
-      _UByteCV* ptr;
-      if (m_parity)
+      else
       {
         if (!ImageRowAccessor::accessPixel(ptr, 4)) // 4 bytes, 2 pixels
           return false;
 
-        m_parity = false;
-        return _pixel.pack(ptr[2], ptr[1], ptr[3], true);
+        return _pixel.unpack(ptr[2], ptr[1], ptr[3]);
       }
-      else
+    }
+
+    bool writePixel(const PixelType& _pixel, ImageDim _column)
+    {
+      _UByteCV* ptr;
+      if (_column % 2 == 0)
       {
         if (!ImageRowAccessor::accessPixelDontMove(ptr, 4)) // 4 bytes, 2 pixels
           return false;
 
-        m_parity = true;
         return _pixel.pack(ptr[0], ptr[1], ptr[3], false);
+      }
+      else
+      {
+        if (!ImageRowAccessor::accessPixel(ptr, 4)) // 4 bytes, 2 pixels
+          return false;
+
+        return _pixel.pack(ptr[2], ptr[1], ptr[3], true);
       }
     }
 
@@ -131,10 +120,6 @@ class ImageRow<BaseImagePixel::PixelYUV422, _UByteCV> : public BaseImageRow,
 
   protected:
     typedef internal::ImageRowAccessor<_UByteCV> ImageRowAccessor;
-
-  private:
-    PixelType m_readCachedPixel;
-    bool      m_parity;
 };
 
 

@@ -125,22 +125,22 @@ class ImageRowSet : public BaseImageRowSet,
     }
 
 
-    bool readPixelSet(PixelSet& _pixelSet)
+    bool readPixelSet(PixelSet& _pixelSet, ImageDim _column)
     {
       bool isOk = true; // always complete all reads, then indicate failure (if any)
 
       for (ImageDim rowIndex = 0; rowIndex < rowsCount(); ++rowIndex)
-        isOk &= this->operator[](rowIndex).readPixel(_pixelSet[rowIndex]);
+        isOk &= this->operator[](rowIndex).readPixel(_pixelSet[rowIndex], _column);
 
       return isOk;
     }
 
-    bool writePixelSet(const PixelSet& _pixelSet)
+    bool writePixelSet(const PixelSet& _pixelSet, ImageDim _column)
     {
       bool isOk = true; // always complete all reads, then indicate failure (if any)
 
       for (ImageDim rowIndex = 0; rowIndex < rowsCount(); ++rowIndex)
-        isOk &= this->operator[](rowIndex).writePixel(_pixelSet[rowIndex]);
+        isOk &= this->operator[](rowIndex).writePixel(_pixelSet[rowIndex], _column);
 
       return isOk;
     }

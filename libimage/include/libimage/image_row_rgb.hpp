@@ -26,7 +26,7 @@ class ImageRow<BaseImagePixel::PixelRGB565, _UByteCV> : public BaseImageRow,
     {
     }
 
-    bool readPixel(PixelType& _pixel)
+    bool readPixel(PixelType& _pixel, ImageDim _column)
     {
       _UByteCV* ptr;
       if (!ImageRowAccessor::accessPixel(ptr, s_accessBytes))
@@ -35,7 +35,7 @@ class ImageRow<BaseImagePixel::PixelRGB565, _UByteCV> : public BaseImageRow,
       return _pixel.unpack(ptr[0], ptr[1]);
     }
 
-    bool writePixel(const PixelType& _pixel)
+    bool writePixel(const PixelType& _pixel, ImageDim _column)
     {
       _UByteCV* ptr;
       if (!ImageRowAccessor::accessPixel(ptr, s_accessBytes))
@@ -72,7 +72,7 @@ class ImageRow<BaseImagePixel::PixelRGB565X, _UByteCV> : public BaseImageRow,
     {
     }
 
-    bool readPixel(PixelType& _pixel)
+    bool readPixel(PixelType& _pixel, ImageDim _column)
     {
       _UByteCV* ptr;
       if (!ImageRowAccessor::accessPixel(ptr, s_accessBytes))
@@ -81,7 +81,7 @@ class ImageRow<BaseImagePixel::PixelRGB565X, _UByteCV> : public BaseImageRow,
       return _pixel.unpack(ptr[0], ptr[1]);
     }
 
-    bool writePixel(const PixelType& _pixel)
+    bool writePixel(const PixelType& _pixel, ImageDim _column)
     {
       _UByteCV* ptr;
       if (!ImageRowAccessor::accessPixel(ptr, s_accessBytes))
@@ -118,7 +118,7 @@ class ImageRow<BaseImagePixel::PixelRGB888, _UByteCV> : public BaseImageRow,
     {
     }
 
-    bool readPixel(PixelType& _pixel)
+    bool readPixel(PixelType& _pixel, ImageDim _column)
     {
       _UByteCV* ptr;
       if (!ImageRowAccessor::accessPixel(ptr, s_accessBytes))
@@ -127,7 +127,7 @@ class ImageRow<BaseImagePixel::PixelRGB888, _UByteCV> : public BaseImageRow,
       return _pixel.unpack(ptr[0], ptr[1], ptr[2]);
     }
 
-    bool writePixel(const PixelType& _pixel)
+    bool writePixel(const PixelType& _pixel, ImageDim _column)
     {
       _UByteCV* ptr;
       if (!ImageRowAccessor::accessPixel(ptr, s_accessBytes))
