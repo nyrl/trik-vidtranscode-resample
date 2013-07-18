@@ -82,13 +82,14 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
         bool prepareRowSets(const _ImageIn& _imageIn,  ImageDim _rowIdxIn,
                             _ImageOut&      _imageOut, ImageDim _rowIdxOut)
         {
-          bool isOk;
+          if (!_imageIn.template getRowSet<_VerticalInterpolation::s_windowBefore,
+                                           _VerticalInterpolation::s_windowAfter>(m_rowSetIn, _rowIdxIn))
+            return false;
 
-          isOk  = _imageIn.template getRowSet<_VerticalInterpolation::s_windowBefore,
-                                              _VerticalInterpolation::s_windowAfter>(m_rowSetIn, _rowIdxIn);
-          isOk &= _imageOut.template getRowSet<0, 0>(m_rowSetOut, _rowIdxOut);
+          if (!_imageOut.template getRowSet<0, 0>(m_rowSetOut, _rowIdxOut))
+            return false;
 
-          return isOk;
+          return true;
         }
 
         bool initializeHorizontalPixelSet(const _VerticalInterpolation& _interpolation, ImageDim _width)

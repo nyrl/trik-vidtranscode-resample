@@ -63,7 +63,8 @@ class ImagePixelSetConvertion
       bool isOk = true;
 
       for (ImageDim pixIdx = 0; pixIdx < _s1.pixelsCount(); ++pixIdx)
-        isOk &= m_convertion(_s1[pixIdx], _s2[pixIdx]);
+        if (!m_convertion(_s1[pixIdx], _s2[pixIdx]))
+          isOk = false;
 
       return isOk;
     }
