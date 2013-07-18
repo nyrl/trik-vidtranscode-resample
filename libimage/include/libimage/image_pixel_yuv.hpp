@@ -25,9 +25,18 @@ class ImagePixelYUVAccessor : protected BaseImagePixelAccessor,
   public:
     bool toNormalizedRGB(float& _nr, float& _ng, float& _nb) const
     {
-      const float y = m_y * yNormDiv();
-      const float u = m_u * uNormDiv() - 0.5f;
-      const float v = m_v * vNormDiv() - 0.5f;
+      float y = m_y * yNormDiv();
+      float u = m_u * uNormDiv() - 0.5f;
+      float v = m_v * vNormDiv() - 0.5f;
+
+#warning Rover hack
+      if (u < 0.2f && v > 0.1f)
+      {
+        y =  1.0f;
+        u = -0.5f;
+        v =  0.5f;
+        s_TMP_pixelDetected = true;
+      }
 
       _nr = y              +  1.4075f*v;
       _ng = y + -0.3455f*u + -0.7169f*v;

@@ -210,6 +210,7 @@ XDAS_Int32 TRIK_VIDTRANSCODE_RESAMPLE_process(
     {
       case 2:
         s_dspInfoOutBuffer = (char*)(xdmOutBufs->bufs[1]);
+        s_dspInfoOutBuffer[0] = '\0';
         vidOutArgs->encodedBuf[1].buf        = xdmOutBufs->bufs[1];
         vidOutArgs->encodedBuf[1].bufSize    = xdmOutBufs->bufSizes[1];
         vidOutArgs->encodedBuf[1].accessMask = 0;
