@@ -24,6 +24,14 @@ for (x = 0; x < arguments.length; x++) {
 // cf800000 - d0000000 - SYSLINK
 
 var mem_ext = [
+["DDRCMEM", {
+    comment:    "DDRCMEM: off-chip memory for CMEM",
+    name:       "DDRCMEM",
+    base:       0xc8000000,
+    len:        0x02000000,
+    space:      "data"
+    }
+],
 ["DDRALGHEAP", {
     comment:    "DDRALGHEAP: off-chip memory for dynamic allocation",
     name:       "DDRALGHEAP",
