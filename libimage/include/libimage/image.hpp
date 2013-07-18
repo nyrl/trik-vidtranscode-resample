@@ -189,7 +189,8 @@ class Image : public BaseImage,
 
       isOk &= getRow(_rowSet[rowIdx++], _baseRow);
 
-      for (ImageDim idx = 1; idx <= _rowsAfter; ++idx)
+      ++_baseRow; // optimizing loop range by adding +1 outside of loop (and keeping simple loop condition)
+      for (ImageDim idx = 0; idx < _rowsAfter; ++idx)
       {
         const ImageDim ridx = std::min(_baseRow+idx, ImageAccessor::lastRow());
         isOk &= getRow(_rowSet[rowIdx++], ridx);
