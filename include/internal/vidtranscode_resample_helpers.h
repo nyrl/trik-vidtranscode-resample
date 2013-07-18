@@ -13,6 +13,8 @@
 extern "C" {
 #endif // __cplusplus
 
+extern char* s_dspInfoOutBuffer;
+
 
 const TRIK_VIDTRANSCODE_RESAMPLE_Params*	getDefaultParams(void);
 const TRIK_VIDTRANSCODE_RESAMPLE_DynamicParams*	getDefaultDynamicParams(void);

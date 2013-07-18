@@ -15,6 +15,8 @@
 #include "internal/vidtranscode_resample_iface.h"
 #include "internal/vidtranscode_resample_helpers.h"
 
+char* s_dspInfoOutBuffer = NULL;
+
 
 #define TRIK_VIDTRANSCODE_RESAMPLE_IALGFXNS  \
     &TRIK_VIDTRANSCODE_RESAMPLE_IALG,		/* module ID */				\
@@ -162,7 +164,6 @@ XDAS_Int32 TRIK_VIDTRANSCODE_RESAMPLE_process(
     XDAS_Int32 inBufHeight;
     XDAS_Int32 inBufWidth;
     XDAS_Int32 inBufLineLength;
-    XDAS_Int32 outBufIndex;
 
     if (   (vidInArgs->size  != sizeof(IVIDTRANSCODE_InArgs))
         || (vidOutArgs->size != sizeof(IVIDTRANSCODE_OutArgs)))
@@ -204,10 +205,22 @@ XDAS_Int32 TRIK_VIDTRANSCODE_RESAMPLE_process(
     vidOutArgs->decodedHeight			= handle->m_dynamicParams.inputHeight;
     vidOutArgs->decodedWidth			= handle->m_dynamicParams.inputWidth;
 
-
-    for (outBufIndex = 0; outBufIndex < handle->m_params.base.numOutputStreams; ++outBufIndex)
+    s_dspInfoOutBuffer = NULL;
+    switch (handle->m_params.base.numOutputStreams)
     {
-        XDM1_SingleBufDesc* xdmOutBuf = &vidOutArgs->encodedBuf[outBufIndex];
+      case 2:
+        s_dspInfoOutBuffer = (char*)(xdmOutBufs->bufs[1]);
+        vidOutArgs->encodedBuf[1].buf        = xdmOutBufs->bufs[1];
+        vidOutArgs->encodedBuf[1].bufSize    = xdmOutBufs->bufSizes[1];
+        vidOutArgs->encodedBuf[1].accessMask = 0;
+        XDM_SETACCESSMODE_WRITE(vidOutArgs->encodedBuf[1].accessMask);
+        vidOutArgs->outputID[1]              = vidInArgs->inputID;
+        vidOutArgs->bitsGenerated[1]         = xdmOutBufs->bufSizes[1] * CHAR_BIT;
+        // fallthrough
+
+      case 1:
+      {
+        XDM1_SingleBufDesc* xdmOutBuf = &vidOutArgs->encodedBuf[0];
         XDAS_Int32 outBufFormat;
         XDAS_Int32 outBufHeight;
         XDAS_Int32 outBufWidth;
@@ -215,8 +228,8 @@ XDAS_Int32 TRIK_VIDTRANSCODE_RESAMPLE_process(
         XDAS_Int32 outBufUsed = 0;
         TrikVideoResampleStatus result;
 
-        xdmOutBuf->buf		= xdmOutBufs->bufs[outBufIndex];
-        xdmOutBuf->bufSize	= xdmOutBufs->bufSizes[outBufIndex];
+        xdmOutBuf->buf		= xdmOutBufs->bufs[0];
+        xdmOutBuf->bufSize	= xdmOutBufs->bufSizes[0];
         xdmOutBuf->accessMask	= 0;
 
         if (   xdmOutBuf->buf == NULL
@@ -227,7 +240,7 @@ XDAS_Int32 TRIK_VIDTRANSCODE_RESAMPLE_process(
         }
 
 
-        if (!handlePickOutputParams(handle, outBufIndex, &outBufFormat, &outBufHeight, &outBufWidth, &outBufLineLength))
+        if (!handlePickOutputParams(handle, 0, &outBufFormat, &outBufHeight, &outBufWidth, &outBufLineLength))
         {
             XDM_SETUNSUPPORTEDPARAM(vidOutArgs->extendedError);
             return IVIDTRANSCODE_EFAIL;
@@ -250,12 +263,17 @@ XDAS_Int32 TRIK_VIDTRANSCODE_RESAMPLE_process(
 
         XDM_SETACCESSMODE_WRITE(xdmOutBuf->accessMask);
 
-        xdmOutBuf->bufSize					= outBufUsed;
-        vidOutArgs->bitsGenerated[outBufIndex]			= outBufUsed * CHAR_BIT;
-        vidOutArgs->encodedPictureType[outBufIndex]		= vidOutArgs->decodedPictureType;
-        vidOutArgs->encodedPictureStructure[outBufIndex]	= vidOutArgs->decodedPictureStructure;
-        vidOutArgs->outputID[outBufIndex]			= vidInArgs->inputID;
-        vidOutArgs->inputFrameSkipTranscodeFlag[outBufIndex]	= XDAS_FALSE;
+        xdmOutBuf->bufSize				= outBufUsed;
+        vidOutArgs->bitsGenerated[0]			= outBufUsed * CHAR_BIT;
+        vidOutArgs->encodedPictureType[0]		= vidOutArgs->decodedPictureType;
+        vidOutArgs->encodedPictureStructure[0]		= vidOutArgs->decodedPictureStructure;
+        vidOutArgs->outputID[0]				= vidInArgs->inputID;
+        vidOutArgs->inputFrameSkipTranscodeFlag[0]	= XDAS_FALSE;
+        break;
+      }
+
+      default:
+        return IVIDTRANSCODE_EUNSUPPORTED;
     }
 
     vidOutArgs->outBufsInUseFlag	= XDAS_FALSE;
