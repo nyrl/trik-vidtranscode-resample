@@ -179,8 +179,7 @@ class Image : public BaseImage,
 
       ImageDim rowIdx = 0;
 
-#warning TODO &= or if! return ?
-      bool isOk = true;
+      bool isOk = true; // always pick full row set, even with errors
 
       for (ImageDim idx = _rowsBefore; idx > 0; --idx)
       {
