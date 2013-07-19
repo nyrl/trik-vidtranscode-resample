@@ -29,20 +29,6 @@ class ImagePixelYUVAccessor : protected BaseImagePixelAccessor,
       float u = m_u * uNormDiv() - 0.5f;
       float v = m_v * vNormDiv() - 0.5f;
 
-
-
-#warning Rover hack
-#if 1
-      if (u < 0.2f && v > 0.1f)
-      {
-        y =  1.0f;
-        u = -0.5f;
-        v =  0.5f;
-        s_TMP_pixelDetected = true;
-      }
-#endif
-
-
       _nr = y              +  1.4075f*v;
       _ng = y + -0.3455f*u + -0.7169f*v;
       _nb = y +  1.7790f*u;
