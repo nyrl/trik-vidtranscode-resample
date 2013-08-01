@@ -45,6 +45,19 @@ typedef struct TRIK_VIDTRANSCODE_RESAMPLE_Params {
 } TRIK_VIDTRANSCODE_RESAMPLE_Params;
 
 
+typedef struct TRIK_VIDTRANSCODE_RESAMPLE_InArgs {
+    IVIDTRANSCODE_InArgs        base;
+    XDAS_Int32                  detectHueFrom;
+    XDAS_Int32                  detectHueTo;
+    XDAS_Int32                  detectSatFrom;
+    XDAS_Int32                  detectSatTo;
+    XDAS_Int32                  detectValFrom;
+    XDAS_Int32                  detectValTo;
+} TRIK_VIDTRANSCODE_RESAMPLE_InArgs;
+
+
+
+
 #ifdef __cplusplus
 } // extern "C"
 #endif // __cplusplus

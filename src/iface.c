@@ -16,6 +16,12 @@
 #include "internal/vidtranscode_resample_helpers.h"
 
 char* s_dspInfoOutBuffer = NULL;
+XDAS_Int32 s_dspDetectHueFrom = 0;
+XDAS_Int32 s_dspDetectHueTo = 0;
+XDAS_Int32 s_dspDetectSatFrom = 0;
+XDAS_Int32 s_dspDetectSatTo = 0;
+XDAS_Int32 s_dspDetectValFrom = 0;
+XDAS_Int32 s_dspDetectValTo = 0;
 
 
 #define TRIK_VIDTRANSCODE_RESAMPLE_IALGFXNS  \
@@ -165,12 +171,34 @@ XDAS_Int32 TRIK_VIDTRANSCODE_RESAMPLE_process(
     XDAS_Int32 inBufWidth;
     XDAS_Int32 inBufLineLength;
 
-    if (   (vidInArgs->size  != sizeof(IVIDTRANSCODE_InArgs))
+    if (   (   (vidInArgs->size  != sizeof(IVIDTRANSCODE_InArgs))
+            && (vidInArgs->size  != sizeof(TRIK_VIDTRANSCODE_RESAMPLE_InArgs)))
         || (vidOutArgs->size != sizeof(IVIDTRANSCODE_OutArgs)))
     {
         XDM_SETUNSUPPORTEDPARAM(vidOutArgs->extendedError);
         return IVIDTRANSCODE_EUNSUPPORTED;
     }
+
+    if (vidInArgs->size == sizeof(TRIK_VIDTRANSCODE_RESAMPLE_InArgs))
+    {
+        const TRIK_VIDTRANSCODE_RESAMPLE_InArgs* inArgs = (const TRIK_VIDTRANSCODE_RESAMPLE_InArgs*)vidInArgs;
+        s_dspDetectHueFrom = inArgs->detectHueFrom;
+        s_dspDetectHueTo   = inArgs->detectHueTo;
+        s_dspDetectSatFrom = inArgs->detectSatFrom;
+        s_dspDetectSatTo   = inArgs->detectSatTo;
+        s_dspDetectValFrom = inArgs->detectValFrom;
+        s_dspDetectValTo   = inArgs->detectValTo;
+    }
+    else
+    {
+        s_dspDetectHueFrom = 0;
+        s_dspDetectHueTo   = 0;
+        s_dspDetectSatFrom = 0;
+        s_dspDetectSatTo   = 0;
+        s_dspDetectValFrom = 0;
+        s_dspDetectValTo   = 0;
+    }
+
 
     if (   xdmInBufs->numBufs != 1
         || handle->m_params.base.numOutputStreams < 0
