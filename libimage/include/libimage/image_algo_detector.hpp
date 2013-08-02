@@ -104,10 +104,6 @@ class AlgoDetector
           if (!m_pixelSetIn[0].toNormalizedRGB(nr, ng, nb))
             return false;
 
-          nr = range(0.0f, nr, 1.0f);
-          ng = range(0.0f, ng, 1.0f);
-          nb = range(0.0f, nb, 1.0f);
-
           if (!detectPixel(nr, ng, nb, nr, ng, nb, _colIdxIn, _rowIdxIn))
             return false;
 
@@ -124,6 +120,10 @@ class AlgoDetector
 
         bool filterPixelHSV(float _r, float _g, float _b) const
         {
+          _r = range(0.0f, _r, 1.0f);
+          _g = range(0.0f, _g, 1.0f);
+          _b = range(0.0f, _b, 1.0f);
+
           const float rgb_max = std::max(_r, std::max(_g, _b));
           const float rgb_min = std::min(_r, std::min(_g, _b));
           const float rgb_delta = rgb_max-rgb_min;
