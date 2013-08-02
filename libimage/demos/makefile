@@ -22,6 +22,9 @@ clean: $(addprefix clean-,$(DEMOS))
 demo-resample_bicubic_v4l2_to_file: resample_bicubic_v4l2_to_file.cpp $(HEADERS)
 	$(CXX) $(CFLAGS) -o $@ $< -lv4l2
 
+demo-detector_v4l2_to_file: detector_v4l2_to_file.cpp $(HEADERS)
+	$(CXX) $(CFLAGS) -o $@ $< -lv4l2
+
 demo-%: %.cpp $(HEADERS)
 	$(CXX) $(CFLAGS) -g -o $@ $<
 
