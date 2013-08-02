@@ -88,7 +88,7 @@ class AlgoDetector
         bool processPixelSet(ImageDim _colIdxIn, ImageDim _rowIdxIn, ImageDim _colIdxOut)
         {
           if (!m_rowSetIn.readPixelSet(m_pixelSetIn, _colIdxIn))
-              return false;
+            return false;
 
 
           assert(m_pixelSetIn.pixelsCount() == 1 && m_pixelSetOut.pixelsCount() == 1);
@@ -114,6 +114,8 @@ class AlgoDetector
           for (/*m_columnOutCurrent*/; m_columnOutCurrent <= _colIdxOut; ++m_columnOutCurrent)
             if (!m_rowSetOut.writePixelSet(m_pixelSetOut, m_columnOutCurrent))
               return false;
+
+          return true;
         }
 
         static void RGBtoHSV(float _r, float _g, float _b, float& _hue, float& _sat, float& _val)
