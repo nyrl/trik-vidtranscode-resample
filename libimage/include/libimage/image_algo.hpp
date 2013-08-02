@@ -21,7 +21,9 @@ class BaseImageAlgorithm
       AlgoTestFill,
 
       AlgoResampleBicubic,
-      AlgoResampleBilinear
+      AlgoResampleBilinear,
+
+      AlgoDetector
     };
 
   protected:
@@ -43,6 +45,7 @@ class ImageAlgorithm : public BaseImageAlgorithm,
 #include <libimage/image_algo_test_fill.hpp>
 #include <libimage/image_algo_cubic.hpp>
 #include <libimage/image_algo_linear.hpp>
+#include <libimage/image_algo_detector.hpp>
 
 
 #endif // !TRIK_LIBIMAGE_IMAGE_ALGO_HPP_

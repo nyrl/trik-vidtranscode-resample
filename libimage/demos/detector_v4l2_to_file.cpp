@@ -27,20 +27,30 @@ static trik::libimage::demos::V4L2Input  s_videoSrc(trik::libimage::demos::V4L2C
 static trik::libimage::demos::FileOutput s_videoDst(trik::libimage::demos::FileConfig("video.out", 320, 240), "RGB888");
 static size_t s_repeatCount = 1;
 
+static pair<float, float> s_detectHue(330.0f, 30.0f); // red
+static pair<float, float> s_detectSat(0.5f, 1.0f);
+static pair<float, float> s_detectVal(0.5f, 1.0f);
+
 
 
 static bool parseConfig(int _argc, char* const _argv[])
 {
   struct option long_opts[] = {
-    { "src-path",		1,	NULL,	0 },
+    { "src-path",		1,	NULL,	0 }, // 0
     { "src-width",		1,	NULL,	0 },
     { "src-height",		1,	NULL,	0 },
     { "src-format",		1,	NULL,	0 },
-    { "dst-path",		1,	NULL,	0 },
+    { "dst-path",		1,	NULL,	0 }, // 4
     { "dst-width",		1,	NULL,	0 },
     { "dst-height",		1,	NULL,	0 },
     { "dst-format",		1,	NULL,	0 },
-    { "repeat",			1,	NULL,	0 },
+    { "repeat",			1,	NULL,	0 }, // 8
+    { "detect-hue-from",	1,	NULL,	0 }, // 9
+    { "detect-hue-to",		1,	NULL,	0 },
+    { "detect-sat-from",	1,	NULL,	0 },
+    { "detect-sat-to",		1,	NULL,	0 },
+    { "detect-val-from",	1,	NULL,	0 },
+    { "detect-val-to",		1,	NULL,	0 },
     { "help",			0,	NULL,	'?' },
     { NULL,			0,	NULL,	0 },
   };
@@ -128,6 +138,54 @@ static bool parseConfig(int _argc, char* const _argv[])
             }
             break;
 
+          case 9:
+            if ((istringstream(optarg) >> s_detectHue.first).fail())
+            {
+              fprintf(stderr, "Cannot parse detect hue from argument\n");
+              return false;
+            }
+            break;
+
+          case 10:
+            if ((istringstream(optarg) >> s_detectHue.second).fail())
+            {
+              fprintf(stderr, "Cannot parse detect hue to argument\n");
+              return false;
+            }
+            break;
+
+          case 11:
+            if ((istringstream(optarg) >> s_detectSat.first).fail())
+            {
+              fprintf(stderr, "Cannot parse detect sat from argument\n");
+              return false;
+            }
+            break;
+
+          case 12:
+            if ((istringstream(optarg) >> s_detectSat.second).fail())
+            {
+              fprintf(stderr, "Cannot parse detect sat to argument\n");
+              return false;
+            }
+            break;
+
+          case 13:
+            if ((istringstream(optarg) >> s_detectVal.first).fail())
+            {
+              fprintf(stderr, "Cannot parse detect val from argument\n");
+              return false;
+            }
+            break;
+
+          case 14:
+            if ((istringstream(optarg) >> s_detectVal.second).fail())
+            {
+              fprintf(stderr, "Cannot parse detect val to argument\n");
+              return false;
+            }
+            break;
+
           default:
             return false;
         }
@@ -155,7 +213,10 @@ template <trik::libimage::BaseImagePixel::PixelType         _PixelTypeSrc,
 static bool execAlgorithm(const trik::libimage::demos::V4L2Input::Description&  _srcDesc,
                           const trik::libimage::demos::V4L2Input::Frame&        _srcFrame,
                           const trik::libimage::demos::FileOutput::Description& _dstDesc,
-                          trik::libimage::demos::FileOutput::Frame&             _dstFrame)
+                          trik::libimage::demos::FileOutput::Frame&             _dstFrame,
+                          const pair<float, float>& _detectHue,
+                          const pair<float, float>& _detectSat,
+                          const pair<float, float>& _detectVal)
 {
   typedef trik::libimage::Image<_PixelTypeSrc, const uint8_t>            ImageSrc;
   typedef trik::libimage::Image<_PixelTypeDst, uint8_t>                  ImageDst;
@@ -167,7 +228,8 @@ static bool execAlgorithm(const trik::libimage::demos::V4L2Input::Description&  
   ImageDst imageDst(_dstFrame.ptr(), _dstFrame.size(),
                     _dstDesc.width(), _dstDesc.height(),
                     _dstDesc.bytesPerLine());
-  Algorithm algorithm;
+
+  Algorithm algorithm(_detectHue, _detectSat, _detectVal);
 
   if (!algorithm(imageSrc, imageDst))
   {
@@ -183,20 +245,23 @@ static bool execAlgorithm(const trik::libimage::demos::V4L2Input::Description&  
 static bool detector(const trik::libimage::demos::V4L2Input::Description&  _srcDesc,
                      const trik::libimage::demos::V4L2Input::Frame&        _srcFrame,
                      const trik::libimage::demos::FileOutput::Description& _dstDesc,
-                     trik::libimage::demos::FileOutput::Frame&             _dstFrame)
+                     trik::libimage::demos::FileOutput::Frame&             _dstFrame,
+                     const pair<float, float>& _detectHue,
+                     const pair<float, float>& _detectSat,
+                     const pair<float, float>& _detectVal)
 {
   if (_srcDesc.format().rawFormat() == V4L2_PIX_FMT_RGB24 && _dstDesc.format().rawFormat() == V4L2_PIX_FMT_RGB565)
   {
     if (!execAlgorithm<trik::libimage::BaseImagePixel::PixelRGB888,
                        trik::libimage::BaseImagePixel::PixelRGB565,
-                       trik::libimage::BaseImageAlgorithm::AlgoDetector>(_srcDesc, _srcFrame, _dstDesc, _dstFrame))
+                       trik::libimage::BaseImageAlgorithm::AlgoDetector>(_srcDesc, _srcFrame, _dstDesc, _dstFrame, _detectHue, _detectSat, _detectVal))
       return false;
   }
   else if (_srcDesc.format().rawFormat() == V4L2_PIX_FMT_RGB24 && _dstDesc.format().rawFormat() == V4L2_PIX_FMT_RGB24)
   {
     if (!execAlgorithm<trik::libimage::BaseImagePixel::PixelRGB888,
                        trik::libimage::BaseImagePixel::PixelRGB888,
-                       trik::libimage::BaseImageAlgorithm::AlgoDetector>(_srcDesc, _srcFrame, _dstDesc, _dstFrame))
+                       trik::libimage::BaseImageAlgorithm::AlgoDetector>(_srcDesc, _srcFrame, _dstDesc, _dstFrame, _detectHue, _detectSat, _detectVal))
       return false;
   }
   else
@@ -281,7 +346,7 @@ int main(int _argc, char* const _argv[])
     if (!s_videoDst.getFrame(dstFrame))
       exit(EX_SOFTWARE);
 
-    if (!detector(s_videoSrc.description(), srcFrame, s_videoDst.description(), dstFrame))
+    if (!detector(s_videoSrc.description(), srcFrame, s_videoDst.description(), dstFrame, s_detectHue, s_detectSat, s_detectVal))
       exit(EX_SOFTWARE);
 
     if (!s_videoDst.putFrame(dstFrame))
