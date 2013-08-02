@@ -64,8 +64,8 @@ class AlgoDetector
             if (totalPoints > 0 && m_detectCount > 0)
             {
               long mass = (m_detectCount*10000)/totalPoints;
-              long centerX = ((m_detectCenterX/m_detectCount - m_width /2)*100)/m_width;
-              long centerY = ((m_detectCenterY/m_detectCount - m_height/2)*100)/m_height;
+              long centerX = ((m_detectCenterX/m_detectCount - m_width /2)*200)/m_width;
+              long centerY = ((m_detectCenterY/m_detectCount - m_height/2)*200)/m_height;
               sprintf(s_dspInfoOutBuffer, "%li x %li  %li", centerX, centerY, mass);
             }
             else
