@@ -23,7 +23,7 @@
 using namespace std;
 
 
-static trik::libimage::demos::V4L2Input  s_videoSrc(trik::libimage::demos::V4L2Config("/dev/video", 800, 600), "RGB888");
+static trik::libimage::demos::V4L2Input  s_videoSrc(trik::libimage::demos::V4L2Config("/dev/video0", 800, 600), "RGB888");
 static trik::libimage::demos::FileOutput s_videoDst(trik::libimage::demos::FileConfig("video.out", 320, 240), "RGB888");
 static size_t s_repeatCount = 1;
 
