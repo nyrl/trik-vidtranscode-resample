@@ -6,6 +6,8 @@
 
 #include "internal/vidtranscode_resample_iface.h"
 #include "internal/vidtranscode_resample_helpers.h"
+
+#define HAVE_DSP_INFO_OUT_BUFFER
 #include <libimage/image.hpp>
 #include <libimage/image_algo.hpp>
 
