@@ -152,20 +152,20 @@ class AlgoDetector
           RGBtoHSV(_r, _g, _b, hue, sat, val);
 
           if (val < m_detectVal.first || val > m_detectVal.second)
-            return false;
+            return true;
 
           if (sat < m_detectSat.first || sat > m_detectSat.second)
-            return false;
+            return true;
 
           if (m_detectHue.first <= m_detectHue.second)
           {
             if (hue < m_detectHue.first || hue > m_detectHue.second)
-              return false;
+              return true;
           }
           else
           {
             if (hue < m_detectHue.first && hue > m_detectHue.second)
-              return false;
+              return true;
           }
 
           _r = 1.0f;
