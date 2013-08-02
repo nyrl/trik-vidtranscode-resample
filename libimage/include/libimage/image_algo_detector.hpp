@@ -104,7 +104,7 @@ class AlgoDetector
           ng = range(0.0f, ng, 1.0f);
           nb = range(0.0f, nb, 1.0f);
 
-          if (!detectPixel(nr, ng, nb, _colIdxIn, _rowIdxIn))
+          if (!detectPixel(nr, ng, nb, nr, ng, nb, _colIdxIn, _rowIdxIn))
             return false;
 
           if (!m_pixelSetOut[0].fromNormalizedRGB(nr, ng, nb))
@@ -118,13 +118,20 @@ class AlgoDetector
           return true;
         }
 
-        static void RGBtoHSV(float _r, float _g, float _b, float& _hue, float& _sat, float& _val)
+        bool filterPixelHSV(float _r, float _g, float _b) const
         {
           const float rgb_max = std::max(_r, std::max(_g, _b));
           const float rgb_min = std::min(_r, std::min(_g, _b));
           const float rgb_delta = rgb_max-rgb_min;
+
           const float hsv_v = rgb_max;
+          if (hsv_v < m_detectVal.first || hsv_v > m_detectVal.second)
+            return false;
+
           const float hsv_s = rgb_delta / std::max(rgb_max, 1e-20f);
+          if (hsv_s < m_detectSat.first || hsv_s > m_detectSat.second)
+            return false;
+
           float hsv_h;
 
           if (_r == rgb_max)
@@ -140,39 +147,30 @@ class AlgoDetector
           else if (hsv_h >= 360.0f)
             hsv_h -= 360.0f;
 
-          _hue = hsv_h;
-          _sat = hsv_s;
-          _val = hsv_v;
-        }
-
-        bool detectPixel(float& _r, float& _g, float& _b, ImageDim _col, ImageDim _row)
-        {
-          float hue;
-          float sat;
-          float val;
-
-          RGBtoHSV(_r, _g, _b, hue, sat, val);
-
-          if (val < m_detectVal.first || val > m_detectVal.second)
-            return true;
-
-          if (sat < m_detectSat.first || sat > m_detectSat.second)
-            return true;
-
           if (m_detectHue.first <= m_detectHue.second)
           {
-            if (hue < m_detectHue.first || hue > m_detectHue.second)
-              return true;
+            if (hsv_h < m_detectHue.first || hsv_h > m_detectHue.second)
+              return false;
           }
           else
           {
-            if (hue < m_detectHue.first && hue > m_detectHue.second)
-              return true;
+            if (hsv_h < m_detectHue.first && hsv_h > m_detectHue.second)
+              return false;
           }
 
-          _r = 1.0f;
-          _g = 1.0f;
-          _b = 0.0f;
+          return true;
+        }
+
+        bool detectPixel(float _r, float _g, float _b,
+                         float& _adjR, float& _adjG, float& _adjB,
+                         ImageDim _col, ImageDim _row)
+        {
+          if (!filterPixelHSV(_r, _g, _b))
+            return true;
+
+          _adjR = 1.0f;
+          _adjG = 1.0f;
+          _adjB = 0.0f;
           m_detectCenterX += _col;
           m_detectCenterY += _row;
           ++m_detectCount;
