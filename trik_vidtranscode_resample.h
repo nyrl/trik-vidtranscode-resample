@@ -47,12 +47,12 @@ typedef struct TRIK_VIDTRANSCODE_RESAMPLE_Params {
 
 typedef struct TRIK_VIDTRANSCODE_RESAMPLE_InArgs {
     IVIDTRANSCODE_InArgs        base;
-    XDAS_Int32                  detectHueFrom;
-    XDAS_Int32                  detectHueTo;
-    XDAS_Int32                  detectSatFrom;
-    XDAS_Int32                  detectSatTo;
-    XDAS_Int32                  detectValFrom;
-    XDAS_Int32                  detectValTo;
+    float                       detectHueFrom;
+    float                       detectHueTo;
+    float                       detectSatFrom;
+    float                       detectSatTo;
+    float                       detectValFrom;
+    float                       detectValTo;
 } TRIK_VIDTRANSCODE_RESAMPLE_InArgs;
 
 

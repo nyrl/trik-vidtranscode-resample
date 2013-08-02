@@ -14,12 +14,12 @@ extern "C" {
 #endif // __cplusplus
 
 extern char* s_dspInfoOutBuffer;
-extern XDAS_Int32 s_dspDetectHueFrom;
-extern XDAS_Int32 s_dspDetectHueTo;
-extern XDAS_Int32 s_dspDetectSatFrom;
-extern XDAS_Int32 s_dspDetectSatTo;
-extern XDAS_Int32 s_dspDetectValFrom;
-extern XDAS_Int32 s_dspDetectValTo;
+extern float s_dspDetectHueFrom;
+extern float s_dspDetectHueTo;
+extern float s_dspDetectSatFrom;
+extern float s_dspDetectSatTo;
+extern float s_dspDetectValFrom;
+extern float s_dspDetectValTo;
 
 
 const TRIK_VIDTRANSCODE_RESAMPLE_Params*	getDefaultParams(void);

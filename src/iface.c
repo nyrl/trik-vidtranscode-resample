@@ -16,12 +16,12 @@
 #include "internal/vidtranscode_resample_helpers.h"
 
 char* s_dspInfoOutBuffer = NULL;
-XDAS_Int32 s_dspDetectHueFrom = 0;
-XDAS_Int32 s_dspDetectHueTo = 0;
-XDAS_Int32 s_dspDetectSatFrom = 0;
-XDAS_Int32 s_dspDetectSatTo = 0;
-XDAS_Int32 s_dspDetectValFrom = 0;
-XDAS_Int32 s_dspDetectValTo = 0;
+float s_dspDetectHueFrom = 0;
+float s_dspDetectHueTo = 0;
+float s_dspDetectSatFrom = 0;
+float s_dspDetectSatTo = 0;
+float s_dspDetectValFrom = 0;
+float s_dspDetectValTo = 0;
 
 
 #define TRIK_VIDTRANSCODE_RESAMPLE_IALGFXNS  \
