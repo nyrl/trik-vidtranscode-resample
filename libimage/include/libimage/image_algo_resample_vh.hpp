@@ -13,12 +13,6 @@
 #include <libimage/image_algo.hpp>
 
 
-#warning Dirty hack for rover
-#if 1
-static bool s_TMP_pixelDetected;
-#endif
-
-
 /* **** **** **** **** **** */ namespace trik /* **** **** **** **** **** */ {
 /* **** **** **** **** **** */ namespace libimage /* **** **** **** **** **** */ {
 /* **** **** **** **** **** */ namespace internal /* **** **** **** **** **** */ {
@@ -82,27 +76,12 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
           m_columnInNextAccessed(),
           m_pixelSetInV_tmp(),
           m_pixelSetInR_tmp(),
-          m_pixelSetOutR_tmp(),
-#if 1
-          s_TMP_detectCenterX(0),
-          s_TMP_detectCenterY(0),
-          s_TMP_detectCount(0),
-          s_TMP_pixelCount(0)
-#endif
+          m_pixelSetOutR_tmp()
         {
         }
 
         ~ExecutionInstance()
         {
-          if (s_dspInfoOutBuffer && s_TMP_pixelCount)
-          {
-            long mass = (s_TMP_detectCount*10000)/s_TMP_pixelCount;
-            if (mass > 0)
-              sprintf(s_dspInfoOutBuffer, "%li x %li  %li",
-                      (long)(s_TMP_detectCenterX/s_TMP_detectCount),
-                      (long)(s_TMP_detectCenterY/s_TMP_detectCount),
-                      mass);
-          }
         }
 
         bool prepareRowSets(const _ImageIn& _imageIn,  ImageDim _rowIdxIn,
@@ -150,30 +129,15 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
 
         bool outputHorizontalPixelSet(const _HorizontalInterpolation& _interpolation,
                                       const PixelSetIn2OutConvertion& _convertion,
-#if 1
-                                      ImageDim _column, ImageDim _row,
-                                      ImageDim _width, ImageDim _height)
-#endif
+                                      ImageDim _columnOut)
         {
           if (!_interpolation(m_pixelSetInH, m_pixelSetInR_tmp))
             return false;
 
-#if 1
-          s_TMP_pixelDetected = false;
-#endif
           if (!_convertion(m_pixelSetInR_tmp, m_pixelSetOutR_tmp))
             return false;
-#if 1
-          if (s_TMP_pixelDetected)
-          {
-            s_TMP_detectCenterX += ((_column - _width/2)  * 100) / (_width/2);
-            s_TMP_detectCenterY += ((_row    - _height/2) * 100) / (_height/2);
-            ++s_TMP_detectCount;
-          }
-          ++s_TMP_pixelCount;
-#endif
 
-          if (!m_rowSetOut.writePixelSet(m_pixelSetOutR_tmp, _column))
+          if (!m_rowSetOut.writePixelSet(m_pixelSetOutR_tmp, _columnOut))
             return false;
 
           return true;
@@ -191,13 +155,6 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
         PixelSetInResult     m_pixelSetInR_tmp;
         PixelSetOutResult    m_pixelSetOutR_tmp;
 
-#warning Temporary hacks for rover
-#if 1
-        int_fast32_t s_TMP_detectCenterX;
-        int_fast32_t s_TMP_detectCenterY;
-        int_fast32_t s_TMP_detectCount;
-        int_fast32_t s_TMP_pixelCount;
-#endif
 
         bool readNextHorizontalPixel(const _VerticalInterpolation& _interpolation, ImageDim _width, bool _allowCopyLast)
         {
@@ -280,8 +237,7 @@ class AlgoResampleVH : private assert_inst<(   _VerticalInterpolation::s_isAlgor
 
           const _HorizontalInterpolation& horizontalInterpolation = m_horizontalInterpolationCache[colIdxOut];
 
-          if (!execution.outputHorizontalPixelSet(horizontalInterpolation, m_pixelSetConvertion,
-                                                  colIdxOut, rowIdxOut, imageOutWidth, imageOutHeight))
+          if (!execution.outputHorizontalPixelSet(horizontalInterpolation, m_pixelSetConvertion, colIdxOut))
             return false;
         }
       }
