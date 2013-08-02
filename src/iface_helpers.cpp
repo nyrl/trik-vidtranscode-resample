@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <utility>
 
 #include "internal/vidtranscode_resample_iface.h"
 #include "internal/vidtranscode_resample_helpers.h"
@@ -247,7 +248,9 @@ static bool resampleBufferImpl(const XDAS_UInt8* restrict _inBuffer,
   ImageSrc imageSrc(_inBuffer,  _inBufferSize,  _inWidth,  _inHeight,  _inLineLength);
   ImageDst imageDst(_outBuffer, _outBufferSize, _outWidth, _outHeight, _outLineLength);
 
-  Algorithm algorithm;
+  Algorithm algorithm(std::make_pair(s_dspDetectHueFrom, s_dspDetectHueTo),
+                      std::make_pair(s_dspDetectSatFrom, s_dspDetectSatTo),
+                      std::make_pair(s_dspDetectValFrom, s_dspDetectValTo));
 
   if (!algorithm(imageSrc, imageDst))
     return false;
@@ -374,10 +377,10 @@ TrikVideoResampleStatus resampleBuffer(const XDAS_Int8* restrict	_iInBuf,
 
 
   TrikVideoResampleStatus result
-    = resampleBufferAlgorithmImpl<trik::libimage::BaseImageAlgorithm::AlgoResampleBicubic>(inBuffer,  inBufferSize,  inPixelType,
-                                                                                           inWidth,  inHeight,  inLineLength,
-                                                                                           outBuffer, outBufferSize, outPixelType,
-                                                                                           outWidth, outHeight, outLineLength);
+    = resampleBufferAlgorithmImpl<trik::libimage::BaseImageAlgorithm::AlgoDetector>(inBuffer,  inBufferSize,  inPixelType,
+                                                                                    inWidth,  inHeight,  inLineLength,
+                                                                                    outBuffer, outBufferSize, outPixelType,
+                                                                                    outWidth, outHeight, outLineLength);
   if (result != TRIK_VIDTRANSCODE_RESAMPLE_STATUS_OK)
     return result;
 
