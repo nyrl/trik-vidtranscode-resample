@@ -14,7 +14,7 @@ CMEM_INSTALL_DIR?=$(DEPOT_DSP)/linuxutils_3_23_00_01
 CODEGEN_INSTALL_DIR?=$(DEPOT_DSP)/cgt_c6000_7.4.2
 
 #uncomment this for verbose builds
-XDCOPTIONS=v
+#XDCOPTIONS=v
 
 # If we're a subcomponent, allow larger product settings to override our
 # defaults.  The variable $(RULES_MAKE) can be overridden on the 'make'
