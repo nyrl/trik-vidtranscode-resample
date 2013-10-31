@@ -1,7 +1,6 @@
 
 # your various installation directories
 DEPOT_DSP?=/opt/trik-dsp
-DEPOT_TRIK?=$(CURDIR)/../../../
 
 XDC_INSTALL_DIR?=$(DEPOT_DSP)/xdctools_3_24_07_73
 CE_INSTALL_DIR?=$(DEPOT_DSP)/codec_engine_3_23_00_07
@@ -13,8 +12,6 @@ LINK_INSTALL_DIR?=$(DEPOT_DSP)/syslink_2_21_01_05
 OSAL_INSTALL_DIR?=$(DEPOT_DSP)/osal_1_23_00_04
 CMEM_INSTALL_DIR?=$(DEPOT_DSP)/linuxutils_3_23_00_01
 CODEGEN_INSTALL_DIR?=$(DEPOT_DSP)/cgt_c6000_7.4.2
-
-EXTRA_PACKAGES_DIR?=$(DEPOT_TRIK)
 
 #uncomment this for verbose builds
 #XDCOPTIONS=v
